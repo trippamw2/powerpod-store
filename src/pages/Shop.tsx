@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { products, categories, categoryGroups, Category } from "@/data/products";
 import { ProductCard } from "@/components/ProductCard";
+import { PromotionSlider } from "@/components/PromotionSlider";
 import { cn } from "@/lib/utils";
 import { Zap, Music } from "lucide-react";
 
@@ -14,6 +15,11 @@ const Shop = () => {
 
   return (
     <div className="container py-8 sm:py-12">
+      {/* Promotion Slider */}
+      <div className="mb-8">
+        <PromotionSlider page="shop" className="shadow-lg" />
+      </div>
+
       <div className="max-w-2xl space-y-3 mb-10">
         <h1 className="font-display font-bold text-4xl sm:text-5xl tracking-tight">Shop</h1>
         <p className="text-gray-500 text-lg">Power and sound for your everyday. All delivered via WhatsApp.</p>

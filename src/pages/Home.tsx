@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ProductCard } from "@/components/ProductCard";
+import { PromotionSlider } from "@/components/PromotionSlider";
 import { products, combos, formatMWK } from "@/data/products";
 import { buildWhatsAppLink, defaultMessage, comboMessage } from "@/lib/whatsapp";
 import { Headphones, Heart, ArrowRight, ShieldCheck, Truck } from "lucide-react";
@@ -11,8 +12,13 @@ import lifestyleMusic from "@/assets/lifestyle-music.jpg";
 const Home = () => {
   return (
     <div>
+      {/* PROMOTION SLIDER */}
+      <section className="container pt-6">
+        <PromotionSlider page="home" className="shadow-lg" />
+      </section>
+
       {/* HERO SECTION */}
-      <section className="relative overflow-hidden bg-gradient-hero">
+      <section className="relative overflow-hidden">
         <div className="container relative grid lg:grid-cols-2 gap-10 items-center py-12 lg:py-24">
           <motion.div
             initial={{ opacity: 0, y: 30 }}

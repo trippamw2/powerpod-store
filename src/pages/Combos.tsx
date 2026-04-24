@@ -1,11 +1,17 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { combos, formatMWK, getItemImage } from "@/data/products";
+import { PromotionSlider } from "@/components/PromotionSlider";
 import { buildWhatsAppLink, comboMessage } from "@/lib/whatsapp";
 import { Check } from "lucide-react";
 
 const Combos = () => (
   <div className="container py-12 sm:py-16">
+    {/* Promotion Slider */}
+    <div className="mb-8">
+      <PromotionSlider page="combos" className="shadow-lg" />
+    </div>
+
     <div className="max-w-2xl space-y-3 mb-12">
       <h1 className="font-display font-bold text-4xl sm:text-6xl tracking-tight">Power Packs.</h1>
       <p className="text-muted-foreground text-lg">Curated bundles for your lifestyle. Save more, vibe more.</p>

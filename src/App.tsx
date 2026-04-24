@@ -23,6 +23,7 @@ import AdminOrders from "./pages/admin/Orders";
 import AdminSettings from "./pages/admin/Settings";
 import AdminBusiness from "./pages/admin/Business";
 import AdminInventory from "./pages/admin/Inventory";
+import AdminPromotions from "./pages/admin/Promotions";
 import DeliveryTracking from "./pages/DeliveryTracking";
 import { AdminLayout } from "./components/AdminLayout";
 
@@ -55,6 +56,7 @@ const App = () => (
                 <Route index element={<AdminDashboard />} />
                 <Route path="products" element={<AdminProducts />} />
                 <Route path="orders" element={<AdminOrders />} />
+                <Route path="promotions" element={<AdminPromotions />} />
                 <Route path="business" element={<AdminBusiness />} />
                 <Route path="inventory" element={<AdminInventory />} />
                 <Route path="settings" element={<AdminSettings />} />

@@ -31,3 +31,4 @@ supabase.tar.gz
 *.njsproj
 *.sln
 *.sw?
+.vercel

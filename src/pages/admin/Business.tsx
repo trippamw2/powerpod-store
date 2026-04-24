@@ -11,7 +11,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Plus, Building2, Loader2, Phone, MapPin } from "lucide-react";
+import { Plus, Building2, Loader2, Phone, MapPin, Search, User, X } from "lucide-react";
 
 interface BusinessAccount {
   id: string;
@@ -30,17 +30,25 @@ interface Profile {
   full_name: string;
   phone: string;
   location: string;
+  email?: string;
 }
 
 const BUSINESS_TYPES = ["retailer", "wholesaler", "corporate", "hospital", "school", "hotel", "restaurant", "other"];
-const PAYMENT_TERMS = ["prepaid", "net15", "net30", "net60"];
+const PAYMENT_TERMS = [
+  { value: "prepaid", label: "Prepaid" },
+  { value: "net15", label: "Net 15" },
+  { value: "net30", label: "Net 30" },
+  { value: "net60", label: "Net 60" },
+];
 
 const AdminBusiness = () => {
   const [accounts, setAccounts] = useState<BusinessAccount[]>([]);
   const [profiles, setProfiles] = useState<Record<string, Profile>>({});
+  const [allProfiles, setAllProfiles] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedAccount, setSelectedAccount] = useState<BusinessAccount | null>(null);
+  const [selectedProfile, setSelectedProfile] = useState<Profile | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
   
   const [formData, setFormData] = useState({
     company_name: "",
@@ -52,6 +60,7 @@ const AdminBusiness = () => {
 
   useEffect(() => {
     fetchAccounts();
+    fetchAllProfiles();
   }, []);
 
   const fetchAccounts = async () => {
@@ -79,26 +88,48 @@ const AdminBusiness = () => {
     setLoading(false);
   };
 
+  const fetchAllProfiles = async () => {
+    const { data } = await supabase
+      .from("profiles")
+      .select("id, full_name, phone, location");
+    
+    if (data) {
+      setAllProfiles(data);
+    }
+  };
+
   const handleSave = async () => {
-    if (!selectedAccount) {
+    if (!selectedProfile) {
       toast({ title: "Error", description: "Please select a user first", variant: "destructive" });
       return;
     }
 
-    await supabase
+    if (!formData.company_name.trim()) {
+      toast({ title: "Error", description: "Company name is required", variant: "destructive" });
+      return;
+    }
+
+    const { error } = await supabase
       .from("business_accounts")
       .upsert({
-        user_id: selectedAccount.user_id,
+        user_id: selectedProfile.id,
         company_name: formData.company_name,
         business_type: formData.business_type,
         tax_id: formData.tax_id,
         credit_limit_mwk: formData.credit_limit_mwk,
         payment_terms: formData.payment_terms,
+        is_active: true,
       }, { onConflict: "user_id" });
 
-    toast({ title: "Business account saved!" });
-    setIsDialogOpen(false);
-    fetchAccounts();
+    if (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Business account saved!" });
+      setIsDialogOpen(false);
+      setSelectedProfile(null);
+      resetForm();
+      fetchAccounts();
+    }
   };
 
   const toggleActive = async (account: BusinessAccount) => {
@@ -108,7 +139,29 @@ const AdminBusiness = () => {
       .eq("id", account.id);
     fetchAccounts();
   };
-  
+
+  const resetForm = () => {
+    setFormData({
+      company_name: "",
+      business_type: "retailer",
+      tax_id: "",
+      credit_limit_mwk: 0,
+      payment_terms: "prepaid",
+    });
+    setSelectedProfile(null);
+    setSearchQuery("");
+  };
+
+  const filteredProfiles = allProfiles.filter(p => {
+    if (!searchQuery) return true;
+    const q = searchQuery.toLowerCase();
+    return (
+      (p.full_name || "").toLowerCase().includes(q) ||
+      (p.phone || "").toLowerCase().includes(q) ||
+      (p.location || "").toLowerCase().includes(q)
+    );
+  });
+
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">
@@ -117,7 +170,7 @@ const AdminBusiness = () => {
           <p className="text-muted-foreground">B2B customers with credit terms</p>
         </div>
         
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <Dialog open={isDialogOpen} onOpenChange={(open) => { setIsDialogOpen(open); if (!open) resetForm(); }}>
           <DialogTrigger asChild>
             <Button variant="hero">
               <Plus className="h-4 w-4" /> Add Business Account
@@ -128,55 +181,109 @@ const AdminBusiness = () => {
               <DialogTitle>Business Account</DialogTitle>
             </DialogHeader>
             <div className="space-y-4 mt-4">
-              <div className="space-y-2">
-                <Label>Company Name</Label>
-                <Input 
-                  value={formData.company_name}
-                  onChange={(e) => setFormData(p => ({ ...p, company_name: e.target.value }))}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Business Type</Label>
-                <select 
-                  value={formData.business_type}
-                  onChange={(e) => setFormData(p => ({ ...p, business_type: e.target.value }))}
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2"
-                >
-                  {BUSINESS_TYPES.map(t => (
-                    <option key={t} value={t} className="capitalize">{t}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Tax ID (optional)</Label>
-                  <Input 
-                    value={formData.tax_id}
-                    onChange={(e) => setFormData(p => ({ ...p, tax_id: e.target.value }))}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Credit Limit (MWK)</Label>
-                  <Input 
-                    type="number"
-                    value={formData.credit_limit_mwk}
-                    onChange={(e) => setFormData(p => ({ ...p, credit_limit_mwk: parseInt(e.target.value) || 0 }))}
-                  />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label>Payment Terms</Label>
-                <select 
-                  value={formData.payment_terms}
-                  onChange={(e) => setFormData(p => ({ ...p, payment_terms: e.target.value }))}
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2"
-                >
-                  {PAYMENT_TERMS.map(t => (
-                    <option key={t} value={t}>{t === "prepaid" ? "Prepaid" : t}</option>
-                  ))}
-                </select>
-              </div>
-              <Button onClick={handleSave} className="w-full">Save Account</Button>
+              {!selectedProfile ? (
+                <>
+                  <div className="space-y-2">
+                    <Label>Select Customer *</Label>
+                    <div className="relative">
+                      <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input 
+                        placeholder="Search by name, phone, or location..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="pl-10"
+                      />
+                    </div>
+                  </div>
+                  <div className="max-h-48 overflow-y-auto space-y-2 border rounded-lg p-2">
+                    {filteredProfiles.length === 0 ? (
+                      <p className="text-center text-muted-foreground py-4">No customers found</p>
+                    ) : (
+                      filteredProfiles.map(profile => (
+                        <button
+                          key={profile.id}
+                          onClick={() => setSelectedProfile(profile)}
+                          className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-secondary/50 text-left transition-colors"
+                        >
+                          <div className="h-10 w-10 rounded-full bg-gradient-brand flex items-center justify-center shrink-0">
+                            <User className="h-5 w-5 text-white" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium truncate">{profile.full_name || "Unknown"}</p>
+                            <p className="text-xs text-muted-foreground truncate">{profile.phone || "No phone"}</p>
+                          </div>
+                        </button>
+                      ))
+                    )}
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="flex items-center gap-3 p-3 bg-green-500/10 rounded-lg border border-green-500/20">
+                    <div className="h-10 w-10 rounded-full bg-gradient-brand flex items-center justify-center shrink-0">
+                      <User className="h-5 w-5 text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-medium">{selectedProfile.full_name || "Unknown"}</p>
+                      <p className="text-xs text-muted-foreground">{selectedProfile.phone || "No phone"}</p>
+                    </div>
+                    <button onClick={() => setSelectedProfile(null)} className="p-1 hover:bg-secondary rounded">
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Company Name *</Label>
+                    <Input 
+                      value={formData.company_name}
+                      onChange={(e) => setFormData(p => ({ ...p, company_name: e.target.value }))}
+                      placeholder="e.g., Tech Solutions Ltd"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Business Type</Label>
+                    <select 
+                      value={formData.business_type}
+                      onChange={(e) => setFormData(p => ({ ...p, business_type: e.target.value }))}
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2"
+                    >
+                      {BUSINESS_TYPES.map(t => (
+                        <option key={t} value={t} className="capitalize">{t}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Tax ID (optional)</Label>
+                      <Input 
+                        value={formData.tax_id}
+                        onChange={(e) => setFormData(p => ({ ...p, tax_id: e.target.value }))}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Credit Limit (MWK)</Label>
+                      <Input 
+                        type="number"
+                        value={formData.credit_limit_mwk}
+                        onChange={(e) => setFormData(p => ({ ...p, credit_limit_mwk: parseInt(e.target.value) || 0 }))}
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Payment Terms</Label>
+                    <select 
+                      value={formData.payment_terms}
+                      onChange={(e) => setFormData(p => ({ ...p, payment_terms: e.target.value }))}
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2"
+                    >
+                      {PAYMENT_TERMS.map(t => (
+                        <option key={t.value} value={t.value}>{t.label}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <Button onClick={handleSave} className="w-full">Save Account</Button>
+                </>
+              )}
             </div>
           </DialogContent>
         </Dialog>
@@ -210,6 +317,10 @@ const AdminBusiness = () => {
                 {profile && (
                   <div className="space-y-2 text-sm mb-4">
                     <p className="flex items-center gap-2">
+                      <User className="h-3 w-3 text-muted-foreground" />
+                      {profile.full_name || "Unknown"}
+                    </p>
+                    <p className="flex items-center gap-2">
                       <Phone className="h-3 w-3 text-muted-foreground" />
                       {profile.phone || "No phone"}
                     </p>
@@ -227,7 +338,9 @@ const AdminBusiness = () => {
                   </div>
                   <div>
                     <p className="text-xs text-muted-foreground">Terms</p>
-                    <p className="font-semibold">{account.payment_terms === "prepaid" ? "Prepaid" : account.payment_terms}</p>
+                    <p className="font-semibold">
+                      {PAYMENT_TERMS.find(t => t.value === account.payment_terms)?.label || account.payment_terms}
+                    </p>
                   </div>
                 </div>
                 

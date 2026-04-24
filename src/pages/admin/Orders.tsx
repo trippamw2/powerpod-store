@@ -140,7 +140,7 @@ const AdminOrders = () => {
                     </span>
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    {format(new Date(order.created_at, "PPPp"))}
+                    {format(new Date(order.created_at), "PPPp")}
                   </p>
                 </div>
                 

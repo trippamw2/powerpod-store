@@ -11,7 +11,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Plus, Package, Loader2, TrendingUp, TrendingDown, AlertTriangle, Warehouse } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
+import { Plus, Loader2, TrendingUp, TrendingDown, Warehouse, Edit, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 
 interface InventoryItem {
@@ -23,24 +24,15 @@ interface InventoryItem {
   reorder_level: number;
   cost_price_mwk: number;
   location: string;
-  last_restocked: string;
-}
-
-interface InventoryTransaction {
-  id: string;
-  inventory_id: string;
-  quantity_change: number;
-  type: string;
-  notes: string;
-  created_at: string;
+  last_restocked: string | null;
 }
 
 const AdminInventory = () => {
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
-  const [transactions, setTransactions] = useState<InventoryTransaction[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedItem, setSelectedItem] = useState<InventoryItem | null>(null);
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState<InventoryItem | null>(null);
   
   const [formData, setFormData] = useState({
     product_id: "",
@@ -65,7 +57,7 @@ const AdminInventory = () => {
     setLoading(false);
   };
 
-  const handleSave = async () => {
+  const handleSaveNew = async () => {
     const item = {
       product_id: formData.product_id,
       sku: formData.sku || `SKU-${Date.now()}`,
@@ -78,34 +70,87 @@ const AdminInventory = () => {
 
     const { error } = await supabase
       .from("inventory")
-      .upsert(item, { onConflict: "product_id" });
+      .insert(item);
 
-    if (!error) {
-      toast({ title: "Inventory saved!" });
-      setIsDialogOpen(false);
+    if (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Inventory added!" });
+      setIsAddDialogOpen(false);
+      resetForm();
       fetchInventory();
     }
   };
 
-  const updateQuantity = async (item: InventoryItem, change: number, type: string, notes: string) => {
-    await supabase
+  const handleUpdate = async () => {
+    if (!editingItem) return;
+
+    const { error } = await supabase
       .from("inventory")
-      .update({ quantity: item.quantity + change })
-      .eq("id", item.id);
+      .update({
+        sku: formData.sku,
+        quantity: formData.quantity,
+        reorder_level: formData.reorder_level,
+        cost_price_mwk: formData.cost_price_mwk,
+        location: formData.location,
+      })
+      .eq("id", editingItem.id);
 
-    await supabase
-      .from("inventory_transactions")
-      .insert({
-        inventory_id: item.id,
-        quantity_change: change,
-        type,
-        notes,
-      });
-
-    fetchInventory();
+    if (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Inventory updated!" });
+      setIsEditDialogOpen(false);
+      setEditingItem(null);
+      resetForm();
+      fetchInventory();
+    }
   };
 
-  const lowStock = inventory.filter(i => i.quantity <= i.reorder_level);
+  const handleEdit = (item: InventoryItem) => {
+    setEditingItem(item);
+    setFormData({
+      product_id: item.product_id,
+      sku: item.sku,
+      quantity: item.quantity,
+      reorder_level: item.reorder_level,
+      cost_price_mwk: item.cost_price_mwk,
+      location: item.location || "",
+    });
+    setIsEditDialogOpen(true);
+  };
+
+  const handleDelete = async (item: InventoryItem) => {
+    if (confirm(`Delete inventory for ${products.find(p => p.id === item.product_id)?.name || item.product_id}?`)) {
+      await supabase.from("inventory").delete().eq("id", item.id);
+      toast({ title: "Inventory deleted" });
+      fetchInventory();
+    }
+  };
+
+  const updateQuantity = async (item: InventoryItem, change: number, type: string) => {
+    const { error } = await supabase
+      .from("inventory")
+      .update({ quantity: Math.max(0, item.quantity + change) })
+      .eq("id", item.id);
+
+    if (!error) {
+      fetchInventory();
+    }
+  };
+
+  const resetForm = () => {
+    setFormData({
+      product_id: "",
+      sku: "",
+      quantity: 0,
+      reorder_level: 5,
+      cost_price_mwk: 0,
+      location: "",
+    });
+  };
+
+  const lowStock = inventory.filter(i => i.quantity <= i.reorder_level && i.quantity > 0);
   const outOfStock = inventory.filter(i => i.quantity === 0);
 
   return (
@@ -116,7 +161,7 @@ const AdminInventory = () => {
           <p className="text-muted-foreground">Stock management</p>
         </div>
         
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <Dialog open={isAddDialogOpen} onOpenChange={(open) => { setIsAddDialogOpen(open); if (!open) resetForm(); }}>
           <DialogTrigger asChild>
             <Button variant="hero">
               <Plus className="h-4 w-4" /> Add to Inventory
@@ -184,13 +229,72 @@ const AdminInventory = () => {
                   />
                 </div>
               </div>
-              <Button onClick={handleSave} className="w-full">Save Inventory</Button>
+              <Button onClick={handleSaveNew} className="w-full" disabled={!formData.product_id}>
+                Add Inventory
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={isEditDialogOpen} onOpenChange={(open) => { setIsEditDialogOpen(open); if (!open) { setEditingItem(null); resetForm(); } }}>
+          <DialogContent className="max-w-lg">
+            <DialogHeader>
+              <DialogTitle>Edit Inventory</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 mt-4">
+              <div className="p-3 bg-secondary/50 rounded-lg">
+                <p className="font-medium">{products.find(p => p.id === editingItem?.product_id)?.name || editingItem?.product_id}</p>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>SKU</Label>
+                  <Input 
+                    value={formData.sku}
+                    onChange={(e) => setFormData(p => ({ ...p, sku: e.target.value }))}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Quantity</Label>
+                  <Input 
+                    type="number"
+                    value={formData.quantity}
+                    onChange={(e) => setFormData(p => ({ ...p, quantity: parseInt(e.target.value) || 0 }))}
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label>Reorder Level</Label>
+                  <Input 
+                    type="number"
+                    value={formData.reorder_level}
+                    onChange={(e) => setFormData(p => ({ ...p, reorder_level: parseInt(e.target.value) || 0 }))}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Cost (MWK)</Label>
+                  <Input 
+                    type="number"
+                    value={formData.cost_price_mwk}
+                    onChange={(e) => setFormData(p => ({ ...p, cost_price_mwk: parseInt(e.target.value) || 0 }))}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Location</Label>
+                  <Input 
+                    value={formData.location}
+                    onChange={(e) => setFormData(p => ({ ...p, location: e.target.value }))}
+                  />
+                </div>
+              </div>
+              <Button onClick={handleUpdate} className="w-full">
+                Update Inventory
+              </Button>
             </div>
           </DialogContent>
         </Dialog>
       </div>
 
-      {/* Summary Cards */}
       <div className="grid sm:grid-cols-4 gap-4">
         <div className="bg-card border border-border/60 rounded-2xl p-6">
           <p className="text-sm text-muted-foreground">Total Products</p>
@@ -212,7 +316,6 @@ const AdminInventory = () => {
         </div>
       </div>
 
-      {/* Inventory Table */}
       {loading ? (
         <div className="flex justify-center py-20">
           <Loader2 className="h-6 w-6 animate-spin" />
@@ -239,7 +342,7 @@ const AdminInventory = () => {
             <tbody>
               {inventory.map((item) => {
                 const product = products.find(p => p.id === item.product_id);
-                const isLow = item.quantity <= item.reorder_level;
+                const isLow = item.quantity <= item.reorder_level && item.quantity > 0;
                 const isOut = item.quantity === 0;
                 
                 return (
@@ -268,20 +371,38 @@ const AdminInventory = () => {
                     </td>
                     <td className="p-4">{formatMWK(item.cost_price_mwk)}</td>
                     <td className="p-4 text-right">
-                      <div className="flex justify-end gap-2">
+                      <div className="flex justify-end gap-1">
                         <Button 
                           variant="ghost" 
-                          size="sm"
-                          onClick={() => updateQuantity(item, 10, "restock", "Quick restock")}
+                          size="icon"
+                          onClick={() => updateQuantity(item, 10, "restock")}
+                          title="Add 10"
                         >
-                          <TrendingUp className="h-3 w-3" /> Add
+                          <TrendingUp className="h-4 w-4 text-green-500" />
                         </Button>
                         <Button 
                           variant="ghost" 
-                          size="sm"
-                          onClick={() => updateQuantity(item, -1, "sale", "Quick deduction")}
+                          size="icon"
+                          onClick={() => updateQuantity(item, -1, "sale")}
+                          title="Remove 1"
                         >
-                          <TrendingDown className="h-3 w-3" />
+                          <TrendingDown className="h-4 w-4 text-red-500" />
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="icon"
+                          onClick={() => handleEdit(item)}
+                          title="Edit"
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="icon"
+                          onClick={() => handleDelete(item)}
+                          title="Delete"
+                        >
+                          <Trash2 className="h-4 w-4 text-red-500" />
                         </Button>
                       </div>
                     </td>

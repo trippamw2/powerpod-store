@@ -57,10 +57,6 @@ export const buildOrderMessage = (
     .map((i) => `• ${i.quantity} × ${i.name} — MK ${(i.price * i.quantity).toLocaleString("en-US")}`)
     .join("\n");
 
-  const imagesSection = storeUrl
-    ? `\n📸 Product images: ${storeUrl}`
-    : "";
-
   return `📦 *NEW ORDER - PowerPod* ⚡
 
 ━━━━━━━━━━━━━━━━━━━━━━━━
@@ -94,25 +90,4 @@ Delivery: FREE 🚚
 ━━━━━━━━━━━━━━━━━━━━━━━━
 
 Please confirm order and send payment link. Thank you! 🙏`;
-
-export const cartMessage = (lines: CartLine[], total: number, customer: CustomerDetails, orderId?: string) => {
-  const itemsTxt = lines
-    .map((l) => `• ${l.quantity} × ${l.name} — MK ${(l.price * l.quantity).toLocaleString("en-US")}`)
-    .join("\n");
-  return [
-    "Hi PowerPod 👋  I'd like to place this order:",
-    "",
-    itemsTxt,
-    "",
-    `*Total: MK ${total.toLocaleString("en-US")}*`,
-    "",
-    `👤 ${customer.name}`,
-    `📞 ${customer.phone}`,
-    `📍 ${customer.location}`,
-    customer.notes ? `📝 ${customer.notes}` : "",
-    orderId ? `\nOrder ref: ${orderId.slice(0, 8).toUpperCase()}` : "",
-    "\nThanks!",
-  ].filter(Boolean).join("\n");
 };
-
-export interface CartLine { name: string; quantity: number; price: number; imageUrl?: string }

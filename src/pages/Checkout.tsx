@@ -1,84 +1,104 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { useCart } from "@/contexts/CartContext";
+import { useCart, DELIVERY_FEE_MWK, FREE_DELIVERY_THRESHOLD_MWK } from "@/contexts/CartContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
-import { buildOrderMessage } from "@/lib/whatsapp";
 import { formatMWK } from "@/data/products";
-import { DeliveryOptions, DeliveryCompany } from "@/components/DeliveryOptions";
-import { MessageCircle, Loader2, ShoppingBag, Truck, MapPin, User, Package, ArrowLeft } from "lucide-react";
+import { ArrowLeft, User, Truck, CreditCard, Check, MessageCircle } from "lucide-react";
+import { cn } from "@/lib/utils";
+
+type Step = "details" | "delivery" | "payment";
+
+const STEPS = [
+  { key: "details" as Step, label: "Details", icon: User },
+  { key: "delivery" as Step, label: "Delivery", icon: Truck },
+  { key: "payment" as Step, label: "Payment", icon: CreditCard },
+];
 
 const Checkout = () => {
   const { user, loading: authLoading } = useAuth();
-  const { items, total, clear } = useCart();
+  const { items, subtotal, deliveryFee, total, clear } = useCart();
   const navigate = useNavigate();
 
+  const [step, setStep] = useState<Step>("details");
   const [formData, setFormData] = useState({
     name: user?.user_metadata?.full_name || "",
     phone: user?.user_metadata?.phone || "",
     location: "",
+    deliveryNote: "",
   });
-  const [selectedDelivery, setSelectedDelivery] = useState<DeliveryCompany | null>(null);
+  const [deliveryMethod, setDeliveryMethod] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState<"paychangu" | "whatsapp">("paychangu");
   const [submitting, setSubmitting] = useState(false);
+  const [orderId, setOrderId] = useState<string | null>(null);
 
   if (!authLoading && !user) {
     navigate("/auth?redirect=/checkout", { replace: true });
     return null;
   }
 
-  if (items.length === 0) {
+  if (items.length === 0 && !orderId) {
     return (
       <div className="container py-20 text-center space-y-4">
-        <ShoppingBag className="h-16 w-16 mx-auto text-muted-foreground" />
-        <h1 className="font-display font-bold text-4xl">Your cart is empty</h1>
-        <p className="text-muted-foreground">Add some products to get started.</p>
-        <Button asChild variant="hero" size="lg"><Link to="/shop">Start Shopping</Link></Button>
+        <h1 className="font-display font-bold text-3xl">Your cart is empty</h1>
+        <p className="text-muted-foreground">Add products to checkout.</p>
+        <Button asChild variant="hero" size="lg"><Link to="/shop">Shop Now</Link></Button>
       </div>
     );
   }
 
-  const handlePlaceOrder = async () => {
-    if (!user) return;
+  const stepIndex = STEPS.findIndex(s => s.key === step);
 
+  const handleDetailsSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
     if (!formData.name.trim()) {
-      toast({ title: "Name required", description: "Please enter your name", variant: "destructive" });
+      toast({ title: "Name required", variant: "destructive" });
       return;
     }
     if (!formData.phone.trim() || formData.phone.length < 7) {
-      toast({ title: "Phone required", description: "Please enter a valid WhatsApp number", variant: "destructive" });
+      toast({ title: "Valid phone required", variant: "destructive" });
       return;
     }
     if (!formData.location.trim()) {
-      toast({ title: "Location required", description: "Please enter your delivery location", variant: "destructive" });
+      toast({ title: "Location required", variant: "destructive" });
       return;
     }
-    if (!selectedDelivery) {
-      toast({ title: "Delivery required", description: "Please select a delivery method", variant: "destructive" });
+    setStep("delivery");
+  };
+
+  const handleDeliverySubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!deliveryMethod) {
+      toast({ title: "Select delivery method", variant: "destructive" });
       return;
     }
+    setStep("payment");
+  };
 
-    setSubmitting(true);
-
+  const createOrder = async () => {
+    if (!user) return null;
     try {
-      const { data: order, error: orderErr } = await supabase
+      const { data: order, error } = await supabase
         .from("orders")
         .insert({
           user_id: user.id,
           customer_name: formData.name,
           customer_phone: formData.phone,
           customer_location: formData.location,
-          notes: `Delivery: ${selectedDelivery?.name} (FREE)`,
+          notes: `Delivery: ${deliveryMethod}\n${formData.deliveryNote}`.trim(),
           total_mwk: total,
+          subtotal_mwk: subtotal,
+          delivery_fee_mwk: deliveryFee,
           status: "new",
         })
         .select()
         .single();
 
-      if (orderErr) throw orderErr;
+      if (error) throw error;
 
       await supabase.from("order_items").insert(
         items.map((i) => ({
@@ -90,154 +110,297 @@ const Checkout = () => {
         }))
       );
 
-      await supabase.from("orders").update({ whatsapp_sent: true }).eq("id", order.id);
-
-      const msg = buildOrderMessage(
-        items,
-        total,
-        {
-          name: formData.name,
-          phone: formData.phone,
-          location: formData.location,
-          deliveryMethod: `${selectedDelivery?.name} (FREE)`,
-          notes: "",
-        },
-        order.id,
-        "https://powerpod-store-new.vercel.app"
-      );
-
-      window.open(`https://wa.me/265991234567?text=${encodeURIComponent(msg)}`, "_blank");
-
-      clear();
-      toast({ title: "Order placed!", description: `Order #${order.id.slice(0, 8).toUpperCase()} - Check WhatsApp for payment details.` });
-      navigate(`/orders/${order.id}`);
+      return order.id;
     } catch (err: any) {
       toast({ title: "Order failed", description: err.message, variant: "destructive" });
+      return null;
+    }
+  };
+
+  const handlePayment = async () => {
+    setSubmitting(true);
+    try {
+      const newOrderId = await createOrder();
+      if (!newOrderId) return;
+
+      setOrderId(newOrderId);
+
+      if (paymentMethod === "whatsapp") {
+        const msg = `New Order #${newOrderId.slice(0, 8).toUpperCase()}\n\n` +
+          `Customer: ${formData.name}\n` +
+          `Phone: ${formData.phone}\n` +
+          `Location: ${formData.location}\n\n` +
+          `Items:\n${items.map(i => `- ${i.name} x${i.quantity} = ${formatMWK(i.price * i.quantity)}`).join('\n')}\n\n` +
+          `Subtotal: ${formatMWK(subtotal)}\n` +
+          `Delivery: ${deliveryFee === 0 ? "FREE" : formatMWK(deliveryFee)}\n` +
+          `Total: ${formatMWK(total)}\n\n` +
+          `Payment: Pending via PayChangu`;
+
+        window.open(`https://wa.me/265991234567?text=${encodeURIComponent(msg)}`, "_blank");
+        clear();
+        toast({ title: "Order placed!", description: "WhatsApp message sent for payment confirmation." });
+      } else {
+        // PayChangu payment - redirect to payment page
+        const paymentUrl = `https://paychangu.com/pay/${newOrderId}?amount=${total}&email=${user?.email}&phone=${formData.phone}&name=${formData.name}`;
+        window.location.href = paymentUrl;
+        return;
+      }
     } finally {
       setSubmitting(false);
     }
   };
 
   return (
-    <div className="container py-8 lg:py-12 max-w-4xl">
+    <div className="container py-8 max-w-3xl">
       <Link to="/shop" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6">
         <ArrowLeft className="h-4 w-4" /> Continue Shopping
       </Link>
 
-      <h1 className="font-display font-bold text-3xl mb-8">Checkout</h1>
+      <h1 className="font-display font-bold text-2xl mb-6">Checkout</h1>
 
-      <div className="grid lg:grid-cols-2 gap-8">
-        {/* Left: Form */}
-        <div className="space-y-6">
-          {/* Customer Details */}
-          <div className="rounded-2xl bg-card border border-border/60 p-6">
-            <h2 className="font-display font-bold text-xl mb-4 flex items-center gap-2">
-              <User className="h-5 w-5 text-primary" />
-              Your Details
-            </h2>
-            <div className="space-y-4">
+      {/* Progress Steps */}
+      <div className="flex items-center gap-2 mb-8">
+        {STEPS.map((s, i) => (
+          <div key={s.key} className="flex items-center flex-1">
+            <button
+              onClick={() => {
+                if (i <= stepIndex) setStep(s.key);
+              }}
+              className={cn(
+                "flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
+                i === stepIndex
+                  ? "bg-gradient-brand text-white"
+                  : i < stepIndex
+                  ? "bg-green-500/20 text-green-500"
+                  : "bg-secondary text-muted-foreground"
+              )}
+            >
+              {i < stepIndex ? <Check className="h-4 w-4" /> : <s.icon className="h-4 w-4" />}
+              <span className="hidden sm:inline">{s.label}</span>
+            </button>
+            {i < STEPS.length - 1 && (
+              <div className={cn("flex-1 h-1 mx-2 rounded", i < stepIndex ? "bg-green-500" : "bg-secondary")} />
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* Step 1: Details */}
+      {step === "details" && (
+        <div className="rounded-xl bg-card border border-border/60 p-6">
+          <h2 className="font-display font-bold text-lg mb-4">Your Details</h2>
+          <form onSubmit={handleDetailsSubmit} className="space-y-4">
+            <div className="grid sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="name">Full Name *</Label>
+                <Label>Full Name *</Label>
                 <Input
-                  id="name"
                   value={formData.name}
-                  onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                  onChange={(e) => setFormData(p => ({ ...p, name: e.target.value }))}
                   placeholder="Your full name"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="phone">WhatsApp Number *</Label>
+                <Label>WhatsApp Number *</Label>
                 <Input
-                  id="phone"
                   type="tel"
                   value={formData.phone}
-                  onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+                  onChange={(e) => setFormData(p => ({ ...p, phone: e.target.value }))}
                   placeholder="+265 99..."
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="location">Delivery Location *</Label>
-                <Input
-                  id="location"
-                  value={formData.location}
-                  onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
-                  placeholder="Area, City (e.g. Chitimukulu, Lilongwe)"
+            </div>
+            <div className="space-y-2">
+              <Label>Delivery Location *</Label>
+              <Input
+                value={formData.location}
+                onChange={(e) => setFormData(p => ({ ...p, location: e.target.value }))}
+                placeholder="Area, City (e.g. Chitimukulu, Lilongwe)"
+              />
+            </div>
+            <Button type="submit" variant="hero" className="w-full sm:w-auto">
+              Continue to Delivery
+            </Button>
+          </form>
+        </div>
+      )}
+
+      {/* Step 2: Delivery */}
+      {step === "delivery" && (
+        <div className="rounded-xl bg-card border border-border/60 p-6">
+          <h2 className="font-display font-bold text-lg mb-4">Delivery Method</h2>
+          <form onSubmit={handleDeliverySubmit} className="space-y-4">
+            <div className="space-y-3">
+              <label className={cn(
+                "flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-colors",
+                deliveryMethod === "standard" ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"
+              )}>
+                <input
+                  type="radio"
+                  name="delivery"
+                  value="standard"
+                  checked={deliveryMethod === "standard"}
+                  onChange={(e) => setDeliveryMethod(e.target.value)}
+                  className="h-4 w-4"
                 />
-              </div>
-            </div>
-          </div>
-
-          {/* Delivery */}
-          <div className="rounded-2xl bg-card border border-border/60 p-6">
-            <h2 className="font-display font-bold text-xl mb-4 flex items-center gap-2">
-              <Truck className="h-5 w-5 text-primary" />
-              Delivery Method
-            </h2>
-            <DeliveryOptions
-              selectedCompany={selectedDelivery}
-              onSelect={setSelectedDelivery}
-              location={formData.location}
-            />
-          </div>
-        </div>
-
-        {/* Right: Order Summary */}
-        <div className="rounded-2xl bg-card border border-border/60 p-6 h-fit sticky top-24">
-          <h2 className="font-display font-bold text-xl mb-4 flex items-center gap-2">
-            <Package className="h-5 w-5 text-primary" />
-            Order Summary
-          </h2>
-
-          <div className="space-y-3 max-h-64 overflow-y-auto mb-4">
-            {items.map((i) => (
-              <div key={i.productKey} className="flex items-center gap-3">
-                <img src={i.image} alt={i.name} className="w-12 h-12 rounded-lg object-cover" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">{i.name}</p>
-                  <p className="text-xs text-muted-foreground">Qty: {i.quantity}</p>
+                <div className="flex-1">
+                  <p className="font-medium">Standard Delivery</p>
+                  <p className="text-sm text-muted-foreground">3-5 business days</p>
                 </div>
-                <p className="text-sm font-semibold">{formatMWK(i.price * i.quantity)}</p>
-              </div>
-            ))}
-          </div>
+                <span className="font-semibold text-green-500">
+                  {subtotal >= FREE_DELIVERY_THRESHOLD_MWK ? "FREE" : formatMWK(DELIVERY_FEE_MWK)}
+                </span>
+              </label>
 
-          <div className="border-t border-border/60 pt-4 space-y-2 mb-4">
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Subtotal</span>
-              <span>{formatMWK(total)}</span>
+              <label className={cn(
+                "flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-colors",
+                deliveryMethod === "express" ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"
+              )}>
+                <input
+                  type="radio"
+                  name="delivery"
+                  value="express"
+                  checked={deliveryMethod === "express"}
+                  onChange={(e) => setDeliveryMethod(e.target.value)}
+                  className="h-4 w-4"
+                />
+                <div className="flex-1">
+                  <p className="font-medium">Express Delivery</p>
+                  <p className="text-sm text-muted-foreground">1-2 business days (Blantyre/Lilongwe)</p>
+                </div>
+                <span className="font-semibold">MWK 2,000</span>
+              </label>
             </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Delivery</span>
-              <span className="text-green-500 font-semibold">FREE</span>
-            </div>
-            <div className="flex justify-between pt-2 border-t border-border/60">
-              <span className="font-semibold">Total</span>
-              <span className="font-display font-bold text-2xl text-gradient">{formatMWK(total)}</span>
-            </div>
-          </div>
 
-          <Button
-            variant="whatsapp"
-            size="lg"
-            onClick={handlePlaceOrder}
-            disabled={submitting}
-            className="w-full"
-          >
-            {submitting ? (
-              <Loader2 className="h-5 w-5 animate-spin" />
-            ) : (
-              <>
-                <MessageCircle className="h-5 w-5" />
-                Place Order via WhatsApp - {formatMWK(total)}
-              </>
-            )}
-          </Button>
+            <div className="space-y-2">
+              <Label>Delivery Notes (optional)</Label>
+              <Input
+                value={formData.deliveryNote}
+                onChange={(e) => setFormData(p => ({ ...p, deliveryNote: e.target.value }))}
+                placeholder="Any special instructions..."
+              />
+            </div>
 
-          <p className="text-xs text-center text-muted-foreground mt-3">
-            Order details will be sent to WhatsApp for payment
-          </p>
+            <div className="flex gap-3">
+              <Button type="button" variant="outline" onClick={() => setStep("details")}>
+                Back
+              </Button>
+              <Button type="submit" variant="hero" className="flex-1">
+                Continue to Payment
+              </Button>
+            </div>
+          </form>
         </div>
-      </div>
+      )}
+
+      {/* Step 3: Payment */}
+      {step === "payment" && (
+        <div className="space-y-6">
+          <div className="rounded-xl bg-card border border-border/60 p-6">
+            <h2 className="font-display font-bold text-lg mb-4">Payment Method</h2>
+            <div className="space-y-3">
+              <label className={cn(
+                "flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-colors",
+                paymentMethod === "paychangu" ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"
+              )}>
+                <input
+                  type="radio"
+                  name="payment"
+                  value="paychangu"
+                  checked={paymentMethod === "paychangu"}
+                  onChange={(e) => setPaymentMethod(e.target.value as "paychangu")}
+                  className="h-4 w-4"
+                />
+                <div className="flex-1">
+                  <p className="font-medium">PayChangu (Airtel Money / TNM Mpamba)</p>
+                  <p className="text-sm text-muted-foreground">Pay securely inside platform</p>
+                </div>
+                <CreditCard className="h-5 w-5 text-muted-foreground" />
+              </label>
+
+              <label className={cn(
+                "flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-colors",
+                paymentMethod === "whatsapp" ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"
+              )}>
+                <input
+                  type="radio"
+                  name="payment"
+                  value="whatsapp"
+                  checked={paymentMethod === "whatsapp"}
+                  onChange={(e) => setPaymentMethod(e.target.value as "whatsapp")}
+                  className="h-4 w-4"
+                />
+                <div className="flex-1">
+                  <p className="font-medium">WhatsApp Order</p>
+                  <p className="text-sm text-muted-foreground">Send order via WhatsApp for payment</p>
+                </div>
+                <MessageCircle className="h-5 w-5 text-green-500" />
+              </label>
+            </div>
+          </div>
+
+          <div className="rounded-xl bg-card border border-border/60 p-6">
+            <h2 className="font-display font-bold text-lg mb-4">Order Summary</h2>
+            <div className="space-y-2">
+              {items.map((item) => (
+                <div key={item.productKey} className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">{item.quantity}× {item.name}</span>
+                  <span>{formatMWK(item.price * item.quantity)}</span>
+                </div>
+              ))}
+              <div className="border-t border-border/60 pt-2 mt-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Subtotal</span>
+                  <span>{formatMWK(subtotal)}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Delivery</span>
+                  <span className={deliveryFee === 0 ? "text-green-500" : ""}>
+                    {deliveryFee === 0 ? "FREE" : formatMWK(deliveryFee)}
+                  </span>
+                </div>
+                {deliveryFee > 0 && (
+                  <p className="text-xs text-muted-foreground">
+                    Free delivery on orders over {formatMWK(FREE_DELIVERY_THRESHOLD_MWK)}
+                  </p>
+                )}
+                <div className="flex justify-between font-bold text-lg mt-2 pt-2 border-t border-border/60">
+                  <span>Total</span>
+                  <span className="text-gradient">{formatMWK(total)}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex gap-3">
+            <Button type="button" variant="outline" onClick={() => setStep("delivery")}>
+              Back
+            </Button>
+            <Button
+              variant="hero"
+              size="lg"
+              className="flex-1"
+              onClick={handlePayment}
+              disabled={submitting}
+            >
+              {submitting ? "Processing..." : paymentMethod === "paychangu"
+                ? `Pay ${formatMWK(total)} with PayChangu`
+                : `Send Order via WhatsApp - ${formatMWK(total)}`
+              }
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {orderId && (
+        <div className="mt-8 p-6 rounded-xl bg-green-500/10 border border-green-500/20 text-center">
+          <Check className="h-12 w-12 text-green-500 mx-auto mb-4" />
+          <h2 className="font-display font-bold text-xl mb-2">Order Placed!</h2>
+          <p className="text-muted-foreground">Order #{orderId.slice(0, 8).toUpperCase()}</p>
+          <Button asChild variant="hero" className="mt-4" onClick={() => navigate("/orders")}>
+            <Link to="/orders">View Orders</Link>
+          </Button>
+        </div>
+      )}
     </div>
   );
 };

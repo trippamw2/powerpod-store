@@ -16,7 +16,6 @@ export const PromotionSlider = ({ page, className }: PromotionSliderProps) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Try to fetch from DB first, fallback to mock data
     const fetchPromotions = async () => {
       try {
         const { data, error } = await supabase
@@ -29,7 +28,6 @@ export const PromotionSlider = ({ page, className }: PromotionSliderProps) => {
         if (!error && data && data.length > 0) {
           setPromotions(data);
         } else {
-          // Fallback to mock data filtered by page
           const { mockPromotions } = await import("@/data/promotions");
           setPromotions(mockPromotions.filter(p => p.pages.includes(page)));
         }
@@ -57,12 +55,11 @@ export const PromotionSlider = ({ page, className }: PromotionSliderProps) => {
   const promotion = promotions[current];
 
   return (
-    <div className={cn("relative rounded-2xl overflow-hidden", className)}>
-      {/* Slide */}
+    <div className={cn("relative rounded-xl overflow-hidden h-32 sm:h-40 md:h-48", className)}>
       <Link
         to={promotion.link}
         className={cn(
-          "block relative aspect-[18/7] bg-gradient-to-r overflow-hidden",
+          "block relative h-full bg-gradient-to-r overflow-hidden",
           promotion.background_color
         )}
       >
@@ -70,68 +67,56 @@ export const PromotionSlider = ({ page, className }: PromotionSliderProps) => {
           <img
             src={promotion.image}
             alt={promotion.title}
-            className="w-full h-full object-cover opacity-40"
+            className="w-full h-full object-cover opacity-50"
           />
           <div className={cn("absolute inset-0 bg-gradient-to-r", promotion.background_color)} />
         </div>
-        <div className="relative h-full flex items-center">
-          <div className="container">
-            <div className="max-w-lg">
-              <p className={cn("text-sm font-medium opacity-90 mb-2", promotion.text_color)}>
-                {promotion.subtitle}
-              </p>
-              <h2 className={cn("font-display font-bold text-2xl sm:text-3xl md:text-4xl mb-2", promotion.text_color)}>
-                {promotion.title}
-              </h2>
-              {promotion.description && (
-                <p className={cn("text-lg opacity-80 mb-4", promotion.text_color)}>
-                  {promotion.description}
-                </p>
-              )}
-              <span className={cn(
-                "inline-flex items-center gap-2 px-6 py-3 rounded-full font-semibold text-sm",
-                promotion.text_color,
-                "bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors"
-              )}>
-                {promotion.link_text}
-              </span>
-            </div>
+        <div className="relative h-full flex items-center px-4 sm:px-8">
+          <div className="max-w-lg">
+            <p className={cn("text-xs sm:text-sm font-medium opacity-90", promotion.text_color)}>
+              {promotion.subtitle}
+            </p>
+            <h2 className={cn("font-display font-bold text-lg sm:text-xl md:text-2xl", promotion.text_color)}>
+              {promotion.title}
+            </h2>
+            <span className={cn(
+              "inline-flex items-center gap-1 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full font-medium text-xs sm:text-sm mt-1 sm:mt-2",
+              promotion.text_color,
+              "bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors"
+            )}>
+              {promotion.link_text}
+            </span>
           </div>
         </div>
       </Link>
 
-      {/* Navigation Arrows */}
       {promotions.length > 1 && (
         <>
           <button
             onClick={prev}
-            className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 hover:bg-white flex items-center justify-center shadow-lg transition-colors"
+            className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/90 hover:bg-white flex items-center justify-center shadow transition-colors"
           >
-            <ChevronLeft className="h-5 w-5 text-gray-700" />
+            <ChevronLeft className="h-4 w-4 text-gray-700" />
           </button>
           <button
             onClick={next}
-            className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 hover:bg-white flex items-center justify-center shadow-lg transition-colors"
+            className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/90 hover:bg-white flex items-center justify-center shadow transition-colors"
           >
-            <ChevronRight className="h-5 w-5 text-gray-700" />
+            <ChevronRight className="h-4 w-4 text-gray-700" />
           </button>
+          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5">
+            {promotions.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setCurrent(i)}
+                className={cn(
+                  "w-2 h-2 rounded-full transition-all",
+                  i === current ? "bg-white w-4" : "bg-white/50"
+                )}
+              />
+            ))}
+          </div>
         </>
-      )}
-
-      {/* Dots */}
-      {promotions.length > 1 && (
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-          {promotions.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => setCurrent(i)}
-              className={cn(
-                "w-2 h-2 rounded-full transition-all",
-                i === current ? "bg-white w-6" : "bg-white/50 hover:bg-white/70"
-              )}
-            />
-          ))}
-        </div>
       )}
     </div>
   );

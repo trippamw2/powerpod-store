@@ -15,8 +15,13 @@ interface CartState {
   setQuantity: (productKey: string, qty: number) => void;
   clear: () => void;
   count: number;
+  subtotal: number;
+  deliveryFee: number;
   total: number;
 }
+
+const FREE_DELIVERY_THRESHOLD = 20000;
+const DELIVERY_FEE = 5000;
 
 const CartContext = createContext<CartState | undefined>(undefined);
 const STORAGE_KEY = "powerpod-cart";
@@ -53,10 +58,12 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const clear = () => setItems([]);
 
   const count = items.reduce((s, i) => s + i.quantity, 0);
-  const total = items.reduce((s, i) => s + i.quantity * i.price, 0);
+  const subtotal = items.reduce((s, i) => s + i.quantity * i.price, 0);
+  const deliveryFee = subtotal >= FREE_DELIVERY_THRESHOLD ? 0 : subtotal > 0 ? DELIVERY_FEE : 0;
+  const total = subtotal + deliveryFee;
 
   return (
-    <CartContext.Provider value={{ items, add, remove, setQuantity, clear, count, total }}>
+    <CartContext.Provider value={{ items, add, remove, setQuantity, clear, count, subtotal, deliveryFee, total }}>
       {children}
     </CartContext.Provider>
   );
@@ -70,6 +77,8 @@ const fallback: CartState = {
   setQuantity: noop,
   clear: noop,
   count: 0,
+  subtotal: 0,
+  deliveryFee: 0,
   total: 0,
 };
 
@@ -77,3 +86,6 @@ export const useCart = () => {
   const ctx = useContext(CartContext);
   return ctx ?? fallback;
 };
+
+export const FREE_DELIVERY_THRESHOLD_MWK = FREE_DELIVERY_THRESHOLD;
+export const DELIVERY_FEE_MWK = DELIVERY_FEE;

@@ -25,6 +25,7 @@ import AdminBusiness from "./pages/admin/Business";
 import AdminInventory from "./pages/admin/Inventory";
 import AdminPromotions from "./pages/admin/Promotions";
 import AdminCombos from "./pages/admin/Combos";
+import AdminDelivery from "./pages/admin/Delivery";
 import DeliveryTracking from "./pages/DeliveryTracking";
 import { AdminLayout } from "./components/AdminLayout";
 
@@ -62,6 +63,7 @@ const App = () => (
                 <Route path="business" element={<AdminBusiness />} />
                 <Route path="inventory" element={<AdminInventory />} />
                 <Route path="settings" element={<AdminSettings />} />
+                <Route path="delivery" element={<AdminDelivery />} />
               </Route>
             </Routes>
           </BrowserRouter>

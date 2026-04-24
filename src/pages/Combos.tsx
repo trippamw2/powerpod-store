@@ -2,75 +2,84 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { combos, formatMWK, getItemImage } from "@/data/products";
 import { PromotionSlider } from "@/components/PromotionSlider";
-import { buildWhatsAppLink, comboMessage } from "@/lib/whatsapp";
-import { Check } from "lucide-react";
+import { useCart } from "@/contexts/CartContext";
+import { Check, ShoppingBag } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 
-const Combos = () => (
-  <div className="container py-12 sm:py-16">
-    {/* Promotion Slider */}
-    <div className="mb-8">
-      <PromotionSlider page="combos" className="shadow-lg" />
-    </div>
+const Combos = () => {
+  const { add } = useCart();
 
-    <div className="max-w-2xl space-y-3 mb-12">
-      <h1 className="font-display font-bold text-4xl sm:text-6xl tracking-tight">Power Packs.</h1>
-      <p className="text-muted-foreground text-lg">Curated bundles for your lifestyle. Save more, vibe more.</p>
-    </div>
+  const handleAddToCart = (combo: typeof combos[0]) => {
+    add({
+      productKey: `combo-${combo.id}`,
+      name: combo.name,
+      price: combo.price,
+      image: getItemImage(combo.items[0]),
+    });
+    toast({ title: "Added to cart!", description: combo.name });
+  };
 
-    <div className="grid lg:grid-cols-2 gap-6">
-      {combos.map((c, i) => (
-        <motion.article
-          key={c.id}
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: i * 0.1 }}
-          className="relative rounded-3xl p-8 bg-card border border-border/60 overflow-hidden group hover:border-primary/50 transition-all hover:shadow-card"
-        >
-          <div className="absolute -top-20 -right-20 h-64 w-64 rounded-full bg-gradient-brand opacity-15 blur-3xl group-hover:opacity-30 transition-opacity" aria-hidden />
-          <div className="relative space-y-5">
+  return (
+    <div className="container py-8 sm:py-12">
+      <div className="mb-4">
+        <PromotionSlider page="combos" />
+      </div>
+
+      <div className="max-w-2xl space-y-3 mb-8">
+        <h1 className="font-display font-bold text-3xl sm:text-4xl tracking-tight">Power Packs</h1>
+        <p className="text-muted-foreground">Curated bundles for your lifestyle. Save more.</p>
+      </div>
+
+      <div className="grid lg:grid-cols-2 gap-6">
+        {combos.map((c, i) => (
+          <motion.article
+            key={c.id}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: i * 0.1 }}
+            className="relative rounded-2xl p-6 bg-card border border-border/60 overflow-hidden group hover:border-primary/50 transition-all"
+          >
             <div className="flex items-start justify-between gap-3">
               <div>
-                <h2 className="font-display font-bold text-2xl sm:text-3xl">{c.name}</h2>
-                <p className="text-gradient font-semibold mt-1">{c.vibe}</p>
+                <h2 className="font-display font-bold text-xl sm:text-2xl">{c.name}</h2>
+                <p className="text-sm text-muted-foreground mt-1">{c.tagline}</p>
               </div>
-              <span className="inline-flex shrink-0 items-center px-3 py-1 rounded-full bg-gradient-brand text-white text-xs font-bold">
+              <span className="shrink-0 px-2 py-1 rounded-full bg-green-500/20 text-green-500 text-xs font-semibold">
                 Save {formatMWK(c.saving)}
               </span>
             </div>
-            <p className="text-muted-foreground">{c.description}</p>
 
-            <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+            <div className="mt-4 grid grid-cols-3 gap-2">
               {c.items.map((item) => (
-                <div key={item} className="aspect-square rounded-xl overflow-hidden bg-gradient-brand-soft border border-border/60" title={item}>
+                <div key={item} className="aspect-square rounded-lg overflow-hidden bg-secondary">
                   <img src={getItemImage(item)} alt={item} loading="lazy" className="h-full w-full object-cover" />
                 </div>
               ))}
             </div>
 
-            <ul className="space-y-2">
+            <div className="mt-4 space-y-1">
               {c.items.map((item) => (
-                <li key={item} className="flex items-center gap-2 text-sm">
-                  <Check className="h-4 w-4 text-accent shrink-0" /> {item}
-                </li>
+                <div key={item} className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Check className="h-3 w-3 text-green-500" /> {item}
+                </div>
               ))}
-            </ul>
-            <div className="flex items-center justify-between pt-3 border-t border-border/60">
+            </div>
+
+            <div className="flex items-center justify-between mt-4 pt-4 border-t border-border/60">
               <div>
-                <p className="text-xs text-muted-foreground uppercase tracking-wider">Bundle Price</p>
-                <p className="font-display font-bold text-3xl text-gradient">{formatMWK(c.price)}</p>
+                <p className="text-xs text-muted-foreground">Bundle Price</p>
+                <p className="font-display font-bold text-2xl text-gradient">{formatMWK(c.price)}</p>
               </div>
-              <Button asChild variant="whatsapp" size="lg">
-                <a href={buildWhatsAppLink(comboMessage(c.name, c.price, window.location.origin))} target="_blank" rel="noopener noreferrer">
-                  Order
-                </a>
+              <Button onClick={() => handleAddToCart(c)} variant="hero" size="sm">
+                <ShoppingBag className="h-4 w-4" /> Add to Cart
               </Button>
             </div>
-          </div>
-        </motion.article>
-      ))}
+          </motion.article>
+        ))}
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 export default Combos;

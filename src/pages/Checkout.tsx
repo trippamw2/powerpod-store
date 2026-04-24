@@ -19,9 +19,11 @@ const STEPS = [
   { key: "payment" as Step, label: "Payment", icon: CreditCard },
 ];
 
+const EXPRESS_DELIVERY_FEE = 2000;
+
 const Checkout = () => {
   const { user, loading: authLoading } = useAuth();
-  const { items, subtotal, deliveryFee, total, clear } = useCart();
+  const { items, subtotal, deliveryFee: cartDeliveryFee, total: cartTotal, clear } = useCart();
   const navigate = useNavigate();
 
   const [step, setStep] = useState<Step>("details");
@@ -31,10 +33,13 @@ const Checkout = () => {
     location: "",
     deliveryNote: "",
   });
-  const [deliveryMethod, setDeliveryMethod] = useState("");
+  const [deliveryMethod, setDeliveryMethod] = useState<"standard" | "express">("standard");
   const [paymentMethod, setPaymentMethod] = useState<"paychangu" | "whatsapp">("paychangu");
   const [submitting, setSubmitting] = useState(false);
   const [orderId, setOrderId] = useState<string | null>(null);
+
+  const calculatedDeliveryFee = deliveryMethod === "express" ? EXPRESS_DELIVERY_FEE : cartDeliveryFee;
+  const calculatedTotal = subtotal + calculatedDeliveryFee;
 
   if (!authLoading && !user) {
     navigate("/auth?redirect=/checkout", { replace: true });
@@ -72,10 +77,6 @@ const Checkout = () => {
 
   const handleDeliverySubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!deliveryMethod) {
-      toast({ title: "Select delivery method", variant: "destructive" });
-      return;
-    }
     setStep("payment");
   };
 
@@ -90,9 +91,9 @@ const Checkout = () => {
           customer_phone: formData.phone,
           customer_location: formData.location,
           notes: `Delivery: ${deliveryMethod}\n${formData.deliveryNote}`.trim(),
-          total_mwk: total,
+          total_mwk: calculatedTotal,
           subtotal_mwk: subtotal,
-          delivery_fee_mwk: deliveryFee,
+          delivery_fee_mwk: calculatedDeliveryFee,
           status: "new",
         })
         .select()
@@ -132,8 +133,8 @@ const Checkout = () => {
           `Location: ${formData.location}\n\n` +
           `Items:\n${items.map(i => `- ${i.name} x${i.quantity} = ${formatMWK(i.price * i.quantity)}`).join('\n')}\n\n` +
           `Subtotal: ${formatMWK(subtotal)}\n` +
-          `Delivery: ${deliveryFee === 0 ? "FREE" : formatMWK(deliveryFee)}\n` +
-          `Total: ${formatMWK(total)}\n\n` +
+          `Delivery: ${calculatedDeliveryFee === 0 ? "FREE" : formatMWK(calculatedDeliveryFee)}\n` +
+          `Total: ${formatMWK(calculatedTotal)}\n\n` +
           `Payment: Pending via PayChangu`;
 
         window.open(`https://wa.me/265991234567?text=${encodeURIComponent(msg)}`, "_blank");
@@ -246,7 +247,7 @@ const Checkout = () => {
                   <p className="font-medium">Standard Delivery</p>
                   <p className="text-sm text-muted-foreground">3-5 business days</p>
                 </div>
-                <span className="font-semibold text-green-500">
+<span className="font-semibold text-green-500">
                   {subtotal >= FREE_DELIVERY_THRESHOLD_MWK ? "FREE" : formatMWK(DELIVERY_FEE_MWK)}
                 </span>
               </label>
@@ -260,14 +261,14 @@ const Checkout = () => {
                   name="delivery"
                   value="express"
                   checked={deliveryMethod === "express"}
-                  onChange={(e) => setDeliveryMethod(e.target.value)}
+                  onChange={(e) => setDeliveryMethod(e.target.value as "express")}
                   className="h-4 w-4"
                 />
                 <div className="flex-1">
                   <p className="font-medium">Express Delivery</p>
                   <p className="text-sm text-muted-foreground">1-2 business days (Blantyre/Lilongwe)</p>
                 </div>
-                <span className="font-semibold">MWK 2,000</span>
+                <span className="font-semibold">{formatMWK(EXPRESS_DELIVERY_FEE)}</span>
               </label>
             </div>
 
@@ -354,18 +355,18 @@ const Checkout = () => {
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Delivery</span>
-                  <span className={deliveryFee === 0 ? "text-green-500" : ""}>
-                    {deliveryFee === 0 ? "FREE" : formatMWK(deliveryFee)}
+                  <span className={calculatedDeliveryFee === 0 ? "text-green-500" : ""}>
+                    {calculatedDeliveryFee === 0 ? "FREE" : formatMWK(calculatedDeliveryFee)}
                   </span>
                 </div>
-                {deliveryFee > 0 && (
+                {calculatedDeliveryFee > 0 && (
                   <p className="text-xs text-muted-foreground">
                     Free delivery on orders over {formatMWK(FREE_DELIVERY_THRESHOLD_MWK)}
                   </p>
                 )}
                 <div className="flex justify-between font-bold text-lg mt-2 pt-2 border-t border-border/60">
                   <span>Total</span>
-                  <span className="text-gradient">{formatMWK(total)}</span>
+                  <span className="text-gradient">{formatMWK(calculatedTotal)}</span>
                 </div>
               </div>
             </div>
@@ -383,8 +384,8 @@ const Checkout = () => {
               disabled={submitting}
             >
               {submitting ? "Processing..." : paymentMethod === "paychangu"
-                ? `Pay ${formatMWK(total)} with PayChangu`
-                : `Send Order via WhatsApp - ${formatMWK(total)}`
+                ? `Pay ${formatMWK(calculatedTotal)} with PayChangu`
+                : `Send Order via WhatsApp - ${formatMWK(calculatedTotal)}`
               }
             </Button>
           </div>

@@ -62,7 +62,7 @@ export const PromotionSlider = ({ page, className }: PromotionSliderProps) => {
       <Link
         to={promotion.link}
         className={cn(
-          "block relative h-64 sm:h-80 md:h-96 bg-gradient-to-r",
+          "block relative aspect-video bg-gradient-to-r overflow-hidden",
           promotion.background_color
         )}
       >

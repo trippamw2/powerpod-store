@@ -4,79 +4,43 @@
 @tailwind components;
 @tailwind utilities;
 
-/* PowerPod Design System
-   Brand: Orange → Pink → Purple gradient on deep night background.
-   All colors are HSL.
-*/
-
 @layer base {
   :root {
-    /* Core surface — deep night purple */
-    --background: 258 55% 8%;
-    --foreground: 30 30% 98%;
-
-    --card: 258 45% 11%;
-    --card-foreground: 30 30% 98%;
-
-    --popover: 258 50% 10%;
-    --popover-foreground: 30 30% 98%;
-
-    /* Brand gradient stops */
-    --brand-orange: 25 100% 60%;
-    --brand-pink: 335 90% 60%;
-    --brand-purple: 280 75% 55%;
-
-    /* Primary = pink (action) */
-    --primary: 335 90% 60%;
+    --background: 0 0% 98%;
+    --foreground: 0 0% 9%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 9%;
+    --primary: 25 100% 60%;
     --primary-foreground: 0 0% 100%;
-
-    --secondary: 258 35% 16%;
-    --secondary-foreground: 30 30% 98%;
-
-    --muted: 258 30% 14%;
-    --muted-foreground: 280 15% 70%;
-
-    --accent: 25 100% 60%;
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 9%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
+    --accent: 335 90% 60%;
     --accent-foreground: 0 0% 100%;
-
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 25 100% 60%;
+    --radius: 0.75rem;
 
-    --border: 258 30% 20%;
-    --input: 258 30% 18%;
-    --ring: 335 90% 60%;
-
-    --radius: 1rem;
-
-    /* Brand gradients */
-    --gradient-brand: linear-gradient(135deg, hsl(var(--brand-orange)) 0%, hsl(var(--brand-pink)) 50%, hsl(var(--brand-purple)) 100%);
-    --gradient-brand-soft: linear-gradient(135deg, hsl(var(--brand-orange) / 0.15) 0%, hsl(var(--brand-pink) / 0.15) 50%, hsl(var(--brand-purple) / 0.15) 100%);
-    --gradient-hero: radial-gradient(ellipse at top right, hsl(var(--brand-pink) / 0.3) 0%, transparent 50%), radial-gradient(ellipse at bottom left, hsl(var(--brand-purple) / 0.4) 0%, transparent 50%), hsl(var(--background));
-    --gradient-text: linear-gradient(135deg, hsl(var(--brand-orange)), hsl(var(--brand-pink)));
-
-    /* Shadows with brand glow */
-    --shadow-glow: 0 20px 60px -20px hsl(var(--brand-pink) / 0.5);
-    --shadow-card: 0 10px 40px -15px hsl(var(--brand-purple) / 0.4);
-    --shadow-button: 0 8px 30px -8px hsl(var(--brand-pink) / 0.6);
-
-    /* Motion */
-    --transition-smooth: cubic-bezier(0.22, 1, 0.36, 1);
-
-    /* Sidebar (unused) */
-    --sidebar-background: 258 50% 10%;
-    --sidebar-foreground: 30 30% 98%;
-    --sidebar-primary: 335 90% 60%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 258 35% 16%;
-    --sidebar-accent-foreground: 30 30% 98%;
-    --sidebar-border: 258 30% 20%;
-    --sidebar-ring: 335 90% 60%;
+    --gradient-brand: linear-gradient(135deg, hsl(25 100% 60%) 0%, hsl(335 90% 60%) 50%, hsl(280 75% 55%) 100%);
+    --gradient-brand-soft: linear-gradient(135deg, hsl(25 100% 60% / 0.1) 0%, hsl(335 90% 60% / 0.1) 50%, hsl(280 75% 55% / 0.1) 100%);
+    --gradient-text: linear-gradient(135deg, hsl(25 100% 60%), hsl(335 90% 60%));
+    --shadow-glow: 0 20px 60px -20px hsl(335 90% 60% / 0.3);
+    --shadow-card: 0 10px 40px -15px hsl(280 75% 55% / 0.15);
+    --shadow-button: 0 8px 30px -8px hsl(25 100% 60% / 0.4);
   }
 
   .dark {
-    /* Same — site is always dark */
     --background: 258 55% 8%;
     --foreground: 30 30% 98%;
+    --card: 258 45% 11%;
+    --card-foreground: 30 30% 98%;
+    --border: 258 30% 20%;
   }
 }
 
@@ -124,10 +88,6 @@
     background: var(--gradient-brand-soft);
   }
 
-  .bg-gradient-hero {
-    background: var(--gradient-hero);
-  }
-
   .shadow-glow {
     box-shadow: var(--shadow-glow);
   }
@@ -138,23 +98,5 @@
 
   .shadow-button {
     box-shadow: var(--shadow-button);
-  }
-
-  .border-gradient {
-    position: relative;
-    background: hsl(var(--card));
-  }
-
-  .border-gradient::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    padding: 1px;
-    border-radius: inherit;
-    background: var(--gradient-brand);
-    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    pointer-events: none;
   }
 }

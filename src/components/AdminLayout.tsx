@@ -25,7 +25,12 @@ export const AdminLayout = () => {
   useEffect(() => {
     if (!user || authLoading) return;
     
-    supabase.rpc("has_role", { _user_id: user.id, _role: "admin" })
+    // Check admin role directly from user_roles table
+    supabase.from("user_roles")
+      .select("role")
+      .eq("user_id", user.id)
+      .eq("role", "admin")
+      .maybeSingle()
       .then(({ data }) => {
         if (!data) {
           navigate("/", { replace: true });

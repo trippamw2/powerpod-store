@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { NavLink, Link } from "react-router-dom";
-import { Menu, X, ShoppingBag, User, LogOut, Package } from "lucide-react";
+import { Menu, X, ShoppingBag, User, LogOut, Package, LayoutDashboard } from "lucide-react";
 import { Logo } from "./Logo";
 import { cn } from "@/lib/utils";
 import { useCart } from "@/contexts/CartContext";
@@ -30,7 +30,7 @@ export const Navbar = () => {
   return (
     <header className="sticky top-0 z-40 backdrop-blur-xl bg-background/70 border-b border-border/50">
       <nav className="container flex h-16 items-center justify-between gap-4">
-        <Logo className="h-9" />
+        <Logo className="h-10 md:h-12" />
 
         <div className="hidden md:flex items-center gap-1">
           {links.map((l) => (
@@ -69,8 +69,9 @@ export const Navbar = () => {
                   <User className="h-5 w-5" />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
+<DropdownMenuContent align="end" className="w-48">
                 <DropdownMenuItem asChild><Link to="/orders"><Package className="h-4 w-4 mr-2" />My orders</Link></DropdownMenuItem>
+                <DropdownMenuItem asChild><Link to="/admin"><LayoutDashboard className="h-4 w-4 mr-2" />Admin Panel</Link></DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => signOut()}><LogOut className="h-4 w-4 mr-2" />Sign out</DropdownMenuItem>
               </DropdownMenuContent>

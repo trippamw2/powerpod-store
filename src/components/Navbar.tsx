@@ -13,33 +13,19 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import { products } from "@/data/products";
 
 const links = [
   { to: "/", label: "Home" },
   { to: "/shop", label: "Shop" },
   { to: "/combos", label: "Combos" },
-  { to: "/about", label: "About" },
   { to: "/contact", label: "Contact" },
 ];
 
 export const Navbar = () => {
   const [open, setOpen] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
   const { count } = useCart();
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
-
-  const searchResults = searchQuery.length > 1
-    ? products.filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase())).slice(0, 5)
-    : [];
-
-  const handleSearch = (productId: string) => {
-    setSearchQuery("");
-    setSearchOpen(false);
-    navigate(`/product/${productId}`);
-  };
 
   return (
     <header className="sticky top-0 z-40 bg-white border-b border-gray-200">
@@ -65,48 +51,13 @@ export const Navbar = () => {
         </div>
 
         <div className="flex items-center gap-2">
-          {/* Search */}
-          <div className="relative">
-            <button
-              onClick={() => setSearchOpen(!searchOpen)}
-              className="p-2.5 rounded-full hover:bg-gray-100"
-              aria-label="Search"
-            >
-              <Search className="h-5 w-5 text-gray-700" />
-            </button>
-            {searchOpen && (
-              <div className="absolute right-0 top-full mt-2 w-72 bg-white rounded-xl shadow-lg border border-gray-100 p-3">
-                <input
-                  type="text"
-                  placeholder="Search products..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:border-orange-500 text-sm"
-                  autoFocus
-                />
-                {searchResults.length > 0 && (
-                  <div className="mt-2 space-y-1">
-                    {searchResults.map((p) => (
-                      <button
-                        key={p.id}
-                        onClick={() => handleSearch(p.id)}
-                        className="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 text-left"
-                      >
-                        <img src={p.image} alt={p.name} className="w-10 h-10 rounded-lg object-cover" />
-                        <div>
-                          <p className="text-sm font-medium">{p.name}</p>
-                          <p className="text-xs text-gray-500">MK {p.price.toLocaleString()}</p>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                )}
-                {searchQuery.length > 1 && searchResults.length === 0 && (
-                  <p className="mt-2 text-sm text-gray-500 text-center">No products found</p>
-                )}
-              </div>
-            )}
-          </div>
+          <button
+            onClick={() => navigate("/shop")}
+            className="p-2.5 rounded-full hover:bg-gray-100"
+            aria-label="Search"
+          >
+            <Search className="h-5 w-5 text-gray-700" />
+          </button>
 
           <CartDrawer>
             <button className="relative p-2.5 rounded-full hover:bg-gray-100" aria-label="Open cart">

@@ -62,7 +62,7 @@ export const PromotionSlider = ({ page, className }: PromotionSliderProps) => {
       <Link
         to={promotion.link}
         className={cn(
-          "block relative aspect-video bg-gradient-to-r overflow-hidden",
+          "block relative aspect-[18/7] bg-gradient-to-r overflow-hidden",
           promotion.background_color
         )}
       >
@@ -80,7 +80,7 @@ export const PromotionSlider = ({ page, className }: PromotionSliderProps) => {
               <p className={cn("text-sm font-medium opacity-90 mb-2", promotion.text_color)}>
                 {promotion.subtitle}
               </p>
-              <h2 className={cn("font-display font-bold text-3xl sm:text-4xl md:text-5xl mb-3", promotion.text_color)}>
+              <h2 className={cn("font-display font-bold text-2xl sm:text-3xl md:text-4xl mb-2", promotion.text_color)}>
                 {promotion.title}
               </h2>
               {promotion.description && (

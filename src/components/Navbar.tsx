@@ -30,7 +30,7 @@ export const Navbar = () => {
   return (
     <header className="sticky top-0 z-40 backdrop-blur-xl bg-background/70 border-b border-border/50">
       <nav className="container flex h-16 items-center justify-between gap-4">
-        <Logo className="h-10 md:h-12" />
+        <Logo className="h-12 md:h-14" />
 
         <div className="hidden md:flex items-center gap-1">
           {links.map((l) => (

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { NavLink, Link } from "react-router-dom";
-import { Menu, X, ShoppingBag, User, LogOut, Package, LayoutDashboard } from "lucide-react";
+import { Menu, X, ShoppingBag, User, LogOut, Package } from "lucide-react";
 import { Logo } from "./Logo";
 import { cn } from "@/lib/utils";
 import { useCart } from "@/contexts/CartContext";
@@ -71,7 +71,6 @@ export const Navbar = () => {
               </DropdownMenuTrigger>
 <DropdownMenuContent align="end" className="w-48">
                 <DropdownMenuItem asChild><Link to="/orders"><Package className="h-4 w-4 mr-2" />My orders</Link></DropdownMenuItem>
-                <DropdownMenuItem asChild><Link to="/admin"><LayoutDashboard className="h-4 w-4 mr-2" />Admin Panel</Link></DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => signOut()}><LogOut className="h-4 w-4 mr-2" />Sign out</DropdownMenuItem>
               </DropdownMenuContent>

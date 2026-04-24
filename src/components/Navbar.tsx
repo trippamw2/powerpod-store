@@ -28,7 +28,7 @@ export const Navbar = () => {
   const { user, signOut } = useAuth();
 
   return (
-    <header className="sticky top-0 z-40 backdrop-blur-xl bg-background/70 border-b border-border/50">
+    <header className="sticky top-0 z-40 bg-white border-b border-gray-200">
       <nav className="container flex h-16 items-center justify-between gap-4">
         <Logo className="h-12 md:h-14" />
 
@@ -41,7 +41,7 @@ export const Navbar = () => {
               className={({ isActive }) =>
                 cn(
                   "px-4 py-2 rounded-full text-sm font-medium transition-colors",
-                  isActive ? "text-foreground bg-secondary" : "text-muted-foreground hover:text-foreground"
+                  isActive ? "bg-gray-100 text-gray-900 font-semibold" : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
                 )
               }
             >
@@ -52,8 +52,8 @@ export const Navbar = () => {
 
         <div className="flex items-center gap-1">
           <CartDrawer>
-            <button className="relative p-2.5 rounded-full hover:bg-secondary" aria-label="Open cart">
-              <ShoppingBag className="h-5 w-5" />
+            <button className="relative p-2.5 rounded-full hover:bg-gray-100" aria-label="Open cart">
+              <ShoppingBag className="h-5 w-5 text-gray-700" />
               {count > 0 && (
                 <span className="absolute -top-0.5 -right-0.5 h-5 min-w-5 px-1 rounded-full bg-gradient-brand text-white text-[10px] font-bold flex items-center justify-center">
                   {count}
@@ -65,8 +65,8 @@ export const Navbar = () => {
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="p-2.5 rounded-full hover:bg-secondary" aria-label="Account">
-                  <User className="h-5 w-5" />
+                <button className="p-2.5 rounded-full hover:bg-gray-100" aria-label="Account">
+                  <User className="h-5 w-5 text-gray-700" />
                 </button>
               </DropdownMenuTrigger>
 <DropdownMenuContent align="end" className="w-48">
@@ -76,7 +76,7 @@ export const Navbar = () => {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <Link to="/auth" className="hidden sm:inline-flex px-4 py-2 rounded-full text-sm font-medium hover:bg-secondary">Sign in</Link>
+            <Link to="/auth" className="hidden sm:inline-flex px-4 py-2 rounded-full text-sm font-medium hover:bg-gray-50 text-gray-700">Sign in</Link>
           )}
 
           <button
@@ -90,7 +90,7 @@ export const Navbar = () => {
       </nav>
 
       {open && (
-        <div className="md:hidden border-t border-border/50 bg-background/95 backdrop-blur-xl">
+        <div className="md:hidden border-t border-gray-100 bg-white">
           <div className="container py-3 flex flex-col gap-1">
             {links.map((l) => (
               <NavLink
@@ -101,7 +101,7 @@ export const Navbar = () => {
                 className={({ isActive }) =>
                   cn(
                     "px-4 py-3 rounded-xl text-base font-medium transition-colors",
-                    isActive ? "text-foreground bg-secondary" : "text-muted-foreground"
+                    isActive ? "text-gray-900 bg-gray-100" : "text-gray-500"
                   )
                 }
               >

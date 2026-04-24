@@ -1,8 +1,8 @@
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
-import { LayoutDashboard, Package, ShoppingCart, Settings, LogOut, Menu, X, Building2, Warehouse } from "lucide-react";
+import { LayoutDashboard, Package, ShoppingCart, Settings, LogOut, Menu, X, Building2, Warehouse, ChevronLeft } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { cn } from "@/lib/utils";
 
@@ -18,14 +18,14 @@ const adminLinks = [
 export const AdminLayout = () => {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [isAdmin, setIsAdmin] = useState(false);
   const [adminLoading, setAdminLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     if (!user || authLoading) return;
-    
-    // Check admin role directly from user_roles table
+
     supabase.from("user_roles")
       .select("role")
       .eq("user_id", user.id)
@@ -39,12 +39,15 @@ export const AdminLayout = () => {
         setIsAdmin(true);
         setAdminLoading(false);
       });
-  }, [user, authLoading]);
+  }, [user, authLoading, navigate]);
 
   if (authLoading || adminLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="animate-spin h-8 w-8 border-2 border-primary border-t-transparent rounded-full" />
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin h-10 w-10 border-4 border-orange-500 border-t-transparent rounded-full mx-auto" />
+          <p className="mt-4 text-gray-500">Loading admin panel...</p>
+        </div>
       </div>
     );
   }
@@ -52,79 +55,97 @@ export const AdminLayout = () => {
   if (!isAdmin) return null;
 
   return (
-    <div className="min-h-screen bg-background flex">
+    <div className="min-h-screen bg-gray-50 flex">
+      {/* Mobile Overlay */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
       <aside className={cn(
-        "fixed inset-y-0 left-0 z-50 w-64 bg-card border-r border-border transform transition-transform lg:relative lg:translate-x-0",
+        "fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 transform transition-transform lg:relative lg:translate-x-0",
         sidebarOpen ? "translate-x-0" : "-translate-x-full"
       )}>
         <div className="flex flex-col h-full">
-          <div className="p-4 border-b border-border/50">
+          <div className="p-4 border-b border-gray-100">
             <Logo className="h-8" />
-            <p className="text-xs text-muted-foreground mt-1">Admin Panel</p>
+            <p className="text-xs text-gray-400 mt-1">Admin Panel</p>
           </div>
-          
-          <nav className="flex-1 p-4 space-y-1">
-            {adminLinks.map((link) => (
-              <NavLink
-                key={link.to}
-                to={link.to}
-                end={link.end}
-                onClick={() => setSidebarOpen(false)}
-                className={({ isActive }) =>
-                  cn(
+
+          <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+            {adminLinks.map((link) => {
+              const isActive = location.pathname === link.to ||
+                (link.to !== "/admin" && location.pathname.startsWith(link.to));
+
+              return (
+                <a
+                  key={link.to}
+                  href={link.to}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    navigate(link.to);
+                    setSidebarOpen(false);
+                  }}
+                  className={cn(
                     "flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors",
-                    isActive 
-                      ? "bg-gradient-brand text-white" 
-                      : "text-muted-foreground hover:text-foreground hover:bg-secondary"
-                  )
-                }
-              >
-                <link.icon className="h-4 w-4" />
-                {link.label}
-              </NavLink>
-            ))}
+                    isActive
+                      ? "bg-orange-500 text-white"
+                      : "text-gray-600 hover:bg-gray-100"
+                  )}
+                >
+                  <link.icon className="h-5 w-5" />
+                  {link.label}
+                </a>
+              );
+            })}
           </nav>
 
-          <div className="p-4 border-t border-border/50">
+          <div className="p-4 border-t border-gray-100 space-y-2">
+            <a
+              href="/"
+              onClick={(e) => {
+                e.preventDefault();
+                window.location.href = "/";
+              }}
+              className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-100"
+            >
+              <ChevronLeft className="h-5 w-5" />
+              Back to Store
+            </a>
             <button
-              onClick={() => {
-                supabase.auth.signOut();
+              onClick={async () => {
+                await supabase.auth.signOut();
                 navigate("/");
               }}
-              className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-medium text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+              className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
             >
-              <LogOut className="h-4 w-4" />
+              <LogOut className="h-5 w-5" />
               Sign out
             </button>
           </div>
         </div>
       </aside>
 
-      {/* Main content */}
+      {/* Main Content */}
       <div className="flex-1 flex flex-col min-h-screen">
-        <header className="lg:hidden flex items-center justify-between p-4 border-b border-border/50 bg-card">
+        {/* Mobile Header */}
+        <header className="lg:hidden flex items-center justify-between p-4 bg-white border-b border-gray-200">
           <Logo className="h-8" />
-          <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2">
+          <button
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            className="p-2 rounded-lg hover:bg-gray-100"
+          >
             {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
         </header>
-        
+
         <main className="flex-1 p-4 lg:p-8">
           <Outlet />
         </main>
       </div>
-
-      {/* Overlay */}
-      {sidebarOpen && (
-        <div 
-          className="fixed inset-0 bg-background/50 z-40 lg:hidden" 
-          onClick={() => setSidebarOpen(false)} 
-        />
-      )}
     </div>
   );
 };
-
-// Need to import NavLink - using react-router-dom
-import { NavLink } from "react-router-dom";

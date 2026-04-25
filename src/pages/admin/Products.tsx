@@ -86,25 +86,22 @@ const AdminProducts = () => {
   }, []);
 
   const fetchProducts = async () => {
-    const { data: productsData } = await supabase
-      .from("products")
-      .select("*")
-      .order("sort_order", { ascending: true });
+    const [{ data: productsData }, { data: allTypes }] = await Promise.all([
+      supabase.from("products").select("*").order("sort_order", { ascending: true }),
+      supabase.from("product_types").select("*").order("sort_order", { ascending: true })
+    ]);
 
     if (productsData) {
-      const productsWithTypes = await Promise.all(
-        productsData.map(async (p) => {
-          const { data: types } = await supabase
-            .from("product_types")
-            .select("*")
-            .eq("product_id", p.id)
-            .order("sort_order", { ascending: true });
-          return {
-            ...p,
-            types: types || [],
-          };
-        })
-      );
+      const typeMap = new Map<string, ProductType[]>();
+      (allTypes || []).forEach(t => {
+        const existing = typeMap.get(t.product_id) || [];
+        typeMap.set(t.product_id, [...existing, t]);
+      });
+      
+      const productsWithTypes = productsData.map(p => ({
+        ...p,
+        types: typeMap.get(p.id) || []
+      }));
       setProducts(productsWithTypes);
     }
     setLoading(false);

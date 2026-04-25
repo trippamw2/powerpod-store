@@ -410,7 +410,7 @@ Thanks! 🙏`;
           <Check className="h-12 w-12 text-green-500 mx-auto mb-4" />
           <h2 className="font-display font-bold text-xl mb-2">Order Placed!</h2>
           <p className="text-muted-foreground">Order #{orderId.slice(0, 8).toUpperCase()}</p>
-          <Button asChild variant="hero" className="mt-4" onClick={() => navigate("/orders")}>
+          <Button asChild variant="hero" className="mt-4">
             <Link to="/orders">View Orders</Link>
           </Button>
         </div>

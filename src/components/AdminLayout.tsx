@@ -2,6 +2,7 @@ import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useEffect, useState } from "react";
 import { LayoutDashboard, Package, ShoppingCart, Settings, LogOut, Menu, X, Building2, Warehouse, ChevronLeft, Zap, MessageCircle } from "lucide-react";
+import { Logo } from "@/components/Logo";
 import { cn } from "@/lib/utils";
 
 const adminLinks = [

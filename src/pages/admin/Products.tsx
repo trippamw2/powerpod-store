@@ -38,6 +38,8 @@ interface Product {
   category: string;
   image: string;
   images: string[];
+  is_featured: boolean;
+  is_best_seller: boolean;
   types: ProductType[];
 }
 
@@ -48,12 +50,14 @@ const AdminProducts = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  const [formData, setFormData] = useState({
+const [formData, setFormData] = useState({
     name: "",
     benefit: "",
     price: 0,
     category: "earbuds",
-    images: [""] as string[],
+    images: [""],
+    is_featured: false,
+    is_best_seller: false,
     types: [] as { id: string; name: string }[],
   });
 
@@ -97,6 +101,8 @@ const AdminProducts = () => {
         category: formData.category,
         image: validImages[0] || "",
         images: validImages,
+        is_featured: formData.is_featured,
+        is_best_seller: formData.is_best_seller,
         is_active: true,
         sort_order: 0,
       };
@@ -163,6 +169,8 @@ const AdminProducts = () => {
       price: product.price,
       category: product.category,
       images: product.images && product.images.length > 0 ? product.images : [product.image || ""],
+      is_featured: product.is_featured || false,
+      is_best_seller: product.is_best_seller || false,
       types: product.types,
     });
     setIsDialogOpen(true);
@@ -175,6 +183,8 @@ const AdminProducts = () => {
       price: 0,
       category: "earbuds",
       images: [""],
+      is_featured: false,
+      is_best_seller: false,
       types: [],
     });
   };
@@ -327,6 +337,27 @@ const AdminProducts = () => {
                     ))}
                   </select>
                 </div>
+              </div>
+
+              <div className="flex gap-4">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.is_featured}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, is_featured: e.target.checked }))}
+                    className="h-4 w-4 rounded border-gray-300"
+                  />
+                  <span className="text-sm font-medium">Featured</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.is_best_seller}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, is_best_seller: e.target.checked }))}
+                    className="h-4 w-4 rounded border-gray-300"
+                  />
+                  <span className="text-sm font-medium">Best Seller</span>
+                </label>
               </div>
               
               {/* Types */}

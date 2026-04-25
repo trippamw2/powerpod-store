@@ -2,7 +2,7 @@ import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
-import { LayoutDashboard, Package, ShoppingCart, Settings, LogOut, Menu, X, Building2, Warehouse, ChevronLeft, Zap } from "lucide-react";
+import { LayoutDashboard, Package, ShoppingCart, Settings, LogOut, Menu, X, Building2, Warehouse, ChevronLeft, Zap, MessageCircle } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { cn } from "@/lib/utils";
 
@@ -12,6 +12,7 @@ const adminLinks = [
   { to: "/admin/combos", label: "Combos", icon: Package },
   { to: "/admin/orders", label: "Orders", icon: ShoppingCart },
   { to: "/admin/promotions", label: "Promotions", icon: Zap },
+  { to: "/admin/testimonials", label: "Testimonials", icon: MessageCircle },
   { to: "/admin/business", label: "Business", icon: Building2 },
   { to: "/admin/inventory", label: "Inventory", icon: Warehouse },
   { to: "/admin/delivery", label: "Delivery", icon: Zap },

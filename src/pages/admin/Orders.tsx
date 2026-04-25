@@ -70,7 +70,7 @@ const AdminOrders = () => {
   const sendWhatsAppNotification = (order: Order, newStatus: string) => {
     const phone = order.customer_phone.replace(/[^0-9]/g, "");
     const waPhone = phone.startsWith("0") ? `265${phone.slice(1)}` : phone;
-    const message = `Hi ${order.customer_name}!\n\n${STATUS_MESSAGES[newStatus]}\n\nOrder #${order.id.slice(0, 8).toUpperCase()}\nStatus: ${newStatus}\n\nTrack your order: https://powerpod-store-new.vercel.app/track/${order.id}\n\nThanks for choosing PowerPod!`;
+    const message = `Hi ${order.customer_name}!\n\n${STATUS_MESSAGES[newStatus]}\n\nOrder #${order.id.slice(0, 8).toUpperCase()}\nStatus: ${newStatus}\n\nTrack your order: https://powerpod-store.vercel.app/track/${order.id}\n\nThanks for choosing PowerPod!`;
     window.open(`https://wa.me/${waPhone}?text=${encodeURIComponent(message)}`, "_blank");
   };
 

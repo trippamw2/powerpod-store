@@ -125,6 +125,28 @@ const OrderDetailPage = () => {
           {order.notes && <p><span className="text-muted-foreground">Notes:</span> {order.notes}</p>}
         </div>
 
+        {/* Payment Instructions */}
+        {order.status === "new" && (
+          <div className="rounded-2xl bg-orange-50 border border-orange-200 p-5 space-y-3">
+            <p className="font-display font-bold text-lg flex items-center gap-2">
+              💳 Make Payment
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Pay <span className="font-bold text-orange-600">{formatMWK(order.total_mwk)}</span> via PayChangu:
+            </p>
+            <div className="text-sm space-y-2 bg-white p-3 rounded-lg">
+              <p><span className="text-muted-foreground">Airtel Money:</span> <span className="font-mono font-bold">+265 991 234 567</span></p>
+              <p><span className="text-muted-foreground">TNM Mpamba:</span> <span className="font-mono font-bold">+265 991 234 567</span></p>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Use order ref <span className="font-bold">{order.id.slice(0, 8).toUpperCase()}</span> as payment reference.
+            </p>
+            <p className="text-xs text-muted-foreground">
+              We'll confirm via WhatsApp once payment is received.
+            </p>
+          </div>
+        )}
+
         {order.status === "delivered" && (
           <div className="rounded-2xl bg-gradient-brand-soft border border-primary/30 p-5 space-y-3">
             <p className="font-display font-bold text-lg">Stay Powered ⚡</p>

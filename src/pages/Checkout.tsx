@@ -139,7 +139,7 @@ ${itemsTxt}
 
 We'll send WhatsApp updates as your order progresses.
 
-Track: https://powerpod-store-new.vercel.app/track/${orderId}
+Track: https://powerpod-store.vercel.app/track/${orderId}
 
 Thanks for choosing PowerPod! 🙏`;
     window.open(`https://wa.me/${waPhone}?text=${encodeURIComponent(msg)}`, "_blank");

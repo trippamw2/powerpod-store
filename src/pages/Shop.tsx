@@ -14,13 +14,17 @@ const Shop = () => {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [showFilters, setShowFilters] = useState(false);
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 100000]);
+  const [priceMin, setPriceMin] = useState(0);
+  const [priceMax, setPriceMax] = useState(100000);
+
+  const minPrice = Math.min(...products.map(p => p.price));
+  const maxPrice = Math.max(...products.map(p => p.price));
 
   const filtered = products.filter(p => {
     const matchesCategory = selectedCategory === "all" || p.category === selectedCategory;
     const matchesSearch = !searchQuery || p.name.toLowerCase().includes(searchQuery.toLowerCase()) || p.benefit.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesBrand = selectedBrands.length === 0 || selectedBrands.includes((p as any).brand || "");
-    const matchesPrice = p.price >= priceRange[0] && p.price <= priceRange[1];
+    const matchesPrice = p.price >= priceMin && p.price <= priceMax;
     return matchesCategory && matchesSearch && matchesBrand && matchesPrice;
   });
 
@@ -96,7 +100,7 @@ const Shop = () => {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as any)}
-              className="appearance-none pl-4 pr-10 py-2 rounded-full border border-gray-200 bg-white text-sm font-medium focus:outline-none focus:border-orange-500"
+              className="appearance-none pl-4 pr-10 py-2 rounded-full border border-gray-200 bg-white text-sm font-medium focus:outline-none focus:border-teal-500"
             >
               <option value="newest">Newest</option>
               <option value="price-low">Price: Low to High</option>
@@ -143,13 +147,40 @@ const Shop = () => {
                       onClick={() => toggleBrand(brand.id)}
                       className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
                         selectedBrands.includes(brand.id)
-                          ? "bg-orange-500 text-white"
-                          : "bg-white border border-gray-200 text-gray-600 hover:border-orange-300"
+                          ? "bg-teal-600 text-white"
+                          : "bg-white border border-gray-200 text-gray-600 hover:border-teal-300"
                       }`}
                     >
                       {brand.name}
                     </button>
                   ))}
+                </div>
+              </div>
+              
+              <div>
+                <h3 className="font-medium mb-3">Price Range (MWK)</h3>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="number"
+                    value={priceMin}
+                    onChange={(e) => setPriceMin(Number(e.target.value))}
+                    placeholder="Min"
+                    className="w-24 px-3 py-2 border border-gray-200 rounded-lg text-sm"
+                  />
+                  <span className="text-gray-400">to</span>
+                  <input
+                    type="number"
+                    value={priceMax}
+                    onChange={(e) => setPriceMax(Number(e.target.value))}
+                    placeholder="Max"
+                    className="w-24 px-3 py-2 border border-gray-200 rounded-lg text-sm"
+                  />
+                </div>
+                <div className="flex gap-2 mt-2">
+                  <button onClick={() => { setPriceMin(0); setPriceMax(10000); }} className="px-2 py-1 text-xs bg-gray-100 rounded hover:bg-gray-200">Under 10K</button>
+                  <button onClick={() => { setPriceMin(10000); setPriceMax(25000); }} className="px-2 py-1 text-xs bg-gray-100 rounded hover:bg-gray-200">10K - 25K</button>
+                  <button onClick={() => { setPriceMin(25000); setPriceMax(50000); }} className="px-2 py-1 text-xs bg-gray-100 rounded hover:bg-gray-200">25K - 50K</button>
+                  <button onClick={() => { setPriceMin(50000); setPriceMax(1000000); }} className="px-2 py-1 text-xs bg-gray-100 rounded hover:bg-gray-200">50K+</button>
                 </div>
               </div>
             </div>
@@ -175,8 +206,8 @@ const Shop = () => {
             onClick={() => setSelectedCategory(c.id)}
             className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
               selectedCategory === c.id
-                ? "bg-orange-500 text-white"
-                : "bg-white border border-gray-200 text-gray-600 hover:border-orange-300"
+                ? "bg-teal-500 text-white"
+                : "bg-white border border-gray-200 text-gray-600 hover:border-teal-300"
             }`}
           >
             {c.label}
@@ -188,13 +219,13 @@ const Shop = () => {
       {hasFilters && (
         <div className="flex flex-wrap gap-2 mb-4">
           {selectedCategory !== "all" && (
-            <span className="inline-flex items-center gap-1 px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-sm">
+            <span className="inline-flex items-center gap-1 px-3 py-1 bg-teal-100 text-teal-700 rounded-full text-sm">
               {categories.find(c => c.id === selectedCategory)?.label}
               <button onClick={() => setSelectedCategory("all")}><X className="h-3 w-3" /></button>
             </span>
           )}
           {searchQuery && (
-            <span className="inline-flex items-center gap-1 px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-sm">
+            <span className="inline-flex items-center gap-1 px-3 py-1 bg-teal-100 text-teal-700 rounded-full text-sm">
               "{searchQuery}"
               <button onClick={() => setSearchQuery("")}><X className="h-3 w-3" /></button>
             </span>
@@ -223,7 +254,7 @@ const Shop = () => {
       ) : (
         <div className="text-center py-20 space-y-4">
           <p className="text-muted-foreground text-lg">No products found</p>
-          <button onClick={clearFilters} className="px-4 py-2 bg-orange-500 text-white rounded-full text-sm font-medium">
+          <button onClick={clearFilters} className="px-4 py-2 bg-teal-500 text-white rounded-full text-sm font-medium">
             Clear filters
           </button>
         </div>

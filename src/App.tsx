@@ -30,6 +30,11 @@ import AdminPromotions from "./pages/admin/Promotions";
 import AdminCombos from "./pages/admin/Combos";
 import AdminDelivery from "./pages/admin/Delivery";
 import AdminTestimonials from "./pages/admin/Testimonials";
+import Terms from "./pages/policy/Terms";
+import Privacy from "./pages/policy/Privacy";
+import FAQ from "./pages/policy/FAQ";
+import Returns from "./pages/policy/Returns";
+import Warranty from "./pages/policy/Warranty";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -61,6 +66,11 @@ const App = () => (
                   <Route path="/orders" element={<Orders />} />
                   <Route path="/orders/:id" element={<OrderDetail />} />
                   <Route path="/track/:id" element={<DeliveryTracking />} />
+                  <Route path="/terms" element={<Terms />} />
+                  <Route path="/privacy" element={<Privacy />} />
+                  <Route path="/faq" element={<FAQ />} />
+                  <Route path="/returns" element={<Returns />} />
+                  <Route path="/warranty" element={<Warranty />} />
                   <Route path="*" element={<NotFound />} />
                 </Route>
                 <Route path="/admin" element={<AdminLayout />}>

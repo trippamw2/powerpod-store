@@ -203,7 +203,7 @@ export const Navbar = () => {
                           <Link 
                             to={item.to} 
                             onClick={() => setMegaMenuOpen(false)}
-                            className="flex items-center justify-between text-sm text-gray-500 hover:text-orange-500 transition-colors"
+                            className="flex items-center justify-between text-sm text-gray-500 hover:text-teal-600 transition-colors"
                           >
                             <span>{item.label}</span>
                             <span className="text-xs bg-gray-100 px-2 py-0.5 rounded-full">{item.count}</span>
@@ -213,12 +213,10 @@ export const Navbar = () => {
                     </ul>
                   </div>
                 ))}
-                <div className="rounded-xl overflow-hidden">
-                  <img src="/images/promo-banner.jpg" alt="Special offer" className="w-full h-40 object-cover" />
-                  <div className="bg-gradient-to-r from-teal-600 to-emerald-600 p-4 text-white">
-                    <p className="font-semibold">Shop Deals</p>
-                    <p className="text-sm opacity-80">Up to 30% off</p>
-                  </div>
+                <div className="rounded-xl overflow-hidden bg-gradient-to-r from-teal-600 to-emerald-600 p-4 text-white">
+                  <p className="font-semibold text-lg">🔥 Hot Deals</p>
+                  <p className="text-sm opacity-80">Up to 30% off on selected items</p>
+                  <Link to="/shop" onClick={() => setMegaMenuOpen(false)} className="inline-block mt-2 text-sm underline">Shop now →</Link>
                 </div>
               </div>
             </div>

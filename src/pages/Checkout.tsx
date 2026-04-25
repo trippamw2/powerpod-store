@@ -8,8 +8,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { formatMWK } from "@/data/products";
-import { ArrowLeft, User, Truck, CreditCard, Check } from "lucide-react";
+import { ArrowLeft, User, Truck, CreditCard, Check, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { getPayChanguPaymentLink, PAYCHANGU_CONFIG } from "@/lib/paychangu";
 
 type Step = "details" | "delivery" | "payment";
 
@@ -153,7 +154,19 @@ const handlePayment = async () => {
 
       setOrderId(newOrderId);
 
-      const msg = `🎉 *ORDER PLACED - PowerPod* ⚡
+      const customerEmail = `${formData.phone.replace(/[^0-9]/g, "")}@powerpod.mw`;
+
+      if (PAYCHANGU_CONFIG.publicKey && !PAYCHANGU_CONFIG.testMode) {
+        const paymentLink = await getPayChanguPaymentLink(
+          newOrderId,
+          calculatedTotal,
+          formData.name,
+          customerEmail
+        );
+
+        window.location.href = paymentLink;
+      } else {
+        const msg = `🎉 *ORDER PLACED - PowerPod* ⚡
 
 Hi ${formData.name}!
 
@@ -165,20 +178,19 @@ ${items.map(i => `• ${i.quantity} × ${i.name}`).join('\n')}
 💰 Total: ${formatMWK(calculatedTotal)}
 🚚 Delivery to: ${formData.location}
 
-Preparing your order now...
+Pay here: https://paychangu.com/pay/${newOrderId.slice(0, 8)}
 
 Track: https://powerpod-store.vercel.app/track/${newOrderId}
 
-Make payment via PayChangu (Airtel Money/TNM Mpamba). We'll confirm via WhatsApp once received!
-
 Thanks! 🙏`;
-      const phone = formData.phone.replace(/[^0-9]/g, "");
-      const waPhone = phone.startsWith("0") ? `265${phone.slice(1)}` : phone;
-      window.open(`https://wa.me/${waPhone}?text=${encodeURIComponent(msg)}`, "_blank");
+        const phone = formData.phone.replace(/[^0-9]/g, "");
+        const waPhone = phone.startsWith("0") ? `265${phone.slice(1)}` : phone;
+        window.open(`https://wa.me/${waPhone}?text=${encodeURIComponent(msg)}`, "_blank");
 
-      clear();
-      toast({ title: "Order placed!", description: `Order #${newOrderId.slice(0, 8).toUpperCase()}. Check WhatsApp for payment.` });
-      navigate(`/orders/${newOrderId}`);
+        clear();
+        toast({ title: "Order placed!", description: `Order #${newOrderId.slice(0, 8).toUpperCase()}` });
+        navigate(`/orders/${newOrderId}`);
+      }
     } finally {
       setSubmitting(false);
     }
@@ -387,10 +399,7 @@ Thanks! 🙏`;
               onClick={handlePayment}
               disabled={submitting}
             >
-              {submitting ? "Processing..." : paymentMethod === "paychangu"
-                ? `Pay ${formatMWK(calculatedTotal)} with PayChangu`
-                : `Send Order via WhatsApp - ${formatMWK(calculatedTotal)}`
-              }
+              {submitting ? <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Processing...</> : `Pay ${formatMWK(calculatedTotal)} via PayChangu`}
             </Button>
           </div>
         </div>

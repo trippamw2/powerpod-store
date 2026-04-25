@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { formatMWK } from "@/data/products";
-import { ArrowLeft, User, Truck, CreditCard, Check, MessageCircle } from "lucide-react";
+import { ArrowLeft, User, Truck, CreditCard, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type Step = "details" | "delivery" | "payment";
@@ -34,7 +34,7 @@ const Checkout = () => {
     deliveryNote: "",
   });
   const [deliveryMethod, setDeliveryMethod] = useState<"standard" | "express">("standard");
-  const [paymentMethod, setPaymentMethod] = useState<"paychangu" | "whatsapp">("paychangu");
+  const [paymentMethod, setPaymentMethod] = useState<"paychangu">("paychangu");
   const [submitting, setSubmitting] = useState(false);
   const [orderId, setOrderId] = useState<string | null>(null);
 
@@ -145,7 +145,7 @@ Thanks for choosing PowerPod! 🙏`;
     window.open(`https://wa.me/${waPhone}?text=${encodeURIComponent(msg)}`, "_blank");
   };
 
-  const handlePayment = async () => {
+const handlePayment = async () => {
     setSubmitting(true);
     try {
       const newOrderId = await createOrder();
@@ -153,32 +153,7 @@ Thanks for choosing PowerPod! 🙏`;
 
       setOrderId(newOrderId);
 
-      if (paymentMethod === "whatsapp") {
-        const msg = `📦 *NEW ORDER - PowerPod* ⚡
-
-*Order #${newOrderId.slice(0, 8).toUpperCase()}*
-
-👤 ${formData.name}
-📞 ${formData.phone}
-📍 ${formData.location}
-
-🛒 Items:
-${items.map(i => `• ${i.quantity} × ${i.name} = ${formatMWK(i.price * i.quantity)}`).join('\n')}
-
-💰 Subtotal: ${formatMWK(subtotal)}
-🚚 Delivery: ${calculatedDeliveryFee === 0 ? "FREE" : formatMWK(calculatedDeliveryFee)}
-━━━━━━━━━━━━━━━━
-💵 TOTAL: ${formatMWK(calculatedTotal)}
-
-Payment: WhatsApp (pending)
-
-Track: https://powerpod-store-new.vercel.app/track/${newOrderId}`;
-
-        window.open(`https://wa.me/265991234567?text=${encodeURIComponent(msg)}`, "_blank");
-        clear();
-        toast({ title: "Order placed!", description: "Check WhatsApp for payment confirmation." });
-      } else {
-        const msg = `🎉 *ORDER PLACED - PowerPod* ⚡
+      const msg = `🎉 *ORDER PLACED - PowerPod* ⚡
 
 Hi ${formData.name}!
 
@@ -192,15 +167,18 @@ ${items.map(i => `• ${i.quantity} × ${i.name}`).join('\n')}
 
 Preparing your order now...
 
-Track: https://powerpod-store-new.vercel.app/track/${newOrderId}
+Track: https://powerpod-store.vercel.app/track/${newOrderId}
 
-Make payment via PayChangu. We'll confirm via WhatsApp once received!
+Make payment via PayChangu (Airtel Money/TNM Mpamba). We'll confirm via WhatsApp once received!
 
 Thanks! 🙏`;
-        clear();
-        toast({ title: "Order placed!", description: `Order #${newOrderId.slice(0, 8).toUpperCase()}. Payment link coming.` });
-        navigate(`/orders/${newOrderId}`);
-      }
+      const phone = formData.phone.replace(/[^0-9]/g, "");
+      const waPhone = phone.startsWith("0") ? `265${phone.slice(1)}` : phone;
+      window.open(`https://wa.me/${waPhone}?text=${encodeURIComponent(msg)}`, "_blank");
+
+      clear();
+      toast({ title: "Order placed!", description: `Order #${newOrderId.slice(0, 8).toUpperCase()}. Check WhatsApp for payment.` });
+      navigate(`/orders/${newOrderId}`);
     } finally {
       setSubmitting(false);
     }
@@ -353,44 +331,15 @@ Thanks! 🙏`;
         <div className="space-y-6">
           <div className="rounded-xl bg-card border border-border/60 p-6">
             <h2 className="font-display font-bold text-lg mb-4">Payment Method</h2>
-            <div className="space-y-3">
-              <label className={cn(
-                "flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-colors",
-                paymentMethod === "paychangu" ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"
-              )}>
-                <input
-                  type="radio"
-                  name="payment"
-                  value="paychangu"
-                  checked={paymentMethod === "paychangu"}
-                  onChange={(e) => setPaymentMethod(e.target.value as "paychangu")}
-                  className="h-4 w-4"
-                />
+            <div className="p-4 rounded-xl border-2 border-primary bg-primary/5">
+              <div className="flex items-center gap-3">
+                <CreditCard className="h-5 w-5 text-primary" />
                 <div className="flex-1">
                   <p className="font-medium">PayChangu (Airtel Money / TNM Mpamba)</p>
-                  <p className="text-sm text-muted-foreground">Pay securely inside platform</p>
+                  <p className="text-sm text-muted-foreground">Pay securely via mobile money</p>
                 </div>
-                <CreditCard className="h-5 w-5 text-muted-foreground" />
-              </label>
-
-              <label className={cn(
-                "flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-colors",
-                paymentMethod === "whatsapp" ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"
-              )}>
-                <input
-                  type="radio"
-                  name="payment"
-                  value="whatsapp"
-                  checked={paymentMethod === "whatsapp"}
-                  onChange={(e) => setPaymentMethod(e.target.value as "whatsapp")}
-                  className="h-4 w-4"
-                />
-                <div className="flex-1">
-                  <p className="font-medium">WhatsApp Order</p>
-                  <p className="text-sm text-muted-foreground">Send order via WhatsApp for payment</p>
-                </div>
-                <MessageCircle className="h-5 w-5 text-green-500" />
-              </label>
+                <Check className="h-5 w-5 text-green-500" />
+              </div>
             </div>
           </div>
 

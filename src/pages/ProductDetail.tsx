@@ -51,6 +51,11 @@ const ProductDetail = () => {
 
         <div className="space-y-6">
           <div className="space-y-3">
+            {product.brand && (
+              <span className="text-sm font-medium text-orange-600 bg-orange-50 px-3 py-1 rounded-full inline-block">
+                {product.brand}
+              </span>
+            )}
             <p className="text-sm font-semibold text-gradient uppercase tracking-widest">{product.category}</p>
             <h1 className="font-display font-bold text-4xl sm:text-5xl tracking-tight">{product.name}</h1>
             <p className="text-muted-foreground text-lg">{product.benefit}</p>

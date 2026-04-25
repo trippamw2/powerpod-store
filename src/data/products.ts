@@ -68,40 +68,40 @@ export const categories: { id: Category; label: string; parent?: string }[] = [
 
 export const products: Product[] = [
   // POWER - Wired Chargers
-  { id: "p1-wired", name: "USB-C Fast Charger 25W", benefit: "Quick charge any device. Built-in safety.", price: 12000, category: "power-wired", image: charger, types: [{ id: "t1", name: "USB-C to USB-C" }, { id: "t2", name: "USB-C to USB-A" }] },
-  { id: "p2-wired", name: "Dual USB Charger 30W", benefit: "Charge two devices at once.", price: 15000, category: "power-wired", image: charger, types: [{ id: "t1", name: "2x USB-C" }, { id: "t2", name: "USB-C + USB-A" }] },
+  { id: "p1-wired", name: "USB-C Fast Charger 25W", benefit: "Quick charge any device. Built-in safety.", price: 12000, category: "power-wired", image: charger, brand: "Anker", types: [{ id: "t1", name: "USB-C to USB-C" }, { id: "t2", name: "USB-C to USB-A" }] },
+  { id: "p2-wired", name: "Dual USB Charger 30W", benefit: "Charge two devices at once.", price: 15000, category: "power-wired", image: charger, brand: "Anker", types: [{ id: "t1", name: "2x USB-C" }, { id: "t2", name: "USB-C + USB-A" }] },
   
   // POWER - Wireless Chargers
-  { id: "p1-wireless", name: "Wireless Charging Pad 15W", benefit: "Simply place and charge. No cables needed.", price: 18000, category: "power-wireless", image: charger, types: [{ id: "t1", name: "Black" }, { id: "t2", name: "White" }] },
-  { id: "p2-wireless", name: "Wireless Power Stand", benefit: "Charge & watch. Perfect for desk.", price: 22000, category: "power-wireless", image: charger, types: [{ id: "t1", name: "Black" }] },
+  { id: "p1-wireless", name: "Wireless Charging Pad 15W", benefit: "Simply place and charge. No cables needed.", price: 18000, category: "power-wireless", image: charger, brand: "Samsung", types: [{ id: "t1", name: "Black" }, { id: "t2", name: "White" }] },
+  { id: "p2-wireless", name: "Wireless Power Stand", benefit: "Charge & watch. Perfect for desk.", price: 22000, category: "power-wireless", image: charger, brand: "Samsung", types: [{ id: "t1", name: "Black" }] },
   
   // POWER - Adapters
-  { id: "p1-adapter", name: "USB-C Hub 7-in-1", benefit: "Connect everything. HDMI, USB, SD card.", price: 35000, category: "power-adapters", image: charger, types: [{ id: "t1", name: "Silver" }, { id: "t2", name: "Space Gray" }] },
-  { id: "p2-adapter", name: "Car Charger 45W", benefit: "Fast charge on the go.", price: 8500, category: "power-adapters", image: charger, types: [{ id: "t1", name: "Single Port" }, { id: "t2", name: "Dual Port" }] },
+  { id: "p1-adapter", name: "USB-C Hub 7-in-1", benefit: "Connect everything. HDMI, USB, SD card.", price: 35000, category: "power-adapters", image: charger, brand: "UGREEN", types: [{ id: "t1", name: "Silver" }, { id: "t2", name: "Space Gray" }] },
+  { id: "p2-adapter", name: "Car Charger 45W", benefit: "Fast charge on the go.", price: 8500, category: "power-adapters", image: charger, brand: "Baseus", types: [{ id: "t1", name: "Single Port" }, { id: "t2", name: "Dual Port" }] },
   
   // POWER - Power Banks
-  { id: "p1-powerbank", name: "Power Bank 10000mAh", benefit: "Your backup power. Slim design.", price: 22000, category: "power-banks", image: powerbank, types: [{ id: "t1", name: "Black" }, { id: "t2", name: "White" }] },
-  { id: "p2-powerbank", name: "Power Bank 20000mAh", benefit: "Power that lasts as long as you do.", price: 28000, category: "power-banks", image: powerbank, types: [{ id: "t1", name: "Black" }, { id: "t2", name: "White" }] },
-  { id: "p3-powerbank", name: "Power Bank 26800mAh", benefit: "Ultra high capacity. Charge 3 devices.", price: 45000, category: "power-banks", image: powerbank, types: [{ id: "t1", name: "Black" }] },
+  { id: "p1-powerbank", name: "Power Bank 10000mAh", benefit: "Your backup power. Slim design.", price: 22000, category: "power-banks", image: powerbank, brand: "Oraimo", types: [{ id: "t1", name: "Black" }, { id: "t2", name: "White" }] },
+  { id: "p2-powerbank", name: "Power Bank 20000mAh", benefit: "Power that lasts as long as you do.", price: 28000, category: "power-banks", image: powerbank, brand: "Oraimo", types: [{ id: "t1", name: "Black" }, { id: "t2", name: "White" }] },
+  { id: "p3-powerbank", name: "Power Bank 26800mAh", benefit: "Ultra high capacity. Charge 3 devices.", price: 45000, category: "power-banks", image: powerbank, brand: "Oraimo", types: [{ id: "t1", name: "Black" }] },
   
   // POWER - Cables
-  { id: "p1-cable", name: "Braided USB-C Cable 1m", benefit: "Built to last. Fast charging.", price: 6500, category: "cables", image: cable, types: [{ id: "t1", name: "Black" }, { id: "t2", name: "White" }] },
-  { id: "p2-cable", name: "Braided USB-C Cable 2m", benefit: "Extra length. Same durability.", price: 8500, category: "cables", image: cable, types: [{ id: "t1", name: "Black" }, { id: "t2", name: "White" }] },
-  { id: "p3-cable", name: "USB-C to Lightning Cable", benefit: "Fast charge iPhone. MFi certified.", price: 12000, category: "cables", image: cable, types: [{ id: "t1", name: "1m" }, { id: "t2", name: "2m" }] },
-  
+  { id: "p1-cable", name: "Braided USB-C Cable 1m", benefit: "Built to last. Fast charging.", price: 6500, category: "cables", image: cable, brand: "Baseus", types: [{ id: "t1", name: "Black" }, { id: "t2", name: "White" }] },
+  { id: "p2-cable", name: "Braided USB-C Cable 2m", benefit: "Extra length. Same durability.", price: 8500, category: "cables", image: cable, brand: "Baseus", types: [{ id: "t1", name: "Black" }, { id: "t2", name: "White" }] },
+{ id: "p3-cable", name: "USB-C to Lightning Cable", benefit: "Fast charge iPhone. MFi certified.", price: 12000, category: "cables", image: cable, brand: "Baseus", types: [{ id: "t1", name: "1m" }, { id: "t2", name: "2m" }] },
+   
   // AUDIO - Speakers
-  { id: "p1-speaker", name: "Vibe Mini Speaker", benefit: "Big sound. Pocket size.", price: 15000, category: "speakers", image: speaker, types: [{ id: "t1", name: "Black" }, { id: "t2", name: "Blue" }] },
-  { id: "p2-speaker", name: "Vibe Speaker", benefit: "Big sound. Take the vibe with you.", price: 35000, category: "speakers", image: speaker, types: [{ id: "t1", name: "Black" }, { id: "t2", name: "Blue" }] },
-  { id: "p3-speaker", name: "Vibe Pro Speaker", benefit: "360° sound. Party ready.", price: 55000, category: "speakers", image: speaker, types: [{ id: "t1", name: "Black" }] },
-  
+  { id: "p1-speaker", name: "Vibe Mini Speaker", benefit: "Big sound. Pocket size.", price: 15000, category: "speakers", image: speaker, brand: "Xiaomi", types: [{ id: "t1", name: "Black" }, { id: "t2", name: "Blue" }] },
+  { id: "p2-speaker", name: "Vibe Speaker", benefit: "Big sound. Take the vibe with you.", price: 35000, category: "speakers", image: speaker, brand: "Xiaomi", types: [{ id: "t1", name: "Black" }, { id: "t2", name: "Blue" }] },
+  { id: "p3-speaker", name: "Vibe Pro Speaker", benefit: "360° sound. Party ready.", price: 55000, category: "speakers", image: speaker, brand: "Xiaomi", types: [{ id: "t1", name: "Black" }] },
+   
   // AUDIO - Headphones
-  { id: "p1-headphones", name: "Studio Headphones", benefit: "Deep bass. All-day comfort.", price: 55000, category: "headphones", image: headphones, types: [{ id: "t1", name: "Black" }, { id: "t2", name: "Matte Black" }] },
-  { id: "p2-headphones", name: "Studio Pro Headphones", benefit: "Active noise cancelling. Premium sound.", price: 85000, category: "headphones", image: headphones, types: [{ id: "t1", name: "Black" }] },
-  
+  { id: "p1-headphones", name: "Studio Headphones", benefit: "Deep bass. All-day comfort.", price: 55000, category: "headphones", image: headphones, brand: "Xiaomi", types: [{ id: "t1", name: "Black" }, { id: "t2", name: "Matte Black" }] },
+  { id: "p2-headphones", name: "Studio Pro Headphones", benefit: "Active noise cancelling. Premium sound.", price: 85000, category: "headphones", image: headphones, brand: "Xiaomi", types: [{ id: "t1", name: "Black" }] },
+   
   // AUDIO - Earbuds
-  { id: "p1-earbuds", name: "PowerPods Basic", benefit: "True wireless. Crystal clear calls.", price: 25000, category: "earbuds", image: earbuds, types: [{ id: "t1", name: "Black" }, { id: "t2", name: "White" }] },
-  { id: "p2-earbuds", name: "PowerPods Wireless", benefit: "True wireless freedom. Better battery.", price: 35000, category: "earbuds", image: earbuds, types: [{ id: "t1", name: "Black" }, { id: "t2", name: "White" }] },
-  { id: "p3-earbuds", name: "PowerPods Pro", benefit: "ANC. Premium sound. Touch controls.", price: 55000, category: "earbuds", image: earbuds, types: [{ id: "t1", name: "Black" }] },
+  { id: "p1-earbuds", name: "PowerPods Basic", benefit: "True wireless. Crystal clear calls.", price: 25000, category: "earbuds", image: earbuds, brand: "Huawei", types: [{ id: "t1", name: "Black" }, { id: "t2", name: "White" }] },
+  { id: "p2-earbuds", name: "PowerPods Wireless", benefit: "True wireless freedom. Better battery.", price: 35000, category: "earbuds", image: earbuds, brand: "Huawei", types: [{ id: "t1", name: "Black" }, { id: "t2", name: "White" }] },
+  { id: "p3-earbuds", name: "PowerPods Pro", benefit: "ANC. Premium sound. Touch controls.", price: 55000, category: "earbuds", image: earbuds, brand: "Huawei", types: [{ id: "t1", name: "Black" }] },
 ];
 
 export interface Combo {

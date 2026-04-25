@@ -23,41 +23,25 @@ export const AdminLayout = () => {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [adminLoading, setAdminLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  useEffect(() => {
-    if (!user || authLoading) return;
-
-    supabase.from("user_roles")
-      .select("role")
-      .eq("user_id", user.id)
-      .eq("role", "admin")
-      .maybeSingle()
-      .then(({ data, error }) => {
-        // Bypass admin check for now - allow any logged-in user
-        setIsAdmin(true);
-        setAdminLoading(false);
-      });
-  }, [user, authLoading, navigate]);
-
-  if (authLoading || adminLoading) {
+  if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <div className="animate-spin h-10 w-10 border-4 border-orange-500 border-t-transparent rounded-full mx-auto" />
-          <p className="mt-4 text-gray-500">Loading admin panel...</p>
+          <p className="mt-4 text-gray-500">Loading...</p>
         </div>
       </div>
     );
   }
 
-  if (!isAdmin) {
+  if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <p className="text-gray-500">Access denied</p>
+        <div className="text-center space-y-4">
+          <p className="text-gray-500">Please sign in to access admin</p>
+          <a href="/auth?redirect=/admin" className="px-4 py-2 bg-orange-500 text-white rounded-full">Sign In</a>
         </div>
       </div>
     );

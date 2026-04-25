@@ -42,9 +42,14 @@ export const ProductCard = ({ product, index = 0 }: { product: Product; index?: 
             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
         </div>
-        <div className="p-5 space-y-3">
-          <div>
-            <h3 className="font-semibold text-gray-900">{product.name}</h3>
+<div className="p-5 space-y-3">
+            {(product as any).brand && (
+              <span className="text-xs font-medium text-orange-600 bg-orange-50 px-2 py-0.5 rounded-full">
+                {(product as any).brand}
+              </span>
+            )}
+            <div>
+              <h3 className="font-semibold text-gray-900">{product.name}</h3>
             <p className="text-sm text-gray-500 line-clamp-2 mt-1">{product.benefit}</p>
           </div>
           {product.types.length > 0 && (

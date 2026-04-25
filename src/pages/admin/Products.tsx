@@ -14,6 +14,24 @@ import {
 import { Plus, Edit, Trash2, Image as ImageIcon, Loader2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
+const BRANDS = [
+  { id: "samsung", name: "Samsung", color: "#1428A0" },
+  { id: "baseus", name: "Baseus", color: "#E60012" },
+  { id: "oraimo", name: "Oraimo", color: "#FF6B00" },
+  { id: "xiaomi", name: "Xiaomi", color: "#FF6700" },
+  { id: "anker", name: "Anker", color: "#00B0F0" },
+  { id: "ugreen", name: "UGREEN", color: "#10B981" },
+  { id: "apple", name: "Apple", color: "#555555" },
+  { id: "huawei", name: "Huawei", color: "#CF0A2C" },
+  { id: "oppo", name: "OPPO", color: "#00B5AD" },
+  { id: "vivo", name: "Vivo", color: "#415FFF" },
+  { id: "realme", name: "realme", color: "#FFB700" },
+  { id: "infinix", name: "Infinix", color: "#E83E35" },
+  { id: "tecno", name: "Tecno", color: "#0D8AE5" },
+  { id: "itel", name: "Itel", color: "#00A0E9" },
+  { id: "generic", name: "Generic", color: "#888888" },
+];
+
 const CATEGORIES = [
   { id: "power-wired", label: "Wired Chargers" },
   { id: "power-wireless", label: "Wireless Chargers" },
@@ -40,6 +58,7 @@ interface Product {
   images: string[];
   is_featured: boolean;
   is_best_seller: boolean;
+  brand?: string;
   types: ProductType[];
 }
 
@@ -50,7 +69,7 @@ const AdminProducts = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [saving, setSaving] = useState(false);
 
-const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState({
     name: "",
     benefit: "",
     price: 0,
@@ -58,6 +77,7 @@ const [formData, setFormData] = useState({
     images: [""],
     is_featured: false,
     is_best_seller: false,
+    brand: "generic",
     types: [] as { id: string; name: string }[],
   });
 
@@ -103,6 +123,7 @@ const [formData, setFormData] = useState({
         images: validImages,
         is_featured: formData.is_featured,
         is_best_seller: formData.is_best_seller,
+        brand: formData.brand,
         is_active: true,
         sort_order: 0,
       };
@@ -110,7 +131,6 @@ const [formData, setFormData] = useState({
       if (editingProduct) {
         await supabase.from("products").update(productData).eq("id", editingProduct.id);
         
-        // Delete old types and add new ones
         await supabase.from("product_types").delete().eq("product_id", editingProduct.id);
         
         for (let i = 0; i < formData.types.length; i++) {
@@ -171,6 +191,7 @@ const [formData, setFormData] = useState({
       images: product.images && product.images.length > 0 ? product.images : [product.image || ""],
       is_featured: product.is_featured || false,
       is_best_seller: product.is_best_seller || false,
+      brand: product.brand || "generic",
       types: product.types,
     });
     setIsDialogOpen(true);
@@ -185,6 +206,7 @@ const [formData, setFormData] = useState({
       images: [""],
       is_featured: false,
       is_best_seller: false,
+      brand: "generic",
       types: [],
     });
   };
@@ -228,6 +250,8 @@ const [formData, setFormData] = useState({
       types: prev.types.filter((_, i) => i !== index),
     }));
   };
+
+  const getBrandName = (id: string) => BRANDS.find(b => b.id === id)?.name || "Generic";
 
   if (loading) {
     return (
@@ -326,17 +350,30 @@ const [formData, setFormData] = useState({
                 </div>
                 
                 <div className="space-y-2">
-                  <Label>Category *</Label>
+                  <Label>Brand *</Label>
                   <select
-                    value={formData.category}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, category: e.target.value }))}
+                    value={formData.brand}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, brand: e.target.value }))}
                     className="flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm"
                   >
-                    {CATEGORIES.map((c) => (
-                      <option key={c.id} value={c.id}>{c.label}</option>
+                    {BRANDS.map((b) => (
+                      <option key={b.id} value={b.id}>{b.name}</option>
                     ))}
                   </select>
                 </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Category *</Label>
+                <select
+                  value={formData.category}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, category: e.target.value }))}
+                  className="flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm"
+                >
+                  {CATEGORIES.map((c) => (
+                    <option key={c.id} value={c.id}>{c.label}</option>
+                  ))}
+                </select>
               </div>
 
               <div className="flex gap-4">
@@ -360,7 +397,6 @@ const [formData, setFormData] = useState({
                 </label>
               </div>
               
-              {/* Types */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label>Product Variants (Types)</Label>
@@ -400,12 +436,12 @@ const [formData, setFormData] = useState({
         </Dialog>
       </div>
 
-      {/* Products Table */}
       <div className="bg-white border border-gray-100 rounded-2xl overflow-hidden">
         <table className="w-full">
           <thead className="bg-gray-50">
             <tr>
               <th className="text-left p-4 font-medium">Product</th>
+              <th className="text-left p-4 font-medium">Brand</th>
               <th className="text-left p-4 font-medium">Category</th>
               <th className="text-left p-4 font-medium">Price</th>
               <th className="text-left p-4 font-medium">Variants</th>
@@ -431,6 +467,11 @@ const [formData, setFormData] = useState({
                       <p className="text-sm text-gray-500 line-clamp-1">{product.benefit}</p>
                     </div>
                   </div>
+                </td>
+                <td className="p-4">
+                  <span className="px-2 py-1 bg-orange-50 text-orange-700 rounded text-xs font-medium">
+                    {getBrandName(product.brand || "generic")}
+                  </span>
                 </td>
                 <td className="p-4">
                   <span className="px-2 py-1 bg-gray-100 rounded text-xs">

@@ -19,8 +19,27 @@ export interface Product {
   price: number;
   category: Category;
   image: string;
+  brand?: string;
   types: ProductType[];
 }
+
+export const BRANDS = [
+  { id: "samsung", name: "Samsung", color: "#1428A0" },
+  { id: "baseus", name: "Baseus", color: "#E60012" },
+  { id: "oraimo", name: "Oraimo", color: "#FF6B00" },
+  { id: "xiaomi", name: "Xiaomi", color: "#FF6700" },
+  { id: "anker", name: "Anker", color: "#00B0F0" },
+  { id: "ugreen", name: "UGREEN", color: "#10B981" },
+  { id: "apple", name: "Apple", color: "#555555" },
+  { id: "huawei", name: "Huawei", color: "#CF0A2C" },
+  { id: "oppo", name: "OPPO", color: "#00B5AD" },
+  { id: "vivo", name: "Vivo", color: "#415FFF" },
+  { id: "realme", name: "realme", color: "#FFB700" },
+  { id: "infinix", name: "Infinix", color: "#E83E35" },
+  { id: "tecno", name: "Tecno", color: "#0D8AE5" },
+  { id: "itel", name: "Itel", color: "#00A0E9" },
+  { id: "generic", name: "Generic", color: "#888888" },
+] as const;
 
 export const categoryGroups = {
   power: {

@@ -7,6 +7,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { CartProvider } from "@/contexts/CartContext";
 import { Layout } from "./components/Layout";
+import { AdminLayout } from "./components/AdminLayout";
 import Home from "./pages/Home";
 import Shop from "./pages/Shop";
 import ProductDetail from "./pages/ProductDetail";
@@ -19,18 +20,16 @@ import Orders from "./pages/Orders";
 import OrderDetail from "./pages/OrderDetail";
 import NotFound from "./pages/NotFound.tsx";
 import DeliveryTracking from "./pages/DeliveryTracking";
-
-const AdminLayout = lazy(() => import("@/components/AdminLayout").then(m => ({ default: m.AdminLayout })));
-const AdminDashboard = lazy(() => import("./pages/admin/Dashboard"));
-const AdminProducts = lazy(() => import("./pages/admin/Products"));
-const AdminSettings = lazy(() => import("./pages/admin/Settings"));
-const AdminBusiness = lazy(() => import("./pages/admin/Business"));
-const AdminInventory = lazy(() => import("./pages/admin/Inventory"));
-const AdminPromotions = lazy(() => import("./pages/admin/Promotions"));
-const AdminCombos = lazy(() => import("./pages/admin/Combos"));
-const AdminDelivery = lazy(() => import("./pages/admin/Delivery"));
-const AdminTestimonials = lazy(() => import("./pages/admin/Testimonials"));
-const AdminOrders = lazy(() => import("./pages/admin/Orders"));
+import AdminDashboard from "./pages/admin/Dashboard";
+import AdminProducts from "./pages/admin/Products";
+import AdminOrders from "./pages/admin/Orders";
+import AdminSettings from "./pages/admin/Settings";
+import AdminBusiness from "./pages/admin/Business";
+import AdminInventory from "./pages/admin/Inventory";
+import AdminPromotions from "./pages/admin/Promotions";
+import AdminCombos from "./pages/admin/Combos";
+import AdminDelivery from "./pages/admin/Delivery";
+import AdminTestimonials from "./pages/admin/Testimonials";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -41,12 +40,6 @@ const queryClient = new QueryClient({
   },
 });
 
-const PageLoader = () => (
-  <div className="min-h-screen flex items-center justify-center bg-gray-50">
-    <div className="animate-spin h-8 w-8 border-4 border-orange-500 border-t-transparent rounded-full" />
-  </div>
-);
-
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -54,7 +47,6 @@ const App = () => (
         <CartProvider>
           <Toaster />
           <Sonner />
-          <Suspense fallback={<PageLoader />}>
             <BrowserRouter>
               <Routes>
                 <Route element={<Layout />}>
@@ -85,7 +77,6 @@ const App = () => (
                 </Route>
               </Routes>
             </BrowserRouter>
-          </Suspense>
         </CartProvider>
       </AuthProvider>
     </TooltipProvider>

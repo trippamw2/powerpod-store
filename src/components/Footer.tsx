@@ -27,7 +27,7 @@ export const Footer = () => {
   return (
     <footer className="bg-white border-t border-gray-200 mt-24">
       {/* Newsletter & Trust Strip */}
-      <div className="bg-gradient-to-r from-orange-500 to-pink-500">
+      <div className="bg-gradient-to-r from-teal-600 to-emerald-600">
         <div className="container py-8">
           <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
             {/* Newsletter */}
@@ -103,7 +103,7 @@ export const Footer = () => {
             <p className="text-gray-500 max-w-sm">
               Power and sound for your everyday. Stay charged. Stay connected.
             </p>
-            <p className="text-sm bg-gradient-to-r from-orange-500 to-pink-500 bg-clip-text text-transparent font-semibold">Keep the vibe alive</p>
+            <p className="text-sm bg-gradient-to-r from-teal-600 to-emerald-600 bg-clip-text text-transparent font-semibold">Keep the vibe alive</p>
             
             {/* Social */}
             <div className="flex gap-4 pt-2">

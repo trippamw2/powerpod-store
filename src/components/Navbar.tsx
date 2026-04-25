@@ -78,7 +78,7 @@ export const Navbar = () => {
   return (
     <header className="sticky top-0 z-40 bg-white border-b border-gray-200">
       {/* Promo Banner */}
-      <div className="hidden md:block bg-gradient-to-r from-orange-500 to-pink-500 text-white text-center py-1.5 text-sm">
+      <div className="hidden md:block bg-gradient-to-r from-teal-600 to-emerald-600 text-white text-center py-1.5 text-sm">
         🔥 Free shipping on orders over MWK 50,000 • New deals added daily!
       </div>
 
@@ -144,7 +144,7 @@ export const Navbar = () => {
             <button className="relative p-2.5 rounded-full hover:bg-gray-100" aria-label="Open cart">
               <ShoppingBag className="h-5 w-5 text-gray-700" />
               {count > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 h-5 min-w-5 px-1 rounded-full bg-gradient-to-r from-orange-500 to-pink-500 text-white text-[10px] font-bold flex items-center justify-center">
+                <span className="absolute -top-0.5 -right-0.5 h-5 min-w-5 px-1 rounded-full bg-gradient-to-r from-teal-600 to-emerald-600 text-white text-[10px] font-bold flex items-center justify-center">
                   {count}
                 </span>
               )}
@@ -215,7 +215,7 @@ export const Navbar = () => {
                 ))}
                 <div className="rounded-xl overflow-hidden">
                   <img src="/images/promo-banner.jpg" alt="Special offer" className="w-full h-40 object-cover" />
-                  <div className="bg-gradient-to-r from-orange-500 to-pink-500 p-4 text-white">
+                  <div className="bg-gradient-to-r from-teal-600 to-emerald-600 p-4 text-white">
                     <p className="font-semibold">Shop Deals</p>
                     <p className="text-sm opacity-80">Up to 30% off</p>
                   </div>

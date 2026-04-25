@@ -15,7 +15,7 @@ const PAGES_OPTIONS = [
 ];
 
 const PROMO_COLORS = [
-  "from-orange-500 to-pink-500",
+  "from-teal-600 to-emerald-600",
   "from-purple-500 to-indigo-500",
   "from-green-500 to-teal-500",
   "from-blue-500 to-cyan-500",
@@ -36,7 +36,7 @@ const AdminPromotions = () => {
     images: [""] as string[],
     link: "/shop",
     link_text: "Shop Now",
-    background_color: "from-orange-500 to-pink-500",
+    background_color: "from-teal-600 to-emerald-600",
     text_color: "text-white",
     is_active: true,
     is_featured: true,
@@ -89,7 +89,7 @@ const AdminPromotions = () => {
       images: [""],
       link: "/shop",
       link_text: "Shop Now",
-      background_color: "from-orange-500 to-pink-500",
+      background_color: "from-teal-600 to-emerald-600",
       text_color: "text-white",
       is_active: true,
       is_featured: true,

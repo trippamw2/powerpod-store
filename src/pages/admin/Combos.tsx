@@ -251,7 +251,7 @@ const AdminCombos = () => {
           }
         }}>
           <DialogTrigger asChild>
-            <Button className="bg-orange-500 hover:bg-orange-600">
+            <Button className="bg-teal-600 hover:bg-teal-700">
               <Plus className="h-4 w-4" /> Add Combo
             </Button>
           </DialogTrigger>
@@ -401,7 +401,7 @@ const AdminCombos = () => {
               
               <Button 
                 onClick={handleSave} 
-                className="w-full bg-orange-500 hover:bg-orange-600"
+                className="w-full bg-teal-600 hover:bg-teal-700"
                 disabled={saving || !formData.name}
               >
                 {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
@@ -452,7 +452,7 @@ const AdminCombos = () => {
                   <p className="text-xs text-green-500">Save MK {combo.saving.toLocaleString()}</p>
                 )}
               </div>
-              <span className="px-3 py-1 bg-gradient-to-r from-orange-500 to-pink-500 text-white text-xs font-semibold rounded-full">
+              <span className="px-3 py-1 bg-gradient-to-r from-teal-600 to-emerald-600 text-white text-xs font-semibold rounded-full">
                 {combo.vibe}
               </span>
             </div>

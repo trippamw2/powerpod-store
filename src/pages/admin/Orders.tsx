@@ -27,10 +27,12 @@ interface OrderItem {
   quantity: number;
 }
 
-const STATUSES = ["new", "confirmed", "dispatched", "delivered", "cancelled"] as const;
+const STATUSES = ["new", "confirmed", "processing", "dispatched", "delivered", "cancelled"] as const;
 
 const STATUS_MESSAGES: Record<string, string> = {
+  new: "Your order has been received and is being processed.",
   confirmed: "Your order has been confirmed! We're preparing it for you.",
+  processing: "Your order is being prepared and will be dispatched soon.",
   dispatched: "Great news! Your order is on its way.",
   delivered: "Your order has been delivered! Enjoy your PowerPod products.",
   cancelled: "We're sorry, your order has been cancelled.",
@@ -39,6 +41,7 @@ const STATUS_MESSAGES: Record<string, string> = {
 const statusColors: Record<string, string> = {
   new: "bg-accent text-white",
   confirmed: "bg-primary text-white",
+  processing: "bg-blue-500 text-white",
   dispatched: "bg-purple-500 text-white",
   delivered: "bg-green-500 text-white",
   cancelled: "bg-destructive text-white",

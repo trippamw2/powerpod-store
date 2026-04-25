@@ -58,9 +58,12 @@ export type Database = {
           customer_location: string | null
           customer_name: string
           customer_phone: string
+          delivery_fee_mwk: number | null
           id: string
           notes: string | null
+          payment_method: string | null
           status: Database["public"]["Enums"]["order_status"]
+          subtotal_mwk: number | null
           total_mwk: number
           updated_at: string
           user_id: string | null
@@ -71,9 +74,12 @@ export type Database = {
           customer_location?: string | null
           customer_name: string
           customer_phone: string
+          delivery_fee_mwk?: number | null
           id?: string
           notes?: string | null
+          payment_method?: string | null
           status?: Database["public"]["Enums"]["order_status"]
+          subtotal_mwk?: number | null
           total_mwk: number
           updated_at?: string
           user_id?: string | null
@@ -84,13 +90,175 @@ export type Database = {
           customer_location?: string | null
           customer_name?: string
           customer_phone?: string
+          delivery_fee_mwk?: number | null
           id?: string
           notes?: string | null
+          payment_method?: string | null
           status?: Database["public"]["Enums"]["order_status"]
+          subtotal_mwk?: number | null
           total_mwk?: number
           updated_at?: string
           user_id?: string | null
           whatsapp_sent?: boolean
+        }
+        Relationships: []
+      }
+      products: {
+        Row: {
+          benefit: string
+          brand: string | null
+          category: string
+          created_at: string
+          id: string
+          image: string
+          name: string
+          price: number
+        }
+        Insert: {
+          benefit: string
+          brand?: string | null
+          category: string
+          created_at?: string
+          id?: string
+          image: string
+          name: string
+          price: number
+        }
+        Update: {
+          benefit?: string
+          brand?: string | null
+          category?: string
+          created_at?: string
+          id?: string
+          image?: string
+          name?: string
+          price?: number
+        }
+        Relationships: []
+      }
+      product_types: {
+        Row: {
+          id: string
+          name: string
+          product_id: string
+        }
+        Insert: {
+          id: string
+          name: string
+          product_id: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          product_id?: string
+        }
+        Relationships: []
+      }
+      combos: {
+        Row: {
+          created_at: string
+          id: string
+          image: string
+          name: string
+          price: number
+          tagline: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          image: string
+          name: string
+          price: number
+          tagline: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          image?: string
+          name?: string
+          price?: number
+          tagline?: string
+        }
+        Relationships: []
+      }
+      combo_items: {
+        Row: {
+          combo_id: string
+          id: string
+          product_id: string
+          quantity: number
+        }
+        Insert: {
+          combo_id: string
+          id?: string
+          product_id: string
+          quantity: number
+        }
+        Update: {
+          combo_id?: string
+          id?: string
+          product_id?: string
+          quantity?: number
+        }
+        Relationships: []
+      }
+      promotions: {
+        Row: {
+          created_at: string
+          description: string | null
+          discount_percent: number
+          end_date: string | null
+          id: string
+          is_active: boolean
+          name: string
+          start_date: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          discount_percent: number
+          end_date?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          start_date: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          discount_percent?: number
+          end_date?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          start_date?: string
+        }
+        Relationships: []
+      }
+      testimonials: {
+        Row: {
+          created_at: string
+          customer_name: string
+          id: string
+          is_active: boolean
+          message: string
+          rating: number
+        }
+        Insert: {
+          created_at?: string
+          customer_name: string
+          id?: string
+          is_active?: boolean
+          message: string
+          rating: number
+        }
+        Update: {
+          created_at?: string
+          customer_name?: string
+          id?: string
+          is_active?: boolean
+          message?: string
+          rating?: number
         }
         Relationships: []
       }
@@ -160,6 +328,7 @@ export type Database = {
       order_status:
         | "new"
         | "confirmed"
+        | "processing"
         | "dispatched"
         | "delivered"
         | "cancelled"
@@ -294,6 +463,7 @@ export const Constants = {
       order_status: [
         "new",
         "confirmed",
+        "processing",
         "dispatched",
         "delivered",
         "cancelled",

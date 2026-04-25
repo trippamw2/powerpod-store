@@ -7,10 +7,8 @@ import { Testimonials } from "@/components/Testimonials";
 import { PartnerBrands } from "@/components/PartnerBrands";
 import { products, combos, formatMWK } from "@/data/products";
 import { useCart } from "@/contexts/CartContext";
-import { buildWhatsAppLink, defaultMessage, comboMessage } from "@/lib/whatsapp";
 import { Headphones, Heart, ArrowRight, ShieldCheck, Truck, ShoppingBag } from "lucide-react";
 import hero from "@/assets/hero-lifestyle.jpg";
-import lifestyleMusic from "@/assets/lifestyle-music.jpg";
 import { toast } from "@/hooks/use-toast";
 import { getItemImage } from "@/data/products";
 
@@ -52,10 +50,8 @@ const Home = () => {
               <Button asChild variant="hero" size="lg">
                 <Link to="/shop">Shop Now <ArrowRight className="h-4 w-4" /></Link>
               </Button>
-              <Button asChild variant="whatsapp" size="lg">
-                <a href={buildWhatsAppLink(defaultMessage)} target="_blank" rel="noopener noreferrer">
-                  Message Us
-                </a>
+              <Button asChild size="lg" className="bg-gray-900 hover:bg-gray-800">
+                <Link to="/contact">Contact Us</Link>
               </Button>
             </div>
           </motion.div>
@@ -151,12 +147,10 @@ const Home = () => {
 
       <section className="container pb-12">
         <div className="relative rounded-2xl overflow-hidden bg-gradient-brand p-8 md:p-12 text-center text-white">
-          <h2 className="font-display font-bold text-2xl sm:text-3xl">Ready to vibe?</h2>
-          <p className="text-white/80 text-sm mt-2">Order through WhatsApp. We deliver anywhere in Malawi.</p>
+          <h2 className="font-display font-bold text-2xl sm:text-3xl">Ready to order?</h2>
+          <p className="text-white/80 text-sm mt-2">We deliver anywhere in Malawi.</p>
           <Button asChild size="lg" className="mt-4 bg-white text-foreground hover:bg-white/90">
-            <a href={buildWhatsAppLink(defaultMessage)} target="_blank" rel="noopener noreferrer">
-              Message Us
-            </a>
+            <Link to="/checkout">Proceed to Checkout</Link>
           </Button>
         </div>
       </section>

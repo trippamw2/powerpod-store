@@ -3,8 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { products, formatMWK } from "@/data/products";
 import { useCart } from "@/contexts/CartContext";
 import { Button } from "@/components/ui/button";
-import { buildWhatsAppLink, productMessage } from "@/lib/whatsapp";
-import { ArrowLeft, Minus, Plus, ShoppingBag, MessageCircle, Check, Truck, ShieldCheck } from "lucide-react";
+import { ArrowLeft, Minus, Plus, ShoppingBag, Check, Truck, ShieldCheck } from "lucide-react";
 import { ProductCard } from "@/components/ProductCard";
 import { toast } from "@/hooks/use-toast";
 
@@ -31,11 +30,6 @@ const ProductDetail = () => {
     const fullName = `${product.name} (${typeName})`;
     add({ productKey: `${product.id}-${selectedType}`, name: fullName, price: product.price, image: product.image }, qty);
     toast({ title: "Added to cart", description: `${qty} × ${fullName}` });
-  };
-
-  const getImageUrl = () => {
-    const baseUrl = window.location.origin;
-    return `${baseUrl}${product.image}`;
   };
 
   return (
@@ -85,9 +79,9 @@ const ProductDetail = () => {
           )}
 
           <ul className="space-y-2 text-sm">
-            <li className="flex items-center gap-2"><Check className="h-4 w-4 text-accent" /> Fast WhatsApp checkout</li>
-            <li className="flex items-center gap-2"><Truck className="h-4 w-4 text-accent" /> Delivery across Malawi</li>
-            <li className="flex items-center gap-2"><ShieldCheck className="h-4 w-4 text-accent" /> Tested & trusted by PowerPod</li>
+            <li className="flex items-center gap-2"><Check className="h-4 w-4 text-green-500" /> Fast checkout with PayChangu</li>
+            <li className="flex items-center gap-2"><Truck className="h-4 w-4 text-green-500" /> Delivery across Malawi</li>
+            <li className="flex items-center gap-2"><ShieldCheck className="h-4 w-4 text-green-500" /> Tested & trusted products</li>
           </ul>
 
           <div className="flex items-center gap-3">
@@ -100,12 +94,6 @@ const ProductDetail = () => {
               <ShoppingBag className="h-5 w-5" /> Add to cart
             </Button>
           </div>
-
-          <Button asChild variant="whatsapp" size="lg" className="w-full">
-            <a href={buildWhatsAppLink(productMessage(product.name, product.price, getImageUrl()))} target="_blank" rel="noopener noreferrer">
-              <MessageCircle className="h-5 w-5" /> Order on WhatsApp
-            </a>
-          </Button>
         </div>
       </div>
 

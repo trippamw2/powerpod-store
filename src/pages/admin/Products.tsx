@@ -37,6 +37,7 @@ interface Product {
   price: number;
   category: string;
   image: string;
+  images: string[];
   types: ProductType[];
 }
 
@@ -52,7 +53,7 @@ const AdminProducts = () => {
     benefit: "",
     price: 0,
     category: "earbuds",
-    image: "",
+    images: [""] as string[],
     types: [] as { id: string; name: string }[],
   });
 
@@ -88,12 +89,14 @@ const AdminProducts = () => {
   const handleSave = async () => {
     setSaving(true);
     try {
+      const validImages = formData.images.filter(img => img.trim() !== "");
       const productData = {
         name: formData.name,
         benefit: formData.benefit,
         price: formData.price,
         category: formData.category,
-        image: formData.image,
+        image: validImages[0] || "",
+        images: validImages,
         is_active: true,
         sort_order: 0,
       };
@@ -159,7 +162,7 @@ const AdminProducts = () => {
       benefit: product.benefit || "",
       price: product.price,
       category: product.category,
-      image: product.image || "",
+      images: product.images && product.images.length > 0 ? product.images : [product.image || ""],
       types: product.types,
     });
     setIsDialogOpen(true);
@@ -171,9 +174,29 @@ const AdminProducts = () => {
       benefit: "",
       price: 0,
       category: "earbuds",
-      image: "",
+      images: [""],
       types: [],
     });
+  };
+
+  const addImage = () => {
+    setFormData((prev) => ({
+      ...prev,
+      images: [...prev.images, ""],
+    }));
+  };
+
+  const updateImage = (index: number, url: string) => {
+    const newImages = [...formData.images];
+    newImages[index] = url;
+    setFormData((prev) => ({ ...prev, images: newImages }));
+  };
+
+  const removeImage = (index: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      images: prev.images.filter((_, i) => i !== index),
+    }));
   };
 
   const addType = () => {
@@ -241,17 +264,35 @@ const AdminProducts = () => {
               </div>
 
               <div className="space-y-2">
-                <Label>Product Image URL</Label>
-                <Input
-                  value={formData.image}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, image: e.target.value }))}
-                  placeholder="https://example.com/image.jpg"
-                />
-                {formData.image && (
-                  <div className="mt-2">
-                    <img src={formData.image} alt="Preview" className="h-20 w-20 rounded-lg object-cover" />
-                  </div>
-                )}
+                <div className="flex items-center justify-between">
+                  <Label>Product Images (URLs)</Label>
+                  <Button type="button" variant="outline" size="sm" onClick={addImage}>
+                    <Plus className="h-3 w-3" /> Add Image
+                  </Button>
+                </div>
+                <div className="space-y-2">
+                  {formData.images.map((img, index) => (
+                    <div key={index} className="flex gap-2">
+                      <Input
+                        value={img}
+                        onChange={(e) => updateImage(index, e.target.value)}
+                        placeholder="https://example.com/image.jpg"
+                      />
+                      {formData.images.length > 1 && (
+                        <Button type="button" variant="ghost" size="icon" onClick={() => removeImage(index)}>
+                          <Trash2 className="h-4 w-4 text-red-500" />
+                        </Button>
+                      )}
+                    </div>
+                  ))}
+                  {formData.images[0] && (
+                    <div className="flex gap-2 flex-wrap mt-2">
+                      {formData.images.filter(i => i).map((img, i) => (
+                        <img key={i} src={img} alt={`Preview ${i}`} className="h-16 w-16 rounded-lg object-cover" />
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
               
               <div className="space-y-2">

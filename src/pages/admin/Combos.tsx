@@ -27,6 +27,8 @@ interface Combo {
   price: number;
   saving: number;
   vibe: string;
+  image: string;
+  images: string[];
   items: ComboItem[];
 }
 
@@ -50,6 +52,7 @@ const AdminCombos = () => {
     price: 0,
     saving: 0,
     vibe: "",
+    images: [""] as string[],
     item_names: [] as string[],
   });
 
@@ -90,6 +93,7 @@ const AdminCombos = () => {
   const handleSave = async () => {
     setSaving(true);
     try {
+      const validImages = formData.images.filter(img => img.trim() !== "");
       const comboData = {
         name: formData.name,
         tagline: formData.tagline,
@@ -97,6 +101,8 @@ const AdminCombos = () => {
         price: formData.price,
         saving: formData.saving,
         vibe: formData.vibe,
+        image: validImages[0] || "",
+        images: validImages,
         is_active: true,
         sort_order: 0,
       };
@@ -162,6 +168,7 @@ const AdminCombos = () => {
       price: combo.price,
       saving: combo.saving,
       vibe: combo.vibe || "",
+      images: combo.images && combo.images.length > 0 ? combo.images : [combo.image || ""],
       item_names: combo.items.map(i => i.product_name),
     });
     setIsDialogOpen(true);
@@ -175,8 +182,29 @@ const AdminCombos = () => {
       price: 0,
       saving: 0,
       vibe: "",
+      images: [""],
       item_names: [],
     });
+  };
+
+  const addImage = () => {
+    setFormData((prev) => ({
+      ...prev,
+      images: [...prev.images, ""],
+    }));
+  };
+
+  const updateImage = (index: number, url: string) => {
+    const newImages = [...formData.images];
+    newImages[index] = url;
+    setFormData((prev) => ({ ...prev, images: newImages }));
+  };
+
+  const removeImage = (index: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      images: prev.images.filter((_, i) => i !== index),
+    }));
   };
 
   const addItem = () => {
@@ -288,6 +316,39 @@ const AdminCombos = () => {
                     value={formData.saving}
                     onChange={(e) => setFormData((prev) => ({ ...prev, saving: parseInt(e.target.value) || 0 }))}
                   />
+                </div>
+              </div>
+
+              {/* Images */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label>Combo Images</Label>
+                  <Button type="button" variant="outline" size="sm" onClick={addImage}>
+                    <Plus className="h-3 w-3" /> Add Image
+                  </Button>
+                </div>
+                <div className="space-y-2">
+                  {formData.images.map((img, index) => (
+                    <div key={index} className="flex gap-2">
+                      <Input
+                        value={img}
+                        onChange={(e) => updateImage(index, e.target.value)}
+                        placeholder="https://example.com/image.jpg"
+                      />
+                      {formData.images.length > 1 && (
+                        <Button type="button" variant="ghost" size="icon" onClick={() => removeImage(index)}>
+                          <Trash2 className="h-4 w-4 text-red-500" />
+                        </Button>
+                      )}
+                    </div>
+                  ))}
+                  {formData.images[0] && (
+                    <div className="flex gap-2 flex-wrap mt-2">
+                      {formData.images.filter(i => i).map((img, i) => (
+                        <img key={i} src={img} alt={`Preview ${i}`} className="h-16 w-16 rounded-lg object-cover" />
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
 

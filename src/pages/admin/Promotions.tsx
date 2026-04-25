@@ -33,6 +33,7 @@ const AdminPromotions = () => {
     subtitle: "",
     description: "",
     image: "",
+    images: [""] as string[],
     link: "/shop",
     link_text: "Shop Now",
     background_color: "from-orange-500 to-pink-500",
@@ -59,8 +60,11 @@ const AdminPromotions = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    const validImages = formData.images.filter(img => img.trim() !== "");
     const payload = {
       ...formData,
+      image: validImages[0] || "",
+      images: validImages,
       pages: formData.pages,
     };
 
@@ -82,6 +86,7 @@ const AdminPromotions = () => {
       subtitle: "",
       description: "",
       image: "",
+      images: [""],
       link: "/shop",
       link_text: "Shop Now",
       background_color: "from-orange-500 to-pink-500",
@@ -100,6 +105,7 @@ const AdminPromotions = () => {
       subtitle: promo.subtitle || "",
       description: promo.description || "",
       image: promo.image || "",
+      images: promo.images && promo.images.length > 0 ? promo.images : [promo.image || ""],
       link: promo.link,
       link_text: promo.link_text,
       background_color: promo.background_color,
@@ -171,8 +177,42 @@ const AdminPromotions = () => {
               </div>
 
               <div className="space-y-2">
-                <Label>Image URL *</Label>
-                <Input value={formData.image} onChange={e => setFormData(p => ({ ...p, image: e.target.value }))} placeholder="https://..." required />
+                <div className="flex items-center justify-between">
+                  <Label>Image URLs</Label>
+                  <Button type="button" variant="outline" size="sm" onClick={() => setFormData(p => ({ ...p, images: [...p.images, ""] }))}>
+                    <Plus className="h-3 w-3" /> Add Image
+                  </Button>
+                </div>
+                <div className="space-y-2">
+                  {formData.images.map((img, index) => (
+                    <div key={index} className="flex gap-2">
+                      <Input
+                        value={img}
+                        onChange={e => {
+                          const newImages = [...formData.images];
+                          newImages[index] = e.target.value;
+                          setFormData(p => ({ ...p, images: newImages, image: newImages[0] || "" }));
+                        }}
+                        placeholder="https://example.com/image.jpg"
+                      />
+                      {formData.images.length > 1 && (
+                        <Button type="button" variant="ghost" size="icon" onClick={() => {
+                          const newImages = formData.images.filter((_, i) => i !== index);
+                          setFormData(p => ({ ...p, images: newImages, image: newImages[0] || "" }));
+                        }}>
+                          <Trash2 className="h-4 w-4 text-red-500" />
+                        </Button>
+                      )}
+                    </div>
+                  ))}
+                  {formData.images[0] && (
+                    <div className="flex gap-2 flex-wrap mt-2">
+                      {formData.images.filter(i => i).map((img, i) => (
+                        <img key={i} src={img} alt={`Preview ${i}`} className="h-16 w-16 rounded-lg object-cover" />
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div className="grid sm:grid-cols-2 gap-4">

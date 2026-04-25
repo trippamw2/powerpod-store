@@ -24,6 +24,10 @@ export const AdminLayout = () => {
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  useEffect(() => {
+    console.log("AdminLayout render:", { user: !!user, authLoading });
+  }, [user, authLoading]);
+
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">

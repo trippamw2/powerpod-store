@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ProductCard } from "@/components/ProductCard";
 import { PromotionSlider } from "@/components/PromotionSlider";
 import { Testimonials } from "@/components/Testimonials";
+import { PartnerBrands } from "@/components/PartnerBrands";
 import { products, combos, formatMWK } from "@/data/products";
 import { useCart } from "@/contexts/CartContext";
 import { buildWhatsAppLink, defaultMessage, comboMessage } from "@/lib/whatsapp";
@@ -145,6 +146,8 @@ const Home = () => {
       </section>
 
       <Testimonials />
+
+      <PartnerBrands />
 
       <section className="container pb-12">
         <div className="relative rounded-2xl overflow-hidden bg-gradient-brand p-8 md:p-12 text-center text-white">

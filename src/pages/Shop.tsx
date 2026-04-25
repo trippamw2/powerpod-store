@@ -1,26 +1,53 @@
 import { useState } from "react";
-import { products, categories, Category } from "@/data/products";
+import { products, categories, Category, BRANDS } from "@/data/products";
 import { ProductCard } from "@/components/ProductCard";
 import { PromotionSlider } from "@/components/PromotionSlider";
-import { Search, X } from "lucide-react";
+import { Search, X, Grid3X3, List, SlidersHorizontal, ChevronDown, ArrowUpDown } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { motion, AnimatePresence } from "framer-motion";
 
 const Shop = () => {
   const [selectedCategory, setSelectedCategory] = useState<Category | "all">("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState<"newest" | "price-low" | "price-high" | "name">("newest");
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [showFilters, setShowFilters] = useState(false);
+  const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 100000]);
 
   const filtered = products.filter(p => {
     const matchesCategory = selectedCategory === "all" || p.category === selectedCategory;
     const matchesSearch = !searchQuery || p.name.toLowerCase().includes(searchQuery.toLowerCase()) || p.benefit.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch;
+    const matchesBrand = selectedBrands.length === 0 || selectedBrands.includes((p as any).brand || "");
+    const matchesPrice = p.price >= priceRange[0] && p.price <= priceRange[1];
+    return matchesCategory && matchesSearch && matchesBrand && matchesPrice;
+  });
+
+  const sorted = [...filtered].sort((a, b) => {
+    switch (sortBy) {
+      case "price-low": return a.price - b.price;
+      case "price-high": return b.price - a.price;
+      case "name": return a.name.localeCompare(b.name);
+      default: return 0;
+    }
   });
 
   const clearFilters = () => {
     setSelectedCategory("all");
     setSearchQuery("");
+    setSelectedBrands([]);
   };
 
-  const hasFilters = selectedCategory !== "all" || searchQuery;
+  const toggleBrand = (brandId: string) => {
+    setSelectedBrands(prev => 
+      prev.includes(brandId) 
+        ? prev.filter(b => b !== brandId)
+        : [...prev, brandId]
+    );
+  };
+
+  const hasFilters = selectedCategory !== "all" || searchQuery || selectedBrands.length > 0;
 
   return (
     <div className="container py-8 sm:py-12">
@@ -33,9 +60,9 @@ const Shop = () => {
         <p className="text-gray-500 text-lg">Power and sound for your everyday.</p>
       </div>
 
-      {/* Search */}
-      <div className="mb-6">
-        <div className="relative max-w-md">
+      {/* Search & Sort Bar */}
+      <div className="flex flex-col md:flex-row gap-4 mb-6">
+        <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
           <Input
             placeholder="Search products..."
@@ -44,18 +71,94 @@ const Shop = () => {
             className="pl-10"
           />
           {searchQuery && (
-            <button
-              onClick={() => setSearchQuery("")}
-              className="absolute right-3 top-1/2 -translate-y-1/2"
-            >
+            <button onClick={() => setSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2">
               <X className="h-4 w-4 text-muted-foreground hover:text-foreground" />
             </button>
           )}
         </div>
+
+        <div className="flex items-center gap-2">
+          {/* Filter Toggle */}
+          <Button
+            variant={showFilters ? "default" : "outline"}
+            onClick={() => setShowFilters(!showFilters)}
+            className="gap-2"
+          >
+            <SlidersHorizontal className="h-4 w-4" />
+            Filters
+            {selectedBrands.length > 0 && (
+              <span className="ml-1 px-1.5 py-0.5 bg-white text-gray-900 rounded-full text-xs">{selectedBrands.length}</span>
+            )}
+          </Button>
+
+          {/* Sort */}
+          <div className="relative">
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as any)}
+              className="appearance-none pl-4 pr-10 py-2 rounded-full border border-gray-200 bg-white text-sm font-medium focus:outline-none focus:border-orange-500"
+            >
+              <option value="newest">Newest</option>
+              <option value="price-low">Price: Low to High</option>
+              <option value="price-high">Price: High to Low</option>
+              <option value="name">Name A-Z</option>
+            </select>
+            <ArrowUpDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+          </div>
+
+          {/* View Toggle */}
+          <div className="hidden md:flex border border-gray-200 rounded-full overflow-hidden">
+            <button
+              onClick={() => setViewMode("grid")}
+              className={`p-2 ${viewMode === "grid" ? "bg-gray-100" : "bg-white"}`}
+            >
+              <Grid3X3 className="h-4 w-4" />
+            </button>
+            <button
+              onClick={() => setViewMode("list")}
+              className={`p-2 ${viewMode === "list" ? "bg-gray-100" : "bg-white"}`}
+            >
+              <List className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
       </div>
 
+      {/* Filter Panel */}
+      <AnimatePresence>
+        {showFilters && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="overflow-hidden"
+          >
+            <div className="bg-gray-50 rounded-2xl p-6 mb-6 space-y-4">
+              <div>
+                <h3 className="font-medium mb-3">Brand</h3>
+                <div className="flex flex-wrap gap-2">
+                  {BRANDS.slice(0, 10).map((brand) => (
+                    <button
+                      key={brand.id}
+                      onClick={() => toggleBrand(brand.id)}
+                      className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                        selectedBrands.includes(brand.id)
+                          ? "bg-orange-500 text-white"
+                          : "bg-white border border-gray-200 text-gray-600 hover:border-orange-300"
+                      }`}
+                    >
+                      {brand.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Categories */}
-      <div className="flex flex-wrap gap-2 mb-8">
+      <div className="flex flex-wrap gap-2 mb-4">
         <button
           onClick={() => setSelectedCategory("all")}
           className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
@@ -81,35 +184,46 @@ const Shop = () => {
         ))}
       </div>
 
-      {/* Clear filters */}
+      {/* Active Filters */}
       {hasFilters && (
-        <button
-          onClick={clearFilters}
-          className="text-sm text-muted-foreground hover:text-foreground mb-4 flex items-center gap-1"
-        >
-          <X className="h-4 w-4" /> Clear filters
-        </button>
+        <div className="flex flex-wrap gap-2 mb-4">
+          {selectedCategory !== "all" && (
+            <span className="inline-flex items-center gap-1 px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-sm">
+              {categories.find(c => c.id === selectedCategory)?.label}
+              <button onClick={() => setSelectedCategory("all")}><X className="h-3 w-3" /></button>
+            </span>
+          )}
+          {searchQuery && (
+            <span className="inline-flex items-center gap-1 px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-sm">
+              "{searchQuery}"
+              <button onClick={() => setSearchQuery("")}><X className="h-3 w-3" /></button>
+            </span>
+          )}
+          <button onClick={clearFilters} className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1">
+            <X className="h-4 w-4" /> Clear all
+          </button>
+        </div>
       )}
 
       {/* Results count */}
       <p className="text-sm text-muted-foreground mb-4">
-        {filtered.length} {filtered.length === 1 ? "product" : "products"} found
+        Showing {sorted.length} of {products.length} products
       </p>
 
       {/* Products Grid */}
-      {filtered.length > 0 ? (
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-          {filtered.map((p, i) => (
-            <ProductCard key={p.id} product={p} index={i} />
+      {sorted.length > 0 ? (
+        <div className={viewMode === "grid" 
+          ? "grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5" 
+          : "grid sm:grid-cols-2 lg:grid-cols-3 gap-4"
+        }>
+          {sorted.map((p, i) => (
+            <ProductCard key={p.id} product={p} index={i} showBadge={i === 0 ? "hot" : i === 1 ? "new" : null} discount={i === 0 ? 15 : 0} />
           ))}
         </div>
       ) : (
         <div className="text-center py-20 space-y-4">
           <p className="text-muted-foreground text-lg">No products found</p>
-          <button
-            onClick={clearFilters}
-            className="px-4 py-2 bg-orange-500 text-white rounded-full text-sm font-medium"
-          >
+          <button onClick={clearFilters} className="px-4 py-2 bg-orange-500 text-white rounded-full text-sm font-medium">
             Clear filters
           </button>
         </div>

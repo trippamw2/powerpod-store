@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ProductCard } from "@/components/ProductCard";
 import { PromotionSlider } from "@/components/PromotionSlider";
@@ -7,13 +8,32 @@ import { Testimonials } from "@/components/Testimonials";
 import { PartnerBrands } from "@/components/PartnerBrands";
 import { products, combos, formatMWK } from "@/data/products";
 import { useCart } from "@/contexts/CartContext";
-import { Headphones, Heart, ArrowRight, ShieldCheck, Truck, ShoppingBag } from "lucide-react";
+import { Headphones, Heart, ArrowRight, ShieldCheck, Truck, ShoppingBag, Clock, Zap } from "lucide-react";
 import hero from "@/assets/hero-lifestyle.jpg";
 import { toast } from "@/hooks/use-toast";
 import { getItemImage } from "@/data/products";
 
 const Home = () => {
   const { add } = useCart();
+  const [countdown, setCountdown] = useState({ hours: 0, minutes: 0, seconds: 0 });
+
+  useEffect(() => {
+    const target = new Date();
+    target.setHours(23, 59, 59, 999);
+    const interval = setInterval(() => {
+      const now = new Date();
+      const diff = target.getTime() - now.getTime();
+      if (diff <= 0) {
+        target.setDate(target.getDate() + 1);
+      }
+      setCountdown({
+        hours: Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+        minutes: Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)),
+        seconds: Math.floor((diff % (1000 * 60)) / 1000),
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   const handleAddComboToCart = (combo: typeof combos[0]) => {
     add({
@@ -27,6 +47,18 @@ const Home = () => {
 
   return (
     <div>
+      {/* Hot Deals Marquee */}
+      <div className="bg-orange-500 text-white py-2 overflow-hidden">
+        <div className="flex animate-marquee whitespace-nowrap">
+          {[...Array(4)].map((_, i) => (
+            <span key={i} className="mx-4 flex items-center gap-2">
+              <Zap className="h-4 w-4" />
+              🔥 HOT DEALS: Up to 30% off on power banks • Free shipping over MWK 50,000 • New Oraimo products just landed!
+            </span>
+          ))}
+        </div>
+      </div>
+
       <section className="container pt-4">
         <PromotionSlider page="home" />
       </section>
@@ -39,6 +71,19 @@ const Home = () => {
             transition={{ duration: 0.6 }}
             className="space-y-5"
           >
+            {/* Countdown Timer */}
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-red-50 rounded-full">
+              <Clock className="h-4 w-4 text-red-500" />
+              <span className="text-sm font-medium text-red-600">Ends at midnight</span>
+              <div className="flex gap-1">
+                {Object.entries(countdown).map(([unit, value]) => (
+                  <span key={unit} className="px-2 py-1 bg-red-500 text-white text-sm font-bold rounded">
+                    {String(value).padStart(2, "0")}
+                  </span>
+                ))}
+              </div>
+            </div>
+
             <h1 className="font-display font-extrabold text-4xl sm:text-5xl lg:text-6xl leading-tight">
               Keep the<br />
               <span className="text-gradient">Vibe Alive.</span>
@@ -53,6 +98,18 @@ const Home = () => {
               <Button asChild size="lg" className="bg-gray-900 hover:bg-gray-800">
                 <Link to="/contact">Contact Us</Link>
               </Button>
+            </div>
+            
+            {/* Social Proof */}
+            <div className="flex items-center gap-4 pt-2">
+              <div className="flex -space-x-2">
+                {[1,2,3,4].map((i) => (
+                  <div key={i} className="w-8 h-8 rounded-full bg-gray-200 border-2 border-white" />
+                ))}
+              </div>
+              <div className="text-sm">
+                <span className="font-semibold">2,500+</span> happy customers
+              </div>
             </div>
           </motion.div>
 

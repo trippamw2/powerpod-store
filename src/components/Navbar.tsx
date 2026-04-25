@@ -1,11 +1,12 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { NavLink, Link, useNavigate } from "react-router-dom";
-import { Menu, X, Search, ShoppingBag, User, LogOut, Package } from "lucide-react";
+import { Menu, X, Search, ShoppingBag, User, LogOut, Package, Zap, Headphones, BatteryCharging, Cable, Speaker, ChevronDown } from "lucide-react";
 import { Logo } from "./Logo";
 import { cn } from "@/lib/utils";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { CartDrawer } from "./CartDrawer";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,18 +22,70 @@ const links = [
   { to: "/contact", label: "Contact" },
 ];
 
+const categories = [
+  { 
+    id: "power", 
+    label: "Power", 
+    icon: Zap,
+    items: [
+      { label: "Power Banks", to: "/shop?cat=power-banks", count: 12 },
+      { label: "Fast Chargers", to: "/shop?cat=power-adapters", count: 8 },
+      { label: "Wireless Chargers", to: "/shop?cat=power-wireless", count: 5 },
+      { label: "Cables", to: "/shop?cat=cables", count: 15 },
+    ]
+  },
+  { 
+    id: "audio", 
+    label: "Audio", 
+    icon: Headphones,
+    items: [
+      { label: "Earbuds", to: "/shop?cat=earbuds", count: 10 },
+      { label: "Headphones", to: "/shop?cat=headphones", count: 6 },
+      { label: "Speakers", to: "/shop?cat=speakers", count: 4 },
+    ]
+  },
+];
+
 export const Navbar = () => {
   const [open, setOpen] = useState(false);
+  const [megaMenuOpen, setMegaMenuOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const { count } = useCart();
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const searchRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
+        setSearchOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/shop?q=${encodeURIComponent(searchQuery)}`);
+      setSearchOpen(false);
+      setSearchQuery("");
+    }
+  };
 
   return (
     <header className="sticky top-0 z-40 bg-white border-b border-gray-200">
+      {/* Promo Banner */}
+      <div className="hidden md:block bg-gradient-to-r from-orange-500 to-pink-500 text-white text-center py-1.5 text-sm">
+        🔥 Free shipping on orders over MWK 50,000 • New deals added daily!
+      </div>
+
       <nav className="container flex h-16 items-center justify-between gap-4">
         <Logo className="h-12 md:h-14" />
 
-        <div className="hidden md:flex items-center gap-1">
+        <div className="hidden lg:flex items-center gap-1">
           {links.map((l) => (
             <NavLink
               key={l.to}
@@ -48,17 +101,45 @@ export const Navbar = () => {
               {l.label}
             </NavLink>
           ))}
+          
+          {/* Mega Menu Trigger */}
+          <button
+            onClick={() => setMegaMenuOpen(!megaMenuOpen)}
+            className="px-4 py-2 rounded-full text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50 flex items-center gap-1"
+          >
+            Categories <ChevronDown className={cn("h-4 w-4 transition-transform", megaMenuOpen && "rotate-180")} />
+          </button>
         </div>
 
         <div className="flex items-center gap-2">
-          <button
-            onClick={() => navigate("/shop")}
-            className="p-2.5 rounded-full hover:bg-gray-100"
-            aria-label="Search"
-          >
-            <Search className="h-5 w-5 text-gray-700" />
-          </button>
+          {/* Search */}
+          <div ref={searchRef} className="relative">
+            {searchOpen ? (
+              <form onSubmit={handleSearch} className="flex items-center">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search products..."
+                  className="w-40 md:w-64 px-4 py-2 rounded-full border border-gray-200 focus:outline-none focus:border-orange-500 text-sm"
+                  autoFocus
+                />
+                <button type="button" onClick={() => setSearchOpen(false)} className="absolute right-3">
+                  <X className="h-4 w-4 text-gray-400" />
+                </button>
+              </form>
+            ) : (
+              <button
+                onClick={() => setSearchOpen(true)}
+                className="p-2.5 rounded-full hover:bg-gray-100"
+                aria-label="Search"
+              >
+                <Search className="h-5 w-5 text-gray-700" />
+              </button>
+            )}
+          </div>
 
+          {/* Cart */}
           <CartDrawer>
             <button className="relative p-2.5 rounded-full hover:bg-gray-100" aria-label="Open cart">
               <ShoppingBag className="h-5 w-5 text-gray-700" />
@@ -70,6 +151,7 @@ export const Navbar = () => {
             </button>
           </CartDrawer>
 
+          {/* User Menu */}
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -87,8 +169,9 @@ export const Navbar = () => {
             <Link to="/auth" className="hidden sm:inline-flex px-4 py-2 rounded-full text-sm font-medium hover:bg-gray-50 text-gray-700">Sign in</Link>
           )}
 
+          {/* Mobile Menu */}
           <button
-            className="md:hidden p-2 rounded-full hover:bg-gray-100"
+            className="lg:hidden p-2 rounded-full hover:bg-gray-100"
             onClick={() => setOpen((o) => !o)}
             aria-label="Toggle menu"
           >
@@ -97,8 +180,55 @@ export const Navbar = () => {
         </div>
       </nav>
 
+      {/* Mega Menu */}
+      <AnimatePresence>
+        {megaMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="hidden lg:block absolute left-0 right-0 bg-white border-b border-gray-200 shadow-xl"
+          >
+            <div className="container py-8">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+                {categories.map((cat) => (
+                  <div key={cat.id}>
+                    <div className="flex items-center gap-2 mb-4">
+                      <cat.icon className="h-5 w-5 text-orange-500" />
+                      <h3 className="font-display font-semibold">{cat.label}</h3>
+                    </div>
+                    <ul className="space-y-2">
+                      {cat.items.map((item) => (
+                        <li key={item.to}>
+                          <Link 
+                            to={item.to} 
+                            onClick={() => setMegaMenuOpen(false)}
+                            className="flex items-center justify-between text-sm text-gray-500 hover:text-orange-500 transition-colors"
+                          >
+                            <span>{item.label}</span>
+                            <span className="text-xs bg-gray-100 px-2 py-0.5 rounded-full">{item.count}</span>
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+                <div className="rounded-xl overflow-hidden">
+                  <img src="/images/promo-banner.jpg" alt="Special offer" className="w-full h-40 object-cover" />
+                  <div className="bg-gradient-to-r from-orange-500 to-pink-500 p-4 text-white">
+                    <p className="font-semibold">Shop Deals</p>
+                    <p className="text-sm opacity-80">Up to 30% off</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Mobile Menu */}
       {open && (
-        <div className="md:hidden border-t border-gray-100 bg-white">
+        <div className="lg:hidden border-t border-gray-100 bg-white">
           <div className="container py-3 flex flex-col gap-1">
             {links.map((l) => (
               <NavLink

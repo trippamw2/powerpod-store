@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart, DELIVERY_FEE_MWK, FREE_DELIVERY_THRESHOLD_MWK } from "@/contexts/CartContext";
@@ -95,6 +95,7 @@ const Checkout = () => {
           subtotal_mwk: subtotal,
           delivery_fee_mwk: calculatedDeliveryFee,
           status: "new",
+          payment_method: paymentMethod,
         })
         .select()
         .single();
@@ -111,11 +112,37 @@ const Checkout = () => {
         }))
       );
 
+      sendOrderConfirmationWhatsApp(order.id);
       return order.id;
     } catch (err: any) {
       toast({ title: "Order failed", description: err.message, variant: "destructive" });
       return null;
     }
+  };
+
+  const sendOrderConfirmationWhatsApp = (orderId: string) => {
+    const phone = formData.phone.replace(/[^0-9]/g, "");
+    const waPhone = phone.startsWith("0") ? `265${phone.slice(1)}` : phone;
+    const itemsTxt = items.map(i => `• ${i.quantity} × ${i.name}`).join('\n');
+    const msg = `🎉 *ORDER CONFIRMED - PowerPod* ⚡
+
+Hi ${formData.name}!
+
+Your order #${orderId.slice(0, 8).toUpperCase()} has been received!
+
+🛒 Items:
+${itemsTxt}
+
+💰 Total: ${formatMWK(calculatedTotal)}
+🚚 Delivery: ${formData.location}
+📝 Status: Processing
+
+We'll send WhatsApp updates as your order progresses.
+
+Track: https://powerpod-store-new.vercel.app/track/${orderId}
+
+Thanks for choosing PowerPod! 🙏`;
+    window.open(`https://wa.me/${waPhone}?text=${encodeURIComponent(msg)}`, "_blank");
   };
 
   const handlePayment = async () => {
@@ -127,24 +154,52 @@ const Checkout = () => {
       setOrderId(newOrderId);
 
       if (paymentMethod === "whatsapp") {
-        const msg = `New Order #${newOrderId.slice(0, 8).toUpperCase()}\n\n` +
-          `Customer: ${formData.name}\n` +
-          `Phone: ${formData.phone}\n` +
-          `Location: ${formData.location}\n\n` +
-          `Items:\n${items.map(i => `- ${i.name} x${i.quantity} = ${formatMWK(i.price * i.quantity)}`).join('\n')}\n\n` +
-          `Subtotal: ${formatMWK(subtotal)}\n` +
-          `Delivery: ${calculatedDeliveryFee === 0 ? "FREE" : formatMWK(calculatedDeliveryFee)}\n` +
-          `Total: ${formatMWK(calculatedTotal)}\n\n` +
-          `Payment: Pending via PayChangu`;
+        const msg = `📦 *NEW ORDER - PowerPod* ⚡
+
+*Order #${newOrderId.slice(0, 8).toUpperCase()}*
+
+👤 ${formData.name}
+📞 ${formData.phone}
+📍 ${formData.location}
+
+🛒 Items:
+${items.map(i => `• ${i.quantity} × ${i.name} = ${formatMWK(i.price * i.quantity)}`).join('\n')}
+
+💰 Subtotal: ${formatMWK(subtotal)}
+🚚 Delivery: ${calculatedDeliveryFee === 0 ? "FREE" : formatMWK(calculatedDeliveryFee)}
+━━━━━━━━━━━━━━━━
+💵 TOTAL: ${formatMWK(calculatedTotal)}
+
+Payment: WhatsApp (pending)
+
+Track: https://powerpod-store-new.vercel.app/track/${newOrderId}`;
 
         window.open(`https://wa.me/265991234567?text=${encodeURIComponent(msg)}`, "_blank");
         clear();
-        toast({ title: "Order placed!", description: "WhatsApp message sent for payment confirmation." });
+        toast({ title: "Order placed!", description: "Check WhatsApp for payment confirmation." });
       } else {
-        // PayChangu payment - redirect to payment page
-        const paymentUrl = `https://paychangu.com/pay/${newOrderId}?amount=${total}&email=${user?.email}&phone=${formData.phone}&name=${formData.name}`;
-        window.location.href = paymentUrl;
-        return;
+        const msg = `🎉 *ORDER PLACED - PowerPod* ⚡
+
+Hi ${formData.name}!
+
+Your order #${newOrderId.slice(0, 8).toUpperCase()} is confirmed!
+
+🛒 Items:
+${items.map(i => `• ${i.quantity} × ${i.name}`).join('\n')}
+
+💰 Total: ${formatMWK(calculatedTotal)}
+🚚 Delivery to: ${formData.location}
+
+Preparing your order now...
+
+Track: https://powerpod-store-new.vercel.app/track/${newOrderId}
+
+Make payment via PayChangu. We'll confirm via WhatsApp once received!
+
+Thanks! 🙏`;
+        clear();
+        toast({ title: "Order placed!", description: `Order #${newOrderId.slice(0, 8).toUpperCase()}. Payment link coming.` });
+        navigate(`/orders/${newOrderId}`);
       }
     } finally {
       setSubmitting(false);

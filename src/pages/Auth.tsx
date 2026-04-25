@@ -51,10 +51,11 @@ const Auth = () => {
           options: {
             emailRedirectTo: `${window.location.origin}/`,
             data: { full_name: n.data, phone: ph.data },
+            emailConfirm: false,
           },
         });
         if (error) throw error;
-        toast({ title: "Welcome to PowerPod", description: "Account created. You're in." });
+        await supabase.auth.signInWithPassword({ email: e1.data, password: p1.data });
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email: e1.data, password: p1.data });
         if (error) throw error;

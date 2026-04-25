@@ -14,6 +14,7 @@ const adminLinks = [
   { to: "/admin/promotions", label: "Promotions", icon: Zap },
   { to: "/admin/business", label: "Business", icon: Building2 },
   { to: "/admin/inventory", label: "Inventory", icon: Warehouse },
+  { to: "/admin/delivery", label: "Delivery", icon: Zap },
   { to: "/admin/settings", label: "Settings", icon: Settings },
 ];
 

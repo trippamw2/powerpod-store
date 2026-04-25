@@ -79,13 +79,16 @@ export const PromotionSlider = ({ page, className }: PromotionSliderProps) => {
             <h2 className={cn("font-display font-bold text-lg sm:text-xl md:text-2xl", promotion.text_color)}>
               {promotion.title}
             </h2>
-            <span className={cn(
-              "inline-flex items-center gap-1 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full font-medium text-xs sm:text-sm mt-1 sm:mt-2",
-              promotion.text_color,
-              "bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors"
-            )}>
+            <Link
+              to={promotion.link}
+              className={cn(
+                "inline-flex items-center gap-1 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full font-medium text-xs sm:text-sm mt-1 sm:mt-2 cursor-pointer",
+                promotion.text_color,
+                "bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors"
+              )}
+            >
               {promotion.link_text}
-            </span>
+            </Link>
           </div>
         </div>
       </Link>

@@ -42,7 +42,7 @@ export const PartnerBrands = ({ className }: { className?: string }) => {
         <div className="text-center mb-10">
           <p className="text-sm font-semibold text-orange-500 uppercase tracking-widest">Trusted Brands</p>
           <h2 className="font-display font-bold text-2xl sm:text-3xl mt-1">PowerPod Partners</h2>
-          <p className="text-muted-foreground mt-2">Genuine products from world-class brands</p>
+          <p className="text-muted-foreground mt-2">Genuine products from trusted brands</p>
         </div>
 
         <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12">

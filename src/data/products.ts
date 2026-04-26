@@ -5,7 +5,7 @@ import charger from "@/assets/product-charger.jpg";
 import powerbank from "@/assets/product-powerbank.jpg";
 import cable from "@/assets/product-cable.jpg";
 
-export type Category = "all" | "power-wired" | "power-wireless" | "power-adapters" | "power-banks" | "cables" | "speakers" | "headphones" | "earbuds";
+export type Category = "all" | "power-wired" | "power-wireless" | "power-adapters" | "power-banks" | "cables" | "speakers" | "headphones" | "headsets" | "earbuds";
 
 export interface ProductType {
   id: string;
@@ -49,8 +49,8 @@ export const categoryGroups = {
   },
   audio: {
     label: "Audio",
-    description: "Speakers, headphones & earbuds",
-    categories: ["speakers", "headphones", "earbuds"] as Category[],
+    description: "Speakers, headphones, headsets & earbuds",
+    categories: ["speakers", "headphones", "headsets", "earbuds"] as Category[],
   },
 };
 
@@ -63,6 +63,7 @@ export const categories: { id: Category; label: string; parent?: string }[] = [
   { id: "cables", label: "Cables", parent: "Power" },
   { id: "speakers", label: "Speakers", parent: "Audio" },
   { id: "headphones", label: "Headphones", parent: "Audio" },
+  { id: "headsets", label: "Headsets", parent: "Audio" },
   { id: "earbuds", label: "Earbuds", parent: "Audio" },
 ];
 
@@ -94,10 +95,14 @@ export const products: Product[] = [
   { id: "p2-speaker", name: "Vibe Speaker", benefit: "Big sound. Take the vibe with you.", price: 35000, category: "speakers", image: speaker, brand: "Xiaomi", types: [{ id: "t1", name: "Black" }, { id: "t2", name: "Blue" }] },
   { id: "p3-speaker", name: "Vibe Pro Speaker", benefit: "360° sound. Party ready.", price: 55000, category: "speakers", image: speaker, brand: "Xiaomi", types: [{ id: "t1", name: "Black" }] },
    
-  // AUDIO - Headphones
+// AUDIO - Headphones
   { id: "p1-headphones", name: "Studio Headphones", benefit: "Deep bass. All-day comfort.", price: 55000, category: "headphones", image: headphones, brand: "Xiaomi", types: [{ id: "t1", name: "Black" }, { id: "t2", name: "Matte Black" }] },
   { id: "p2-headphones", name: "Studio Pro Headphones", benefit: "Active noise cancelling. Premium sound.", price: 85000, category: "headphones", image: headphones, brand: "Xiaomi", types: [{ id: "t1", name: "Black" }] },
-   
+    
+  // AUDIO - Headsets
+  { id: "p1-headsets", name: "Gaming Headset Pro", benefit: "Immersive sound. Clear mic. RGB lights.", price: 65000, category: "headsets", image: headphones, brand: "Oraimo", types: [{ id: "t1", name: "Black" }, { id: "t2", name: "White" }] },
+  { id: "p2-headsets", name: "Office Headset", benefit: "Conference ready. Noise cancelling mic.", price: 45000, category: "headsets", image: headphones, brand: "Oraimo", types: [{ id: "t1", name: "Black" }] },
+    
   // AUDIO - Earbuds
   { id: "p1-earbuds", name: "PowerPods Basic", benefit: "True wireless. Crystal clear calls.", price: 25000, category: "earbuds", image: earbuds, brand: "Huawei", types: [{ id: "t1", name: "Black" }, { id: "t2", name: "White" }] },
   { id: "p2-earbuds", name: "PowerPods Wireless", benefit: "True wireless freedom. Better battery.", price: 35000, category: "earbuds", image: earbuds, brand: "Huawei", types: [{ id: "t1", name: "Black" }, { id: "t2", name: "White" }] },

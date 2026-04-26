@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { CartDrawer } from "./CartDrawer";
+import { supabase } from "@/integrations/supabase/client";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   DropdownMenu,
@@ -14,6 +15,8 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+
+const DEFAULT_PROMO_TEXT = "🔥 Free delivery on orders over MWK 50,000 • New deals added daily!";
 
 const links = [
   { to: "/", label: "Home" },
@@ -51,6 +54,7 @@ export const Navbar = () => {
   const [megaMenuOpen, setMegaMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [promoText, setPromoText] = useState(DEFAULT_PROMO_TEXT);
   const { count } = useCart();
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
@@ -66,6 +70,24 @@ export const Navbar = () => {
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
+  useEffect(() => {
+    const fetchPromoText = async () => {
+      try {
+        const { data } = await supabase
+          .from("site_settings")
+          .select("value")
+          .eq("key", "promo_banner_text")
+          .single();
+        if (data?.value) {
+          setPromoText(data.value);
+        }
+      } catch (e) {
+        // Use default
+      }
+    };
+    fetchPromoText();
+  }, []);
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
@@ -78,8 +100,8 @@ export const Navbar = () => {
   return (
     <header className="sticky top-0 z-40 bg-white border-b border-gray-200">
       {/* Promo Banner */}
-      <div className="hidden md:block bg-gradient-to-r from-teal-600 to-emerald-600 text-white text-center py-1.5 text-sm">
-        🔥 Free shipping on orders over MWK 50,000 • New deals added daily!
+      <div className="hidden md:block bg-gradient-to-r from-orange-500 to-orange-600 text-white text-center py-1.5 text-sm">
+        {promoText}
       </div>
 
       <nav className="container flex h-16 items-center justify-between gap-4">
@@ -144,7 +166,7 @@ export const Navbar = () => {
             <button className="relative p-2.5 rounded-full hover:bg-gray-100" aria-label="Open cart">
               <ShoppingBag className="h-5 w-5 text-gray-700" />
               {count > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 h-5 min-w-5 px-1 rounded-full bg-gradient-to-r from-teal-600 to-emerald-600 text-white text-[10px] font-bold flex items-center justify-center">
+                <span className="absolute -top-0.5 -right-0.5 h-5 min-w-5 px-1 rounded-full bg-gradient-to-r from-orange-500 to-orange-600 text-white text-[10px] font-bold flex items-center justify-center">
                   {count}
                 </span>
               )}
@@ -213,7 +235,7 @@ export const Navbar = () => {
                     </ul>
                   </div>
                 ))}
-                <div className="rounded-xl overflow-hidden bg-gradient-to-r from-teal-600 to-emerald-600 p-4 text-white">
+                <div className="rounded-xl overflow-hidden bg-gradient-to-r from-orange-500 to-orange-600 p-4 text-white">
                   <p className="font-semibold text-lg">🔥 Hot Deals</p>
                   <p className="text-sm opacity-80">Up to 30% off on selected items</p>
                   <Link to="/shop" onClick={() => setMegaMenuOpen(false)} className="inline-block mt-2 text-sm underline">Shop now →</Link>

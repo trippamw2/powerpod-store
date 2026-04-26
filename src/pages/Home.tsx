@@ -53,7 +53,7 @@ const Home = () => {
           {[...Array(4)].map((_, i) => (
             <span key={i} className="mx-4 flex items-center gap-2">
               <Zap className="h-4 w-4" />
-              🔥 HOT DEALS: Up to 30% off on power banks • Free shipping over MWK 50,000 • New Oraimo products just landed!
+              🔥 HOT DEALS: Up to 30% off on power banks • Free delivery over MWK 50,000 • New Oraimo products just landed!
             </span>
           ))}
         </div>

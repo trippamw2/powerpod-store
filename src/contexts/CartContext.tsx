@@ -20,7 +20,7 @@ interface CartState {
   total: number;
 }
 
-const FREE_DELIVERY_THRESHOLD = 20000;
+const FREE_DELIVERY_THRESHOLD = 50000;
 const DELIVERY_FEE = 5000;
 
 const CartContext = createContext<CartState | undefined>(undefined);

@@ -99,17 +99,19 @@ export const getDeliveryQuote = (location: string, subtotal: number): DeliveryQu
   const config = DELIVERY_ZONES[zone];
   
   const isFree = subtotal >= PRICING.FREE_THRESHOLD;
+  const standardFee = isFree ? 0 : PRICING.STANDARD;
+  const expressFee = isFree ? PRICING.EXPRESS - PRICING.STANDARD : PRICING.EXPRESS;
   
   return [
     {
       type: "standard",
-      fee: isFree ? 0 : PRICING.STANDARD,
+      fee: standardFee,
       eta: config.standardEta,
       available: true,
     },
     {
       type: "express",
-      fee: isFree ? PRICING.EXPRESS - PRICING.STANDARD : PRICING.EXPRESS,
+      fee: expressFee,
       eta: config.expressEta,
       available: true,
     },

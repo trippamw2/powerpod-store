@@ -89,5 +89,6 @@ export const getPayChanguPaymentLink = async (orderId: string, amount: number, c
 
 export const PAYCHANGU_CONFIG = {
   publicKey: PAYCHANGU_PUBLIC_KEY,
-  testMode: !PAYCHANGU_SECRET_KEY || PAYCHANGU_SECRET_KEY.startsWith("your_"),
+  testMode: !PAYCHANGU_PUBLIC_KEY || !PAYCHANGU_SECRET_KEY || PAYCHANGU_SECRET_KEY?.startsWith("your_"),
+  hasKeys: !!(PAYCHANGU_PUBLIC_KEY && PAYCHANGU_SECRET_KEY),
 };

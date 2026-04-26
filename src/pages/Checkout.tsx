@@ -20,11 +20,11 @@ const STEPS = [
   { key: "payment" as Step, label: "Payment", icon: CreditCard },
 ];
 
-const EXPRESS_DELIVERY_FEE = 2000;
+const EXPRESS_DELIVERY_FEE = 3500;
 
 const Checkout = () => {
   const { user, loading: authLoading } = useAuth();
-  const { items, subtotal, deliveryFee: cartDeliveryFee, total: cartTotal, clear } = useCart();
+  const { items, subtotal, clear } = useCart();
   const navigate = useNavigate();
 
   const [step, setStep] = useState<Step>("details");
@@ -44,7 +44,7 @@ const Checkout = () => {
   const [promoApplied, setPromoApplied] = useState<{ code: string; discount: number } | null>(null);
   const [applyingPromo, setApplyingPromo] = useState(false);
 
-  const calculatedDeliveryFee = deliveryMethod === "express" ? EXPRESS_DELIVERY_FEE : cartDeliveryFee;
+  const calculatedDeliveryFee = deliveryMethod === "express" ? EXPRESS_DELIVERY_FEE : (subtotal >= 50000 ? 0 : 5000);
   const discount = promoApplied?.discount || 0;
   const finalSubtotal = subtotal - discount;
   const calculatedTotal = finalSubtotal + calculatedDeliveryFee;
@@ -227,7 +227,8 @@ const handlePayment = async () => {
       const customerEmail = `${formData.phone.replace(/[^0-9]/g, "")}@powerpod.mw`;
       const customerName = formData.name;
 
-      if (PAYCHANGU_CONFIG.publicKey && !PAYCHANGU_CONFIG.testMode) {
+      const { PAYCHANGU_CONFIG, createPayChanguPayment } = await import("@/lib/paychangu");
+        
         const baseUrl = window.location.origin;
         const payload = {
           amount: calculatedTotal.toString(),
@@ -244,19 +245,21 @@ const handlePayment = async () => {
           },
         };
 
-        const response = await fetch("https://api.paychangu.com/payment", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${PAYCHANGU_CONFIG.publicKey}`,
-          },
-          body: JSON.stringify(payload),
+        const payment = await createPayChanguPayment({
+          amount: calculatedTotal,
+          currency: "MWK",
+          email: customerEmail,
+          firstName: customerName.split(" ")[0] || customerName,
+          lastName: customerName.split(" ").slice(1).join(" ") || "",
+          txRef: `PP-${newOrderId.slice(0, 8).toUpperCase()}`,
+          callbackUrl: `${baseUrl}/api/payment/callback?orderId=${newOrderId}`,
+          returnUrl: `${baseUrl}/orders/${newOrderId}?payment=complete`,
+          title: "PowerPod Order Payment",
+          description: `Order #${newOrderId.slice(0, 8).toUpperCase()}`,
         });
-
-        const data = await response.json();
         
-        if (data.link) {
-          window.location.href = data.link;
+        if (payment.link) {
+          window.location.href = payment.link;
         } else {
           setOrderId(newOrderId);
           clear();

@@ -452,7 +452,7 @@ const AdminCombos = () => {
                   <p className="text-xs text-green-500">Save MK {combo.saving.toLocaleString()}</p>
                 )}
               </div>
-              <span className="px-3 py-1 bg-gradient-to-r from-orange-500 to-orange-600 text-white text-xs font-semibold rounded-full">
+              <span className="px-3 py-1 bg-orange-500 text-white text-xs font-semibold rounded-full">
                 {combo.vibe}
               </span>
             </div>

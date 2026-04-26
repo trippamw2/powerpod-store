@@ -18,6 +18,7 @@ const BRANDS = [
   { id: "samsung", name: "Samsung", color: "#1428A0" },
   { id: "baseus", name: "Baseus", color: "#E60012" },
   { id: "oraimo", name: "Oraimo", color: "#FF6B00" },
+  { id: "oale", name: "Oale", color: "#FF0000" },
   { id: "xiaomi", name: "Xiaomi", color: "#FF6700" },
   { id: "anker", name: "Anker", color: "#00B0F0" },
   { id: "ugreen", name: "UGREEN", color: "#10B981" },
@@ -41,6 +42,7 @@ const CATEGORIES = [
   { id: "cables", label: "Cables" },
   { id: "speakers", label: "Speakers" },
   { id: "headphones", label: "Headphones" },
+  { id: "headsets", label: "Headsets" },
   { id: "earbuds", label: "Earbuds" },
 ];
 

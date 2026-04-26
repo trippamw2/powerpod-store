@@ -116,7 +116,7 @@ const AdminSettings = () => {
               </p>
               <div className="p-3 bg-gray-50 rounded-lg">
                 <p className="text-sm font-medium mb-2">Preview:</p>
-                <div className="bg-gradient-to-r from-orange-500 to-orange-600 text-white px-4 py-2 rounded-lg text-sm">
+                <div className="bg-orange-500 text-white px-4 py-2 rounded-lg text-sm">
                   {settings.promo_banner_text || "Enter your promotional text above..."}
                 </div>
               </div>

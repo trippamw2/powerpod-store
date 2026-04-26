@@ -147,8 +147,8 @@ const Shop = () => {
                       onClick={() => toggleBrand(brand.id)}
                       className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
                         selectedBrands.includes(brand.id)
-                          ? "bg-teal-600 text-white"
-                          : "bg-white border border-gray-200 text-gray-600 hover:border-teal-300"
+                          ? "bg-orange-500 text-white"
+                          : "bg-white border border-gray-200 text-gray-600 hover:border-orange-300"
                       }`}
                     >
                       {brand.name}
@@ -194,8 +194,8 @@ const Shop = () => {
           onClick={() => setSelectedCategory("all")}
           className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
             selectedCategory === "all"
-              ? "bg-gray-900 text-white"
-              : "bg-white border border-gray-200 text-gray-600 hover:border-gray-300"
+              ? "bg-orange-500 text-white"
+              : "bg-white border border-gray-200 text-gray-600 hover:border-orange-300"
           }`}
         >
           All
@@ -206,8 +206,8 @@ const Shop = () => {
             onClick={() => setSelectedCategory(c.id)}
             className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
               selectedCategory === c.id
-                ? "bg-teal-500 text-white"
-                : "bg-white border border-gray-200 text-gray-600 hover:border-teal-300"
+                ? "bg-orange-500 text-white"
+                : "bg-white border border-gray-200 text-gray-600 hover:border-orange-300"
             }`}
           >
             {c.label}
@@ -219,13 +219,13 @@ const Shop = () => {
       {hasFilters && (
         <div className="flex flex-wrap gap-2 mb-4">
           {selectedCategory !== "all" && (
-            <span className="inline-flex items-center gap-1 px-3 py-1 bg-teal-100 text-teal-700 rounded-full text-sm">
+            <span className="inline-flex items-center gap-1 px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-sm">
               {categories.find(c => c.id === selectedCategory)?.label}
               <button onClick={() => setSelectedCategory("all")}><X className="h-3 w-3" /></button>
             </span>
           )}
           {searchQuery && (
-            <span className="inline-flex items-center gap-1 px-3 py-1 bg-teal-100 text-teal-700 rounded-full text-sm">
+            <span className="inline-flex items-center gap-1 px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-sm">
               "{searchQuery}"
               <button onClick={() => setSearchQuery("")}><X className="h-3 w-3" /></button>
             </span>
@@ -254,7 +254,7 @@ const Shop = () => {
       ) : (
         <div className="text-center py-20 space-y-4">
           <p className="text-muted-foreground text-lg">No products found</p>
-          <button onClick={clearFilters} className="px-4 py-2 bg-teal-500 text-white rounded-full text-sm font-medium">
+          <button onClick={clearFilters} className="px-4 py-2 bg-orange-500 text-white rounded-full text-sm font-medium">
             Clear filters
           </button>
         </div>

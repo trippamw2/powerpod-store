@@ -32,8 +32,10 @@ const categories = [
     icon: Zap,
     items: [
       { label: "Power Banks", to: "/shop?cat=power-banks", count: 12 },
-      { label: "Fast Chargers", to: "/shop?cat=power-adapters", count: 8 },
+      { label: "Fast Chargers", to: "/shop?cat=power-wired", count: 8 },
       { label: "Wireless Chargers", to: "/shop?cat=power-wireless", count: 5 },
+      { label: "Adapters", to: "/shop?cat=power-adapters", count: 4 },
+      { label: "Car Chargers", to: "/shop?cat=car-chargers", count: 3 },
       { label: "Cables", to: "/shop?cat=cables", count: 15 },
     ]
   },
@@ -45,6 +47,7 @@ const categories = [
       { label: "Earbuds", to: "/shop?cat=earbuds", count: 10 },
       { label: "Headphones", to: "/shop?cat=headphones", count: 6 },
       { label: "Speakers", to: "/shop?cat=speakers", count: 4 },
+      { label: "Headsets", to: "/shop?cat=headsets", count: 3 },
     ]
   },
 ];
@@ -100,7 +103,7 @@ export const Navbar = () => {
   return (
     <header className="sticky top-0 z-40 bg-white border-b border-gray-200">
       {/* Promo Banner */}
-      <div className="hidden md:block bg-gradient-to-r from-orange-500 to-orange-600 text-white text-center py-1.5 text-sm">
+      <div className="hidden md:block bg-orange-500 text-white text-center py-1.5 text-sm">
         {promoText}
       </div>
 
@@ -166,7 +169,7 @@ export const Navbar = () => {
             <button className="relative p-2.5 rounded-full hover:bg-gray-100" aria-label="Open cart">
               <ShoppingBag className="h-5 w-5 text-gray-700" />
               {count > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 h-5 min-w-5 px-1 rounded-full bg-gradient-to-r from-orange-500 to-orange-600 text-white text-[10px] font-bold flex items-center justify-center">
+                <span className="absolute -top-0.5 -right-0.5 h-5 min-w-5 px-1 rounded-full bg-orange-500 text-white text-[10px] font-bold flex items-center justify-center">
                   {count}
                 </span>
               )}
@@ -225,7 +228,7 @@ export const Navbar = () => {
                           <Link 
                             to={item.to} 
                             onClick={() => setMegaMenuOpen(false)}
-                            className="flex items-center justify-between text-sm text-gray-500 hover:text-teal-600 transition-colors"
+                            className="flex items-center justify-between text-sm text-gray-500 hover:text-orange-500 transition-colors"
                           >
                             <span>{item.label}</span>
                             <span className="text-xs bg-gray-100 px-2 py-0.5 rounded-full">{item.count}</span>
@@ -235,7 +238,7 @@ export const Navbar = () => {
                     </ul>
                   </div>
                 ))}
-                <div className="rounded-xl overflow-hidden bg-gradient-to-r from-orange-500 to-orange-600 p-4 text-white">
+                <div className="rounded-xl overflow-hidden bg-orange-500 p-4 text-white">
                   <p className="font-semibold text-lg">🔥 Hot Deals</p>
                   <p className="text-sm opacity-80">Up to 30% off on selected items</p>
                   <Link to="/shop" onClick={() => setMegaMenuOpen(false)} className="inline-block mt-2 text-sm underline">Shop now →</Link>

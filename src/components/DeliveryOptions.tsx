@@ -1,5 +1,7 @@
+import { useState, useEffect } from "react";
 import { Truck, Clock, MapPin, Check, Zap, Package } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
 
 export interface DeliveryCompany {
   id: string;
@@ -18,50 +20,36 @@ interface DeliveryOptionsProps {
   location: string;
 }
 
-const mockCompanies: DeliveryCompany[] = [
-  {
-    id: "same-day",
-    name: "Same Day Delivery",
-    slug: "same-day",
-    description: "Blantyre & Limbe area - delivered today!",
-    is_same_day: true,
-    service_area: ["blantyre"],
-    estimated_days: 0,
-    base_fee_mwk: 0,
-  },
-  {
-    id: "free-nationwide",
-    name: "Free Delivery (Nationwide)",
-    slug: "free-nationwide",
-    description: "Anywhere in Malawi - ships within 24hrs",
-    is_same_day: false,
-    service_area: ["all"],
-    estimated_days: 5,
-    base_fee_mwk: 0,
-  },
-  {
-    id: "express",
-    name: "Express Delivery",
-    slug: "express",
-    description: "Fast 2-3 days - Lilongwe, Mzuzu & more",
-    is_same_day: false,
-    service_area: ["all"],
-    estimated_days: 3,
-    base_fee_mwk: 0,
-  },
-];
-
-export const getDeliveryCompanies = (location: string): DeliveryCompany[] => {
-  if (!location) return mockCompanies;
-
-  const locLower = location.toLowerCase();
-  const isBlantyre = locLower.includes("blantyre") || locLower.includes("limbe");
-
-  return mockCompanies;
+export const getDeliveryCompanies = async (location: string): Promise<DeliveryCompany[]> => {
+  try {
+    const { data, error } = await supabase
+      .from("delivery_companies")
+      .select("*")
+      .eq("is_active", true)
+      .order("base_fee_mwk", { ascending: true });
+    
+    if (!error && data) {
+      return data.map(c => ({
+        ...c,
+        service_area: c.service_area || [],
+      }));
+    }
+  } catch {
+    console.error("Failed to fetch delivery companies");
+  }
+  return [];
 };
 
 export const DeliveryOptions = ({ selectedCompany, onSelect, location }: DeliveryOptionsProps) => {
-  const companies = getDeliveryCompanies(location);
+  const [companies, setCompanies] = useState<DeliveryCompany[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    getDeliveryCompanies(location).then(data => {
+      setCompanies(data);
+      setLoading(false);
+    });
+  }, [location]);
 
   const formatDuration = (days: number) => {
     if (days === 0) return "Today";
@@ -72,9 +60,31 @@ export const DeliveryOptions = ({ selectedCompany, onSelect, location }: Deliver
 
   const getIcon = (company: DeliveryCompany) => {
     if (company.is_same_day) return <Zap className="h-5 w-5 text-yellow-500" />;
-    if (company.id === "free-nationwide") return <Package className="h-5 w-5 text-green-500" />;
+    if (company.base_fee_mwk === 0) return <Package className="h-5 w-5 text-green-500" />;
     return <Truck className="h-5 w-5 text-muted-foreground" />;
   };
+
+  if (loading) {
+    return (
+      <div className="space-y-4">
+        <p className="text-sm font-medium text-muted-foreground">Select your preferred delivery method</p>
+        <div className="grid gap-4">
+          {[1, 2, 3].map(i => (
+            <div key={i} className="h-28 rounded-2xl bg-muted animate-pulse" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (companies.length === 0) {
+    return (
+      <div className="p-4 bg-muted rounded-xl text-center">
+        <Truck className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+        <p className="text-sm text-muted-foreground">Enter your location to see delivery options</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">

@@ -25,15 +25,11 @@ export const PromotionSlider = ({ page, className }: PromotionSliderProps) => {
           .contains("pages", [page])
           .order("sort_order", { ascending: true });
 
-        if (!error && data && data.length > 0) {
+        if (!error && data) {
           setPromotions(data);
-        } else {
-          const { mockPromotions } = await import("@/data/promotions");
-          setPromotions(mockPromotions.filter(p => p.pages.includes(page)));
         }
       } catch {
-        const { mockPromotions } = await import("@/data/promotions");
-        setPromotions(mockPromotions.filter(p => p.pages.includes(page)));
+        console.error("Failed to fetch promotions");
       }
       setLoading(false);
     };

@@ -66,7 +66,7 @@ const ProductDetail = () => {
         {/* Image Gallery */}
         <div className="space-y-4">
           <motion.div 
-            className="relative rounded-3xl overflow-hidden bg-gradient-brand-soft border border-border/60 aspect-square"
+            className="relative rounded-3xl overflow-hidden bg-gray-100 border border-border/60 aspect-square"
           >
             <img 
               src={product.image} 

@@ -30,6 +30,9 @@ import AdminPromotions from "./pages/admin/Promotions";
 import AdminCombos from "./pages/admin/Combos";
 import AdminDelivery from "./pages/admin/Delivery";
 import AdminTestimonials from "./pages/admin/Testimonials";
+import AdminSuppliers from "./pages/admin/Suppliers";
+import AdminPromos from "./pages/admin/Promos";
+import AdminCRM from "./pages/admin/CRM";
 import Terms from "./pages/policy/Terms";
 import Privacy from "./pages/policy/Privacy";
 import FAQ from "./pages/policy/FAQ";
@@ -79,11 +82,14 @@ const App = () => (
                   <Route path="combos" element={<AdminCombos />} />
                   <Route path="orders" element={<AdminOrders />} />
                   <Route path="promotions" element={<AdminPromotions />} />
+                  <Route path="promos" element={<AdminPromos />} />
+                  <Route path="crm" element={<AdminCRM />} />
                   <Route path="testimonials" element={<AdminTestimonials />} />
                   <Route path="business" element={<AdminBusiness />} />
                   <Route path="inventory" element={<AdminInventory />} />
                   <Route path="settings" element={<AdminSettings />} />
                   <Route path="delivery" element={<AdminDelivery />} />
+                  <Route path="suppliers" element={<AdminSuppliers />} />
                 </Route>
               </Routes>
             </BrowserRouter>

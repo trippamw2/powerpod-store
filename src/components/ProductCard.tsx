@@ -41,7 +41,8 @@ export const ProductCard = ({ product, index = 0, showBadge = null, discount = 0
   const visibleTypes = product.types.slice(0, 3);
   const hiddenTypes = product.types.length > 3 ? product.types.slice(3) : [];
   const displayPrice = discount > 0 ? product.price * (1 - discount / 100) : product.price;
-  const isInStock = true;
+  const stockQty = product.stock ?? 10;
+  const isInStock = stockQty > 0;
 
   const badgeConfig = {
     new: { label: "New", bg: "bg-green-500", text: "text-white" },
@@ -100,19 +101,18 @@ export const ProductCard = ({ product, index = 0, showBadge = null, discount = 0
           {/* Stock Status */}
           <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
             <span className={`flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-full ${
-              isInStock ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+              isInStock ? (stockQty <= 5 ? "bg-yellow-100 text-yellow-700" : "bg-green-100 text-green-700") : "bg-red-100 text-red-700"
             }`}>
               {isInStock ? <Check className="h-3 w-3" /> : null}
-              {isInStock ? "In Stock" : "Out of Stock"}
+              {isInStock ? (stockQty <= 5 ? `Only ${stockQty} left` : "In Stock") : "Out of Stock"}
             </span>
           </div>
 
-          {/* Quick Add Overlay */}
+          {/* Quick View Overlay */}
           <div className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 translate-y-2 group-hover:translate-y-0">
-            <Button onClick={handleAdd} variant="secondary" size="sm" className="w-full bg-white text-gray-900 hover:bg-gray-100">
-              <ShoppingBag className="h-4 w-4 mr-2" />
-              Quick Add
-            </Button>
+            <Link to={`/product/${product.id}`} className="flex items-center justify-center w-full py-2 px-4 bg-white text-gray-900 rounded-lg font-medium hover:bg-gray-100 transition-colors">
+              View Product
+            </Link>
           </div>
         </div>
 

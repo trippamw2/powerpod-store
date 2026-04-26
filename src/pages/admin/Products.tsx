@@ -37,11 +37,17 @@ const CATEGORIES = [
   { id: "power-wireless", label: "Wireless Chargers" },
   { id: "power-adapters", label: "Adapters" },
   { id: "power-banks", label: "Power Banks" },
+  { id: "car-chargers", label: "Car Chargers" },
   { id: "cables", label: "Cables" },
   { id: "speakers", label: "Speakers" },
   { id: "headphones", label: "Headphones" },
   { id: "earbuds", label: "Earbuds" },
 ];
+
+interface Supplier {
+  id: string;
+  name: string;
+}
 
 interface ProductType {
   id: string;
@@ -60,10 +66,13 @@ interface Product {
   is_best_seller: boolean;
   brand?: string;
   types: ProductType[];
+  supplier_id?: string;
+  stock_quantity?: number;
 }
 
 const AdminProducts = () => {
   const [products, setProducts] = useState<Product[]>([]);
+  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -79,6 +88,8 @@ const AdminProducts = () => {
     is_best_seller: false,
     brand: "generic",
     types: [] as { id: string; name: string }[],
+    supplier_id: "",
+    stock_quantity: 0,
   });
 
   useEffect(() => {
@@ -86,9 +97,10 @@ const AdminProducts = () => {
   }, []);
 
   const fetchProducts = async () => {
-    const [{ data: productsData }, { data: allTypes }] = await Promise.all([
+    const [{ data: productsData }, { data: allTypes }, { data: suppliersData }] = await Promise.all([
       supabase.from("products").select("*").order("sort_order", { ascending: true }),
-      supabase.from("product_types").select("*").order("sort_order", { ascending: true })
+      supabase.from("product_types").select("*").order("sort_order", { ascending: true }),
+      supabase.from("suppliers").select("id, name").order("name")
     ]);
 
     if (productsData) {
@@ -104,6 +116,7 @@ const AdminProducts = () => {
       }));
       setProducts(productsWithTypes);
     }
+    setSuppliers(suppliersData || []);
     setLoading(false);
   };
 
@@ -123,6 +136,8 @@ const AdminProducts = () => {
         brand: formData.brand,
         is_active: true,
         sort_order: 0,
+        supplier_id: formData.supplier_id || null,
+        stock_quantity: formData.stock_quantity || 0,
       };
 
       if (editingProduct) {
@@ -190,6 +205,8 @@ const AdminProducts = () => {
       is_best_seller: product.is_best_seller || false,
       brand: product.brand || "generic",
       types: product.types,
+      supplier_id: product.supplier_id || "",
+      stock_quantity: product.stock_quantity || 0,
     });
     setIsDialogOpen(true);
   };
@@ -205,6 +222,8 @@ const AdminProducts = () => {
       is_best_seller: false,
       brand: "generic",
       types: [],
+      supplier_id: "",
+      stock_quantity: 0,
     });
   };
 
@@ -249,6 +268,7 @@ const AdminProducts = () => {
   };
 
   const getBrandName = (id: string) => BRANDS.find(b => b.id === id)?.name || "Generic";
+  const getSupplierName = (id: string | undefined) => suppliers.find(s => s.id === id)?.name || "-";
 
   if (loading) {
     return (
@@ -373,6 +393,32 @@ const AdminProducts = () => {
                 </select>
               </div>
 
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Supplier</Label>
+                  <select
+                    value={formData.supplier_id}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, supplier_id: e.target.value }))}
+                    className="flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm"
+                  >
+                    <option value="">Select Supplier</option>
+                    {suppliers.map((s) => (
+                      <option key={s.id} value={s.id}>{s.name}</option>
+                    ))}
+                  </select>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label>Stock Quantity</Label>
+                  <Input
+                    type="number"
+                    value={formData.stock_quantity}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, stock_quantity: parseInt(e.target.value) || 0 }))}
+                    placeholder="0"
+                  />
+                </div>
+              </div>
+
               <div className="flex gap-4">
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input
@@ -441,7 +487,8 @@ const AdminProducts = () => {
               <th className="text-left p-4 font-medium">Brand</th>
               <th className="text-left p-4 font-medium">Category</th>
               <th className="text-left p-4 font-medium">Price</th>
-              <th className="text-left p-4 font-medium">Variants</th>
+              <th className="text-left p-4 font-medium">Supplier</th>
+              <th className="text-left p-4 font-medium">Stock</th>
               <th className="text-right p-4 font-medium">Actions</th>
             </tr>
           </thead>
@@ -479,16 +526,18 @@ const AdminProducts = () => {
                   <span className="font-semibold">MK {product.price.toLocaleString()}</span>
                 </td>
                 <td className="p-4">
-                  <div className="flex flex-wrap gap-1">
-                    {product.types.map((t) => (
-                      <span key={t.id} className="px-2 py-0.5 bg-gray-100 rounded text-xs">
-                        {t.name}
-                      </span>
-                    ))}
-                    {product.types.length === 0 && (
-                      <span className="text-gray-400 text-xs">-</span>
-                    )}
-                  </div>
+                  <span className="px-2 py-1 bg-blue-50 text-blue-700 rounded text-xs">
+                    {getSupplierName(product.supplier_id)}
+                  </span>
+                </td>
+                <td className="p-4">
+                  <span className={`px-2 py-1 rounded text-xs font-medium ${
+                    (product.stock_quantity ?? 0) > 10 ? "bg-green-50 text-green-700" :
+                    (product.stock_quantity ?? 0) > 0 ? "bg-yellow-50 text-yellow-700" :
+                    "bg-red-50 text-red-700"
+                  }`}>
+                    {product.stock_quantity ?? 0}
+                  </span>
                 </td>
                 <td className="p-4 text-right">
                   <div className="flex justify-end gap-2">

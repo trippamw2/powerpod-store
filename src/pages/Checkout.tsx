@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart, DELIVERY_FEE_MWK, FREE_DELIVERY_THRESHOLD_MWK } from "@/contexts/CartContext";
@@ -8,9 +8,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { formatMWK } from "@/data/products";
-import { ArrowLeft, User, Truck, CreditCard, Check, Loader2 } from "lucide-react";
+import { ArrowLeft, User, Truck, CreditCard, Check, Loader2, MessageCircle, Wallet, Clock, MapPin, Tag, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { getPayChanguPaymentLink, PAYCHANGU_CONFIG } from "@/lib/paychangu";
+import { getDeliveryQuote, detectZone, PRICING, DELIVERY_ZONES } from "@/lib/delivery";
 
 type Step = "details" | "delivery" | "payment";
 
@@ -35,12 +35,77 @@ const Checkout = () => {
     deliveryNote: "",
   });
   const [deliveryMethod, setDeliveryMethod] = useState<"standard" | "express">("standard");
-  const [paymentMethod, setPaymentMethod] = useState<"paychangu">("paychangu");
+  const [paymentMethod, setPaymentMethod] = useState<"paychangu" | "whatsapp">("paychangu");
   const [submitting, setSubmitting] = useState(false);
   const [orderId, setOrderId] = useState<string | null>(null);
 
+  // Promo code state
+  const [promoCode, setPromoCode] = useState("");
+  const [promoApplied, setPromoApplied] = useState<{ code: string; discount: number } | null>(null);
+  const [applyingPromo, setApplyingPromo] = useState(false);
+
   const calculatedDeliveryFee = deliveryMethod === "express" ? EXPRESS_DELIVERY_FEE : cartDeliveryFee;
-  const calculatedTotal = subtotal + calculatedDeliveryFee;
+  const discount = promoApplied?.discount || 0;
+  const finalSubtotal = subtotal - discount;
+  const calculatedTotal = finalSubtotal + calculatedDeliveryFee;
+
+  const applyPromoCode = async () => {
+    if (!promoCode.trim()) return;
+    setApplyingPromo(true);
+    try {
+      const { data, error } = await supabase
+        .from("promo_codes")
+        .select("*")
+        .eq("code", promoCode.toUpperCase())
+        .eq("is_active", true)
+        .single();
+
+      if (error || !data) {
+        toast({ title: "Invalid promo code", variant: "destructive" });
+        return;
+      }
+
+      const now = new Date();
+      const start = new Date(data.start_date);
+      const end = new Date(data.end_date);
+
+      if (now < start) {
+        toast({ title: "Promo code not yet active", variant: "destructive" });
+        return;
+      }
+      if (now > end) {
+        toast({ title: "Promo code has expired", variant: "destructive" });
+        return;
+      }
+      if (data.used_count >= data.max_uses) {
+        toast({ title: "Promo code usage limit reached", variant: "destructive" });
+        return;
+      }
+      if (subtotal < data.min_order) {
+        toast({ title: `Minimum order ${formatMWK(data.min_order)} required`, variant: "destructive" });
+        return;
+      }
+
+      let discount = 0;
+      if (data.type === "percentage") {
+        discount = Math.round(subtotal * (data.value / 100));
+      } else {
+        discount = Math.min(data.value, subtotal);
+      }
+
+      setPromoApplied({ code: data.code, discount });
+      toast({ title: `Promo applied: ${data.type === "percentage" ? `${data.value}% off` : formatMWK(data.value) + " off"}` });
+    } catch {
+      toast({ title: "Invalid promo code", variant: "destructive" });
+    } finally {
+      setApplyingPromo(false);
+    }
+  };
+
+  const removePromo = () => {
+    setPromoApplied(null);
+    setPromoCode("");
+  };
 
   if (!authLoading && !user) {
     navigate("/auth?redirect=/checkout", { replace: true });
@@ -84,6 +149,7 @@ const Checkout = () => {
   const createOrder = async () => {
     if (!user) return null;
     try {
+      const deliveryZone = detectZone(formData.location);
       const { data: order, error } = await supabase
         .from("orders")
         .insert({
@@ -95,23 +161,23 @@ const Checkout = () => {
           total_mwk: calculatedTotal,
           subtotal_mwk: subtotal,
           delivery_fee_mwk: calculatedDeliveryFee,
+          discount_mwk: discount || 0,
+          promo_code: promoApplied?.code || null,
           status: "new",
           payment_method: paymentMethod,
+          delivery_zone: deliveryZone,
+          delivery_method: deliveryMethod,
+          tracking_number: `PP-${Date.now().toString(36).toUpperCase()}`,
         })
         .select()
         .single();
 
-      if (error) throw error;
+if (error) throw error;
 
-      await supabase.from("order_items").insert(
-        items.map((i) => ({
-          order_id: order.id,
-          product_key: i.productKey,
-          product_name: i.name,
-          unit_price_mwk: i.price,
-          quantity: i.quantity,
-        }))
-      );
+      // Increment promo code usage if applied
+      if (promoApplied?.code) {
+        await supabase.rpc("increment_promo_usage", { promo_code: promoApplied.code }).catch(() => {});
+      }
 
       sendOrderConfirmationWhatsApp(order.id);
       return order.id;
@@ -121,22 +187,28 @@ const Checkout = () => {
     }
   };
 
-  const sendOrderConfirmationWhatsApp = (orderId: string) => {
+  const sendOrderConfirmationWhatsApp = (orderId: string, trackingNumber?: string) => {
     const phone = formData.phone.replace(/[^0-9]/g, "");
     const waPhone = phone.startsWith("0") ? `265${phone.slice(1)}` : phone;
     const itemsTxt = items.map(i => `• ${i.quantity} × ${i.name}`).join('\n');
+    const zone = detectZone(formData.location);
+    const zoneConfig = DELIVERY_ZONES[zone];
+    const eta = deliveryMethod === "express" ? zoneConfig.expressEta : zoneConfig.standardEta;
+    const trackNum = trackingNumber || `PP-${orderId.slice(0, 8).toUpperCase()}`;
+    
     const msg = `🎉 *ORDER CONFIRMED - PowerPod* ⚡
 
 Hi ${formData.name}!
 
-Your order #${orderId.slice(0, 8).toUpperCase()} has been received!
+Your order #${orderId.slice(0, 8).toUpperCase()} is confirmed!
 
 🛒 Items:
 ${itemsTxt}
 
 💰 Total: ${formatMWK(calculatedTotal)}
 🚚 Delivery: ${formData.location}
-📝 Status: Processing
+📦 ETA: ${eta}
+🔢 Tracking: ${trackNum}
 
 We'll send WhatsApp updates as your order progresses.
 
@@ -152,45 +224,89 @@ const handlePayment = async () => {
       const newOrderId = await createOrder();
       if (!newOrderId) return;
 
-      setOrderId(newOrderId);
-
       const customerEmail = `${formData.phone.replace(/[^0-9]/g, "")}@powerpod.mw`;
+      const customerName = formData.name;
 
       if (PAYCHANGU_CONFIG.publicKey && !PAYCHANGU_CONFIG.testMode) {
-        const paymentLink = await getPayChanguPaymentLink(
-          newOrderId,
-          calculatedTotal,
-          formData.name,
-          customerEmail
-        );
+        const baseUrl = window.location.origin;
+        const payload = {
+          amount: calculatedTotal.toString(),
+          currency: "MWK",
+          email: customerEmail,
+          first_name: customerName.split(" ")[0] || customerName,
+          last_name: customerName.split(" ").slice(1).join(" ") || "",
+          tx_ref: `PP-${newOrderId.slice(0, 8).toUpperCase()}`,
+          callback_url: `${baseUrl}/api/payment/callback?orderId=${newOrderId}`,
+          return_url: `${baseUrl}/orders/${newOrderId}?payment=complete`,
+          customization: {
+            title: "PowerPod Order Payment",
+            description: `Order #${newOrderId.slice(0, 8).toUpperCase()}`,
+          },
+        };
 
-        window.location.href = paymentLink;
+        const response = await fetch("https://api.paychangu.com/payment", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${PAYCHANGU_CONFIG.publicKey}`,
+          },
+          body: JSON.stringify(payload),
+        });
+
+        const data = await response.json();
+        
+        if (data.link) {
+          window.location.href = data.link;
+        } else {
+          setOrderId(newOrderId);
+          clear();
+          navigate(`/orders/${newOrderId}`);
+          toast({ title: "Order placed!", description: `Order #${newOrderId.slice(0, 8).toUpperCase()}` });
+        }
       } else {
-        const msg = `🎉 *ORDER PLACED - PowerPod* ⚡
+        setOrderId(newOrderId);
+        clear();
+        navigate(`/orders/${newOrderId}`);
+        toast({ title: "Order placed!", description: `Order #${newOrderId.slice(0, 8).toUpperCase()}` });
+      }
+    } catch (err) {
+      console.error("Payment error:", err);
+      toast({ title: "Payment failed", description: "Please try again or use WhatsApp option", variant: "destructive" });
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
-Hi ${formData.name}!
+  const handleWhatsAppOrder = async () => {
+    setSubmitting(true);
+    try {
+      const newOrderId = await createOrder();
+      if (!newOrderId) return;
 
-Your order #${newOrderId.slice(0, 8).toUpperCase()} is confirmed!
+      const phone = formData.phone.replace(/[^0-9]/g, "");
+      const waPhone = phone.startsWith("0") ? `265${phone.slice(1)}` : phone;
+      const itemsTxt = items.map(i => `• ${i.quantity} × ${i.name}`).join('\n');
+      const msg = `🛒 *ORDER - PowerPod* #${newOrderId.slice(0, 8).toUpperCase()}
+
+👤 ${formData.name}
+📱 ${formData.phone}
+📍 ${formData.location}
 
 🛒 Items:
-${items.map(i => `• ${i.quantity} × ${i.name}`).join('\n')}
+${itemsTxt}
 
 💰 Total: ${formatMWK(calculatedTotal)}
-🚚 Delivery to: ${formData.location}
+🚚 Delivery: ${formData.location}
 
-Pay here: https://paychangu.com/pay/${newOrderId.slice(0, 8)}
+💳 Payment: Pay on Delivery
 
-Track: https://powerpod-store.vercel.app/track/${newOrderId}
+Thank you! 🙏`;
+      window.open(`https://wa.me/${waPhone}?text=${encodeURIComponent(msg)}`, "_blank");
 
-Thanks! 🙏`;
-        const phone = formData.phone.replace(/[^0-9]/g, "");
-        const waPhone = phone.startsWith("0") ? `265${phone.slice(1)}` : phone;
-        window.open(`https://wa.me/${waPhone}?text=${encodeURIComponent(msg)}`, "_blank");
-
-        clear();
-        toast({ title: "Order placed!", description: `Order #${newOrderId.slice(0, 8).toUpperCase()}` });
-        navigate(`/orders/${newOrderId}`);
-      }
+      setOrderId(newOrderId);
+      clear();
+      navigate(`/orders/${newOrderId}`);
+      toast({ title: "Order sent to WhatsApp!", description: `Order #${newOrderId.slice(0, 8).toUpperCase()}` });
     } finally {
       setSubmitting(false);
     }
@@ -273,48 +389,46 @@ Thanks! 🙏`;
       {/* Step 2: Delivery */}
       {step === "delivery" && (
         <div className="rounded-xl bg-card border border-border/60 p-6">
-          <h2 className="font-display font-bold text-lg mb-4">Delivery Method</h2>
+          <h2 className="font-display font-bold text-lg mb-4">
+            <Truck className="h-5 w-5 inline mr-2" />
+            Delivery Option
+          </h2>
+          <div className="mb-4 p-3 rounded-lg bg-blue-50 border border-blue-200 flex items-center gap-2 text-sm">
+            <MapPin className="h-4 w-4 text-blue-500" />
+            <span>Delivering to: <strong>{formData.location}</strong></span>
+          </div>
           <form onSubmit={handleDeliverySubmit} className="space-y-4">
             <div className="space-y-3">
-              <label className={cn(
-                "flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-colors",
-                deliveryMethod === "standard" ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"
-              )}>
-                <input
-                  type="radio"
-                  name="delivery"
-                  value="standard"
-                  checked={deliveryMethod === "standard"}
-                  onChange={(e) => setDeliveryMethod(e.target.value)}
-                  className="h-4 w-4"
-                />
-                <div className="flex-1">
-                  <p className="font-medium">Standard Delivery</p>
-                  <p className="text-sm text-muted-foreground">3-5 business days</p>
-                </div>
-<span className="font-semibold text-green-500">
-                  {subtotal >= FREE_DELIVERY_THRESHOLD_MWK ? "FREE" : formatMWK(DELIVERY_FEE_MWK)}
-                </span>
-              </label>
-
-              <label className={cn(
-                "flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-colors",
-                deliveryMethod === "express" ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"
-              )}>
-                <input
-                  type="radio"
-                  name="delivery"
-                  value="express"
-                  checked={deliveryMethod === "express"}
-                  onChange={(e) => setDeliveryMethod(e.target.value as "express")}
-                  className="h-4 w-4"
-                />
-                <div className="flex-1">
-                  <p className="font-medium">Express Delivery</p>
-                  <p className="text-sm text-muted-foreground">1-2 business days (Blantyre/Lilongwe)</p>
-                </div>
-                <span className="font-semibold">{formatMWK(EXPRESS_DELIVERY_FEE)}</span>
-              </label>
+              {(() => {
+                const quotes = getDeliveryQuote(formData.location, subtotal);
+                return quotes.map((quote) => (
+                  <label key={quote.type} className={cn(
+                    "flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-colors",
+                    deliveryMethod === quote.type ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"
+                  )}>
+                    <input
+                      type="radio"
+                      name="delivery"
+                      value={quote.type === "free" ? "standard" : quote.type}
+                      checked={deliveryMethod === quote.type || (quote.type === "free" && deliveryMethod === "standard")}
+                      onChange={(e) => setDeliveryMethod(e.target.value as "standard" | "express")}
+                      className="h-4 w-4"
+                    />
+                    <Clock className={cn("h-5 w-5", quote.type === "express" ? "text-orange-500" : "text-green-500")} />
+                    <div className="flex-1">
+                      <p className="font-medium">
+                        {quote.type === "free" ? "FREE Delivery" : quote.type === "express" ? "Express Delivery" : "Standard Delivery"}
+                      </p>
+                      <p className="text-sm text-muted-foreground flex items-center gap-1">
+                        <Clock className="h-3 w-3" /> Arrives in {quote.eta}
+                      </p>
+                    </div>
+                    <span className={cn("font-semibold", quote.fee === 0 ? "text-green-500" : "")}>
+                      {quote.fee === 0 ? "FREE" : formatMWK(quote.fee)}
+                    </span>
+                  </label>
+                ));
+              })()}
             </div>
 
             <div className="space-y-2">
@@ -342,21 +456,85 @@ Thanks! 🙏`;
       {step === "payment" && (
         <div className="space-y-6">
           <div className="rounded-xl bg-card border border-border/60 p-6">
-            <h2 className="font-display font-bold text-lg mb-4">Payment Method</h2>
-            <div className="p-4 rounded-xl border-2 border-primary bg-primary/5">
-              <div className="flex items-center gap-3">
-                <CreditCard className="h-5 w-5 text-primary" />
+            <h2 className="font-display font-bold text-lg mb-4">Choose How to Pay</h2>
+            <div className="space-y-3">
+              <label className={cn(
+                "flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-colors",
+                paymentMethod === "paychangu" ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"
+              )}>
+                <input
+                  type="radio"
+                  name="payment"
+                  value="paychangu"
+                  checked={paymentMethod === "paychangu"}
+                  onChange={(e) => setPaymentMethod(e.target.value as "paychangu")}
+                  className="h-4 w-4"
+                />
+                <Wallet className="h-5 w-5 text-green-600" />
                 <div className="flex-1">
-                  <p className="font-medium">PayChangu (Airtel Money / TNM Mpamba)</p>
-                  <p className="text-sm text-muted-foreground">Pay securely via mobile money</p>
+                  <p className="font-medium">Pay Now (Mobile Money / Card)</p>
+                  <p className="text-sm text-muted-foreground">PayChangu - Airtel Money, TNM Mpamba, Visa</p>
                 </div>
-                <Check className="h-5 w-5 text-green-500" />
-              </div>
+                <Check className={cn("h-5 w-5", paymentMethod === "paychangu" ? "text-green-500" : "text-gray-300")} />
+              </label>
+
+              <label className={cn(
+                "flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-colors",
+                paymentMethod === "whatsapp" ? "border-green-500 bg-green-500/5" : "border-border hover:border-green-500/50"
+              )}>
+                <input
+                  type="radio"
+                  name="payment"
+                  value="whatsapp"
+                  checked={paymentMethod === "whatsapp"}
+                  onChange={(e) => setPaymentMethod(e.target.value as "whatsapp")}
+                  className="h-4 w-4"
+                />
+                <MessageCircle className="h-5 w-5 text-green-500" />
+                <div className="flex-1">
+                  <p className="font-medium">Pay via WhatsApp (Bank Transfer)</p>
+                  <p className="text-sm text-muted-foreground">We'll send bank details - transfer first, we confirm</p>
+                </div>
+                <Check className={cn("h-5 w-5", paymentMethod === "whatsapp" ? "text-green-500" : "text-gray-300")} />
+              </label>
             </div>
           </div>
 
           <div className="rounded-xl bg-card border border-border/60 p-6">
             <h2 className="font-display font-bold text-lg mb-4">Order Summary</h2>
+            
+            {/* Promo Code Input */}
+            {!promoApplied ? (
+              <div className="mb-4 p-3 rounded-lg bg-gray-50 border border-border/60">
+                <div className="flex gap-2">
+                  <Input
+                    value={promoCode}
+                    onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
+                    placeholder="Enter promo code"
+                    className="flex-1"
+                  />
+                  <Button
+                    onClick={applyPromoCode}
+                    disabled={applyingPromo || !promoCode.trim()}
+                    variant="outline"
+                  >
+                    {applyingPromo ? <Loader2 className="h-4 w-4 animate-spin" /> : "Apply"}
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="mb-4 p-3 rounded-lg bg-green-50 border border-green-200 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Tag className="h-4 w-4 text-green-600" />
+                  <span className="text-sm font-medium">{promoApplied.code}</span>
+                  <span className="text-sm text-green-600">-{formatMWK(promoApplied.discount)}</span>
+                </div>
+                <button onClick={removePromo} className="p-1 hover:bg-green-100 rounded">
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            )}
+
             <div className="space-y-2">
               {items.map((item) => (
                 <div key={item.productKey} className="flex justify-between text-sm">
@@ -369,6 +547,12 @@ Thanks! 🙏`;
                   <span className="text-muted-foreground">Subtotal</span>
                   <span>{formatMWK(subtotal)}</span>
                 </div>
+                {promoApplied && (
+                  <div className="flex justify-between text-sm text-green-600">
+                    <span className="text-muted-foreground">Discount</span>
+                    <span>-{formatMWK(promoApplied.discount)}</span>
+                  </div>
+                )}
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Delivery</span>
                   <span className={calculatedDeliveryFee === 0 ? "text-green-500" : ""}>
@@ -392,15 +576,27 @@ Thanks! 🙏`;
             <Button type="button" variant="outline" onClick={() => setStep("delivery")}>
               Back
             </Button>
-            <Button
-              variant="hero"
-              size="lg"
-              className="flex-1"
-              onClick={handlePayment}
-              disabled={submitting}
-            >
-              {submitting ? <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Processing...</> : `Pay ${formatMWK(calculatedTotal)} via PayChangu`}
-            </Button>
+            {paymentMethod === "whatsapp" ? (
+              <Button
+                variant="hero"
+                size="lg"
+                className="flex-1 bg-green-600 hover:bg-green-700"
+                onClick={handleWhatsAppOrder}
+                disabled={submitting}
+              >
+                {submitting ? <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Processing...</> : <><MessageCircle className="h-4 w-4 mr-2" /> Complete via WhatsApp</>}
+              </Button>
+            ) : (
+              <Button
+                variant="hero"
+                size="lg"
+                className="flex-1"
+                onClick={handlePayment}
+                disabled={submitting}
+              >
+                {submitting ? <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Processing...</> : `Pay ${formatMWK(calculatedTotal)} Now`}
+              </Button>
+            )}
           </div>
         </div>
       )}

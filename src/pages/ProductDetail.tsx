@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { products, formatMWK } from "@/data/products";
+import { products, formatMWK, getRecommendations } from "@/data/products";
 import { useCart } from "@/contexts/CartContext";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Minus, Plus, ShoppingBag, Check, Truck, ShieldCheck, Star, Heart, Share2, ChevronDown, ChevronUp } from "lucide-react";
@@ -26,7 +26,7 @@ const ProductDetail = () => {
     );
   }
 
-  const related = products.filter((p) => p.category === product.category && p.id !== product.id).slice(0, 4);
+  const recommended = getRecommendations(product, products, 4);
   
   const handleAdd = () => {
     const typeName = product.types.find(t => t.id === selectedType)?.name || product.types[0]?.name || "";
@@ -113,7 +113,7 @@ const ProductDetail = () => {
             )}
             <p className="text-sm font-semibold text-gradient uppercase tracking-widest">{product.category}</p>
             <h1 className="font-display font-bold text-4xl sm:text-5xl tracking-tight">{product.name}</h1>
-            <p className="text-muted-foreground text-lg">{product.benefit}</p>
+<p className="text-muted-foreground text-lg">{product.benefit}</p>
 
             {/* Rating & Stock */}
             <div className="flex items-center gap-4">
@@ -123,8 +123,8 @@ const ProductDetail = () => {
                 ))}
                 <span className="ml-1 text-sm text-gray-600">(24 reviews)</span>
               </div>
-              <span className="flex items-center gap-1 text-sm text-green-600">
-                <Check className="h-4 w-4" /> In Stock
+              <span className={`flex items-center gap-1 text-sm ${(product.stock ?? 10) > 0 ? "text-green-600" : "text-red-600"}`}>
+                <Check className="h-4 w-4" /> {(product.stock ?? 10) > 0 ? ((product.stock ?? 10) <= 5 ? `Only ${product.stock ?? 10} left` : "In Stock") : "Out of Stock"}
               </span>
             </div>
           </div>
@@ -244,12 +244,12 @@ const ProductDetail = () => {
         </div>
       </div>
 
-      {/* Related Products */}
-      {related.length > 0 && (
+      {/* Recommended Products */}
+      {recommended.length > 0 && (
         <div className="mt-16">
-          <h2 className="font-display font-bold text-2xl mb-6">You May Also Like</h2>
+          <h2 className="font-display font-bold text-2xl mb-6">Recommended For You</h2>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {related.map((p, i) => (
+            {recommended.map((p, i) => (
               <ProductCard key={p.id} product={p} index={i} showBadge={i === 0 ? "hot" : null} />
             ))}
           </div>

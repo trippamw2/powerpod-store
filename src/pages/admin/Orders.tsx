@@ -3,8 +3,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { formatMWK } from "@/data/products";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Package, Check, Truck, Phone, MapPin, Loader2, Eye, MessageCircle } from "lucide-react";
+import { Package, Check, Truck, Phone, MapPin, Loader2, Eye, MessageCircle, Clock, Zap } from "lucide-react";
 import { format } from "date-fns";
+import { DELIVERY_ZONES } from "@/lib/delivery";
 
 interface Order {
   id: string;
@@ -18,6 +19,9 @@ interface Order {
   status: string;
   notes: string | null;
   created_at: string;
+  delivery_zone?: string;
+  delivery_method?: string;
+  tracking_number?: string;
 }
 
 interface OrderItem {
@@ -128,6 +132,7 @@ const AdminOrders = () => {
                   <div className="flex items-center gap-2">
                     <h3 className="font-bold">#{order.id.slice(0, 8).toUpperCase()}</h3>
                     <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${statusColors[order.status]}`}>{order.status}</span>
+                    {order.delivery_method === "express" && <Zap className="h-3 w-3 text-orange-500" />}
                   </div>
                   <p className="text-xs text-muted-foreground mt-1">{format(new Date(order.created_at), "PPp")}</p>
                 </div>
@@ -140,6 +145,12 @@ const AdminOrders = () => {
               <div className="mt-3 flex flex-wrap gap-4 text-sm">
                 <div className="flex items-center gap-1 text-muted-foreground"><Phone className="h-3 w-3" />{order.customer_phone}</div>
                 <div className="flex items-center gap-1 text-muted-foreground"><MapPin className="h-3 w-3" />{order.customer_location || "No location"}</div>
+                {order.delivery_zone && (
+                  <div className="flex items-center gap-1 text-muted-foreground"><Truck className="h-3 w-3" />{DELIVERY_ZONES[order.delivery_zone as keyof typeof DELIVERY_ZONES]?.name || order.delivery_zone}</div>
+                )}
+                {order.tracking_number && (
+                  <div className="flex items-center gap-1 text-muted-foreground"><Package className="h-3 w-3" />{order.tracking_number}</div>
+                )}
               </div>
 
               <div className="mt-4 pt-3 border-t flex flex-wrap gap-2">

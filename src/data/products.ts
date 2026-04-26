@@ -5,7 +5,7 @@ import charger from "@/assets/product-charger.jpg";
 import powerbank from "@/assets/product-powerbank.jpg";
 import cable from "@/assets/product-cable.jpg";
 
-export type Category = "all" | "power-wired" | "power-wireless" | "power-adapters" | "power-banks" | "cables" | "speakers" | "headphones" | "headsets" | "earbuds";
+export type Category = "all" | "power-wired" | "power-wireless" | "power-adapters" | "power-banks" | "cables" | "car-chargers" | "speakers" | "headphones" | "headsets" | "earbuds";
 
 export interface ProductType {
   id: string;
@@ -21,6 +21,7 @@ export interface Product {
   image: string;
   brand?: string;
   types: ProductType[];
+  stock?: number;
 }
 
 export const BRANDS = [
@@ -44,8 +45,8 @@ export const BRANDS = [
 export const categoryGroups = {
   power: {
     label: "Power",
-    description: "Chargers, adapters, power banks & cables",
-    categories: ["power-wired", "power-wireless", "power-adapters", "power-banks", "cables"] as Category[],
+    description: "Chargers, adapters, power banks, car chargers & cables",
+    categories: ["power-wired", "power-wireless", "power-adapters", "power-banks", "car-chargers", "cables"] as Category[],
   },
   audio: {
     label: "Audio",
@@ -60,6 +61,7 @@ export const categories: { id: Category; label: string; parent?: string }[] = [
   { id: "power-wireless", label: "Wireless Chargers", parent: "Power" },
   { id: "power-adapters", label: "Adapters", parent: "Power" },
   { id: "power-banks", label: "Power Banks", parent: "Power" },
+  { id: "car-chargers", label: "Car Chargers", parent: "Power" },
   { id: "cables", label: "Cables", parent: "Power" },
   { id: "speakers", label: "Speakers", parent: "Audio" },
   { id: "headphones", label: "Headphones", parent: "Audio" },
@@ -85,10 +87,15 @@ export const products: Product[] = [
   { id: "p2-powerbank", name: "Power Bank 20000mAh", benefit: "Power that lasts as long as you do.", price: 28000, category: "power-banks", image: powerbank, brand: "Oraimo", types: [{ id: "t1", name: "Black" }, { id: "t2", name: "White" }] },
   { id: "p3-powerbank", name: "Power Bank 26800mAh", benefit: "Ultra high capacity. Charge 3 devices.", price: 45000, category: "power-banks", image: powerbank, brand: "Oraimo", types: [{ id: "t1", name: "Black" }] },
   
+  // POWER - Car Chargers
+  { id: "p1-carcharger", name: "Dual Port Car Charger 45W", benefit: "Fast charge while driving. USB-C + USB-A.", price: 8500, category: "car-chargers", image: charger, brand: "Baseus", types: [{ id: "t1", name: "Single Port" }, { id: "t2", name: "Dual Port" }], stock: 25 },
+  { id: "p2-carcharger", name: "Quick Charge Car Charger", benefit: "Quick charge 3 devices at once.", price: 12000, category: "car-chargers", image: charger, brand: "Anker", types: [{ id: "t1", name: "Black" }], stock: 15 },
+  { id: "p3-carcharger", name: "Magnetic Car Charger", benefit: "Snap and charge. Wireless.", price: 15000, category: "car-chargers", image: charger, brand: "Samsung", types: [{ id: "t1", name: "Black" }], stock: 10 },
+   
   // POWER - Cables
-  { id: "p1-cable", name: "Braided USB-C Cable 1m", benefit: "Built to last. Fast charging.", price: 6500, category: "cables", image: cable, brand: "Baseus", types: [{ id: "t1", name: "Black" }, { id: "t2", name: "White" }] },
-  { id: "p2-cable", name: "Braided USB-C Cable 2m", benefit: "Extra length. Same durability.", price: 8500, category: "cables", image: cable, brand: "Baseus", types: [{ id: "t1", name: "Black" }, { id: "t2", name: "White" }] },
-{ id: "p3-cable", name: "USB-C to Lightning Cable", benefit: "Fast charge iPhone. MFi certified.", price: 12000, category: "cables", image: cable, brand: "Baseus", types: [{ id: "t1", name: "1m" }, { id: "t2", name: "2m" }] },
+  { id: "p1-cable", name: "Braided USB-C Cable 1m", benefit: "Built to last. Fast charging.", price: 6500, category: "cables", image: cable, brand: "Baseus", types: [{ id: "t1", name: "Black" }, { id: "t2", name: "White" }], stock: 50 },
+  { id: "p2-cable", name: "Braided USB-C Cable 2m", benefit: "Extra length. Same durability.", price: 8500, category: "cables", image: cable, brand: "Baseus", types: [{ id: "t1", name: "Black" }, { id: "t2", name: "White" }], stock: 40 },
+  { id: "p3-cable", name: "USB-C to Lightning Cable", benefit: "Fast charge iPhone. MFi certified.", price: 12000, category: "cables", image: cable, brand: "Baseus", types: [{ id: "t1", name: "1m" }, { id: "t2", name: "2m" }], stock: 30 },
    
   // AUDIO - Speakers
   { id: "p1-speaker", name: "Vibe Mini Speaker", benefit: "Big sound. Pocket size.", price: 15000, category: "speakers", image: speaker, brand: "Xiaomi", types: [{ id: "t1", name: "Black" }, { id: "t2", name: "Blue" }] },
@@ -141,3 +148,32 @@ const itemImageMap: Record<string, string> = {
 export const getItemImage = (name: string): string => itemImageMap[name] ?? cable;
 
 export const formatMWK = (n: number) => `MK ${n.toLocaleString("en-US")}`;
+
+export const getRecommendations = (product: Product, allProducts: Product[], limit = 4): Product[] => {
+  const price = product.price;
+  const priceMin = price * 0.7;
+  const priceMax = price * 1.3;
+  
+  const scored = allProducts
+    .filter(p => p.id !== product.id)
+    .map(p => {
+      let score = 0;
+      
+      if (p.brand === product.brand) score += 100;
+      
+      if (p.price >= priceMin && p.price <= priceMax) score += 50;
+      
+      if (p.category === product.category) score += 30;
+      
+      const comboMatch = combos.some(c => 
+        c.items.some(i => i === product.name || i.includes(product.name) || product.name.includes(i)) &&
+        c.items.some(i => i === p.name || i.includes(p.name) || p.name.includes(i))
+      );
+      if (comboMatch) score += 20;
+      
+      return { product: p, score };
+    })
+    .sort((a, b) => b.score - a.score);
+  
+  return scored.slice(0, limit).map(s => s.product);
+};

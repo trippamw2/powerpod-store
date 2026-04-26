@@ -4,16 +4,16 @@ import type { Database } from './types';
 
 // Environment variables - Vercel expects these to be set in project settings
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || '';
-const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || '';
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
 // Validate environment variables
-const isConfigured = SUPABASE_URL && SUPABASE_PUBLISHABLE_KEY;
+const isConfigured = SUPABASE_URL && SUPABASE_ANON_KEY;
 
 // Create client only if configured
 let supabase;
 
 if (isConfigured) {
-  supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+  supabase = createClient<Database>(SUPABASE_URL, SUPABASE_ANON_KEY, {
     auth: {
       storage: typeof window !== 'undefined' ? localStorage : undefined,
       persistSession: true,
@@ -35,7 +35,7 @@ if (isConfigured) {
 } else {
   // Mock supabase client for build/test environments
   // This prevents the app from crashing during build
-  console.warn('⚠️ Supabase not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY in Vercel env vars.');
+  console.warn('⚠️ Supabase not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in Vercel env vars.');
   
   // Create a mock that returns empty data
   supabase = {

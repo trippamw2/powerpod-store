@@ -68,11 +68,22 @@ export interface DeliveryQuote {
 export const detectZone = (location: string): DeliveryZone => {
   const loc = location.toLowerCase();
   
+  // Blantyre area
   if (loc.includes("blantyre") || loc.includes("limbe") || loc.includes("chitimukulu") || 
-      loc.includes("makata") || loc.includes("nancholi") || loc.includes("bangwe") || loc.includes("tchete")) {
+      loc.includes("makata") || loc.includes("nancholi") || loc.includes("bangwe") || 
+      loc.includes("tchete") || loc.includes("namaka") || loc.includes("south") ||
+      loc.includes("Mzuzu") || loc.includes("mzuzu")) {
     return "blantyre";
   }
   
+  // Lilongwe area - defaults to Central
+  if (loc.includes("lilongwe") || loc.includes("dedza") || loc.includes("salima") || 
+      loc.includes("kasungu") || loc.includes("ntcheu") || loc.includes("dowa") ||
+      loc.includes("mchinji") || loc.includes("nkhotakota") || loc.includes("central")) {
+    return "central";
+  }
+  
+  // Southern region
   if (loc.includes("zomba") || loc.includes("thyolo") || loc.includes("mulanje") || 
       loc.includes("phalombe") || loc.includes("liwonde") || loc.includes("mwanza") || 
       loc.includes("nsanje") || loc.includes("chikwawa") || loc.includes("balaka") ||
@@ -80,17 +91,13 @@ export const detectZone = (location: string): DeliveryZone => {
     return "southern";
   }
   
-  if (loc.includes("lilongwe") || loc.includes("dedza") || loc.includes("salima") || 
-      loc.includes("kasungu") || loc.includes("ntcheu") || loc.includes("dowa") ||
-      loc.includes("mchinji") || loc.includes("nkhotakota")) {
-    return "central";
-  }
-  
-  if (loc.includes("mzuzu") || loc.includes("rumphi") || loc.includes("karonga") || 
+  // Northern region  
+  if (loc.includes("rumphi") || loc.includes("karonga") || 
       loc.includes("nkhata") || loc.includes("chitipa") || loc.includes("likuni")) {
     return "northern";
   }
   
+  // Default to Blantyre for areas not recognized
   return "blantyre";
 };
 

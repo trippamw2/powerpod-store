@@ -23,13 +23,17 @@ const AdminDashboard = () => {
   useEffect(() => {
     Promise.all([
       supabase.from("orders").select("id, total_mwk, status", { count: "exact" }),
-      supabase.from("user_roles").select("user_id", { count: "exact" }).eq("role", "customer"),
+      supabase.from("orders").select("customer_phone", { count: "exact" }),
       supabase.from("orders").select("id", { count: "exact" }).eq("status", "new"),
-    ]).then(([ordersRes, customersRes, pendingRes]) => {
+      supabase.from("orders").select("id", { count: "exact" }).eq("status", "confirmed"),
+    ]).then(([ordersRes, customersRes, pendingRes, paidRes]) => {
       const totalOrders = ordersRes.count || 0;
-      const totalRevenue = ordersRes.data?.reduce((sum, o) => sum + o.total_mwk, 0) || 0;
-      const totalCustomers = customersRes.count || 0;
+      const totalRevenue = ordersRes.data?.reduce((sum, o) => sum + (o.total_mwk || 0), 0) || 0;
+      
+      const uniquePhones = new Set(customersRes.data?.map(o => o.customer_phone).filter(Boolean));
+      const totalCustomers = uniquePhones.size;
       const pendingOrders = pendingRes.count || 0;
+      const paidOrders = paidRes.count || 0;
       
       setStats({ totalOrders, totalRevenue, pendingOrders, totalCustomers });
       setLoading(false);

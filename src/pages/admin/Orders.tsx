@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { formatMWK } from "@/data/products";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Package, Check, Truck, Phone, MapPin, Loader2, Eye, MessageCircle, Clock, Zap } from "lucide-react";
+import { Package, Check, Truck, Phone, MapPin, Loader2, Eye, MessageCircle, Clock, Zap, DollarSign } from "lucide-react";
 import { format } from "date-fns";
 import { DELIVERY_ZONES } from "@/lib/delivery";
 
@@ -22,6 +22,8 @@ interface Order {
   delivery_zone?: string;
   delivery_method?: string;
   tracking_number?: string;
+  payment_method?: string;
+  is_paid?: boolean;
 }
 
 interface OrderItem {
@@ -81,14 +83,22 @@ const AdminOrders = () => {
     window.open(`https://wa.me/${waPhone}?text=${encodeURIComponent(message)}`, "_blank");
   };
 
-  const updateStatus = async (orderId: string, newStatus: string) => {
+  const updateStatus = async (orderId: string, newStatus: string, markPaid = false) => {
     const order = orders.find(o => o.id === orderId);
-    await supabase.from("orders").update({ status: newStatus }).eq("id", orderId);
-    setOrders((prev) => prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o)));
+    const updates: any = { status: newStatus };
+    if (markPaid) {
+      updates.is_paid = true;
+    }
+    await supabase.from("orders").update(updates).eq("id", orderId);
+    setOrders((prev) => prev.map((o) => (o.id === orderId ? { ...o, ...updates } : o)));
     
-    if (order && STATUS_MESSAGES[newStatus]) {
+    if (order && STATUS_MESSAGES[newStatus] && !markPaid) {
       sendWhatsAppNotification(order, newStatus);
     }
+  };
+
+  const markAsPaid = async (orderId: string) => {
+    await updateStatus(orderId, "confirmed", true);
   };
 
   const viewOrder = async (order: Order) => {
@@ -134,7 +144,12 @@ const AdminOrders = () => {
                     <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${statusColors[order.status]}`}>{order.status}</span>
                     {order.delivery_method === "express" && <Zap className="h-3 w-3 text-orange-500" />}
                   </div>
-                  <p className="text-xs text-muted-foreground mt-1">{format(new Date(order.created_at), "PPp")}</p>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-xs text-muted-foreground">{format(new Date(order.created_at), "PPp")}</span>
+                    {order.payment_method === "whatsapp" && <span className="text-xs bg-green-100 text-green-700 px-1.5 rounded">WhatsApp</span>}
+                    {order.payment_method === "paychangu" && <span className="text-xs bg-blue-100 text-blue-700 px-1.5 rounded">PayChangu</span>}
+                    {order.is_paid && <span className="text-xs bg-green-500 text-white px-1.5 rounded">PAID</span>}
+                  </div>
                 </div>
                 <div className="text-right">
                   <p className="font-bold text-lg">{formatMWK(order.total_mwk)}</p>
@@ -153,9 +168,14 @@ const AdminOrders = () => {
                 )}
               </div>
 
-              <div className="mt-4 pt-3 border-t flex flex-wrap gap-2">
+<div className="mt-4 pt-3 border-t flex flex-wrap gap-2">
                 <Button variant="outline" size="sm" onClick={() => viewOrder(order)}><Eye className="h-3 w-3" /> Details</Button>
                 <Button variant="outline" size="sm" onClick={() => sendWhatsAppNotification(order, order.status)}><MessageCircle className="h-3 w-3" /> WhatsApp</Button>
+                {!order.is_paid && (
+                  <Button size="sm" className="bg-green-600 hover:bg-green-700" onClick={() => markAsPaid(order.id)}>
+                    <DollarSign className="h-3 w-3" /> Mark Paid
+                  </Button>
+                )}
                 {order.status !== "delivered" && order.status !== "cancelled" && (
                   <div className="flex gap-1">
                     {STATUSES.slice(0, 4).map((status) => (
@@ -164,6 +184,8 @@ const AdminOrders = () => {
                       </Button>
                     ))}
                   </div>
+                )}
+              </div>
                 )}
               </div>
             </div>

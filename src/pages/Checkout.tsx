@@ -227,24 +227,8 @@ const handlePayment = async () => {
       const customerEmail = `${formData.phone.replace(/[^0-9]/g, "")}@powerpod.mw`;
       const customerName = formData.name;
 
-      const { PAYCHANGU_CONFIG, createPayChanguPayment } = await import("@/lib/paychangu");
+      const { createPayChanguPayment } = await import("@/lib/paychangu");
         
-        const baseUrl = window.location.origin;
-        const payload = {
-          amount: calculatedTotal.toString(),
-          currency: "MWK",
-          email: customerEmail,
-          first_name: customerName.split(" ")[0] || customerName,
-          last_name: customerName.split(" ").slice(1).join(" ") || "",
-          tx_ref: `PP-${newOrderId.slice(0, 8).toUpperCase()}`,
-          callback_url: `${baseUrl}/api/payment/callback?orderId=${newOrderId}`,
-          return_url: `${baseUrl}/orders/${newOrderId}?payment=complete`,
-          customization: {
-            title: "PowerPod Order Payment",
-            description: `Order #${newOrderId.slice(0, 8).toUpperCase()}`,
-          },
-        };
-
         const payment = await createPayChanguPayment({
           amount: calculatedTotal,
           currency: "MWK",
@@ -252,8 +236,8 @@ const handlePayment = async () => {
           firstName: customerName.split(" ")[0] || customerName,
           lastName: customerName.split(" ").slice(1).join(" ") || "",
           txRef: `PP-${newOrderId.slice(0, 8).toUpperCase()}`,
-          callbackUrl: `${baseUrl}/api/payment/callback?orderId=${newOrderId}`,
-          returnUrl: `${baseUrl}/orders/${newOrderId}?payment=complete`,
+          callbackUrl: `${window.location.origin}/api/payment/callback?orderId=${newOrderId}`,
+          returnUrl: `${window.location.origin}/orders/${newOrderId}?payment=complete`,
           title: "PowerPod Order Payment",
           description: `Order #${newOrderId.slice(0, 8).toUpperCase()}`,
         });

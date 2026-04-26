@@ -19,7 +19,8 @@ const AdminSettings = () => {
   const [settings, setSettings] = useState({
     promo_banner_text: "",
     free_delivery_threshold: "50000",
-    delivery_fee: "2000",
+    delivery_fee: "5000",
+    express_delivery_fee: "8500",
     whatsapp_number: "",
     whatsapp_default_message: "Hi! I'd like to place an order.",
   });
@@ -42,7 +43,8 @@ const AdminSettings = () => {
         ...prev,
         promo_banner_text: settingsMap.promo_banner_text || "",
         free_delivery_threshold: settingsMap.free_delivery_threshold || "50000",
-        delivery_fee: settingsMap.delivery_fee || "2000",
+        delivery_fee: settingsMap.delivery_fee || "5000",
+        express_delivery_fee: settingsMap.express_delivery_fee || "8500",
         whatsapp_number: settingsMap.whatsapp_number || "",
         whatsapp_default_message: settingsMap.whatsapp_default_message || "",
       }));
@@ -57,6 +59,7 @@ const AdminSettings = () => {
         { key: "promo_banner_text", value: settings.promo_banner_text },
         { key: "free_delivery_threshold", value: settings.free_delivery_threshold },
         { key: "delivery_fee", value: settings.delivery_fee },
+        { key: "express_delivery_fee", value: settings.express_delivery_fee },
         { key: "whatsapp_number", value: settings.whatsapp_number },
         { key: "whatsapp_default_message", value: settings.whatsapp_default_message },
       ];
@@ -149,7 +152,17 @@ const AdminSettings = () => {
                 type="number"
                 value={settings.delivery_fee}
                 onChange={e => setSettings(s => ({ ...s, delivery_fee: e.target.value }))}
-                placeholder="2000"
+                placeholder="5000"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Express Delivery Fee (MWK)</Label>
+              <Input
+                type="number"
+                value={settings.express_delivery_fee}
+                onChange={e => setSettings(s => ({ ...s, express_delivery_fee: e.target.value }))}
+                placeholder="8500"
               />
             </div>
           </div>

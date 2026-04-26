@@ -47,33 +47,39 @@ const AdminCRM = () => {
   }, []);
 
   const fetchCustomers = async () => {
-    const { data: users } = await supabase.auth.admin.listUsers();
+    const { data: orders } = await supabase
+      .from("orders")
+      .select("customer_phone, customer_name, total_mwk, created_at")
+      .order("created_at", { ascending: false });
     
-    if (users?.users) {
-      const customerPromises = users.users.map(async (user) => {
-        const { data: orders } = await supabase
-          .from("orders")
-          .select("total_mwk, created_at")
-          .eq("user_id", user.id);
-        
-        const totalOrders = orders?.length || 0;
-        const totalSpent = orders?.reduce((sum, o) => sum + (o.total_mwk || 0), 0) || 0;
-        
-        return {
-          id: user.id,
-          user_id: user.id,
-          email: user.email || "",
-          full_name: user.user_metadata?.full_name || "Unknown",
-          phone: user.user_metadata?.phone || "",
-          total_orders: totalOrders,
-          total_spent: totalSpent,
-          last_order_date: orders?.[0]?.created_at || null,
-          created_at: user.created_at,
-        } as Customer;
+    if (orders) {
+      const phoneMap = new Map<string, Customer>();
+      
+      orders.forEach(order => {
+        const phone = order.customer_phone;
+        if (!phoneMap.has(phone)) {
+          phoneMap.set(phone, {
+            id: phone,
+            user_id: "",
+            email: "",
+            full_name: order.customer_name || "Unknown",
+            phone: phone,
+            total_orders: 0,
+            total_spent: 0,
+            last_order_date: null,
+            created_at: new Date().toISOString(),
+          });
+        }
+        const customer = phoneMap.get(phone)!;
+        customer.total_orders++;
+        customer.total_spent += order.total_mwk || 0;
+        if (!customer.last_order_date || order.created_at > customer.last_order_date) {
+          customer.last_order_date = order.created_at;
+        }
       });
-
-      const customersData = await Promise.all(customerPromises);
-      setCustomers(customersData.sort((a, b) => b.total_spent - a.total_spent));
+      
+      const customersData = Array.from(phoneMap.values()).sort((a, b) => b.total_spent - a.total_spent);
+      setCustomers(customersData);
     }
     setLoading(false);
   };

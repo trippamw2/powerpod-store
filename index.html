@@ -6,6 +6,37 @@
     <title>PowerPod - Keep the Vibe Alive</title>
     <meta name="description" content="PowerPod - Power and sound for your lifestyle. Chargers, earbuds, headphones and speakers. Order via WhatsApp in Malawi." />
     <meta name="author" content="PowerPod" />
+    
+    <!-- Critical inline CSS - prevents white flash -->
+    <style>
+      html, body {
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+        background-color: #fafafa;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      }
+      /* Loading spinner while React loads */
+      #root:empty {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        background: linear-gradient(135deg, #f97316 0%, #ea580c 50%, #f97316 100%);
+      }
+      #root:empty::after {
+        content: '';
+        width: 40px;
+        height: 40px;
+        border: 3px solid rgba(255,255,255,0.3);
+        border-top-color: white;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+    </style>
 
     <meta property="og:title" content="PowerPod - Keep the Vibe Alive" />
     <meta property="og:description" content="Power and sound for your everyday. From campus to the party, never miss a moment." />

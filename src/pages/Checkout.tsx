@@ -247,7 +247,8 @@ const handlePayment = async () => {
         
         if (payment.link) {
           console.log("Redirecting to:", payment.link);
-          window.location.href = payment.link;
+          // Use window.location.replace to avoid back button issues
+          window.location.replace(payment.link);
         } else {
           toast({ title: "Payment link not received", description: "Please try WhatsApp option", variant: "destructive" });
         }

@@ -147,13 +147,12 @@ const Checkout = () => {
   };
 
   const createOrder = async () => {
-    if (!user) return null;
     try {
       const deliveryZone = detectZone(formData.location);
       const { data: order, error } = await supabase
         .from("orders")
         .insert({
-          user_id: user.id,
+          user_id: user?.id || null,
           customer_name: formData.name,
           customer_phone: formData.phone,
           customer_location: formData.location,

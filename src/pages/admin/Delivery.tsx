@@ -48,11 +48,14 @@ const AdminDelivery = () => {
   }, []);
 
   const fetchCompanies = async () => {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("delivery_companies")
       .select("*")
-      .order("sort_order", { ascending: true });
+      .order("base_fee_mwk", { ascending: true });
     
+    if (error) {
+      console.error("Fetch error:", error);
+    }
     setCompanies(data || []);
     setLoading(false);
   };

@@ -59,18 +59,22 @@ export const PromotionSlider = ({ page, className }: PromotionSliderProps) => {
       <Link
         to={promotion.link}
         className={cn(
-          "block relative h-full bg-gradient-to-r overflow-hidden",
-          promotion.background_color
+          "block relative h-full overflow-hidden",
+          !promotion.image && "bg-gradient-to-r"
         )}
       >
-        <div className="absolute inset-0">
-          <img
-            src={promotion.image}
-            alt={promotion.title}
-            className="w-full h-full object-cover opacity-50"
-          />
+        {promotion.image ? (
+          <div className="absolute inset-0">
+            <img
+              src={promotion.image}
+              alt={promotion.title}
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-black/40" />
+          </div>
+        ) : (
           <div className={cn("absolute inset-0 bg-gradient-to-r", promotion.background_color)} />
-        </div>
+        )}
         <div className="relative h-full flex items-center px-4 sm:px-8">
           <div className="max-w-lg">
             <p className={cn("text-xs sm:text-sm font-medium opacity-90", promotion.text_color)}>

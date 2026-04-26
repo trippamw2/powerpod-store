@@ -226,6 +226,8 @@ const handlePayment = async () => {
       const customerEmail = `${formData.phone.replace(/[^0-9]/g, "")}@powerpod.mw`;
       const customerName = formData.name;
 
+      console.log("Creating PayChangu payment for:", calculatedTotal);
+      
       const { createPayChanguPayment } = await import("@/lib/paychangu");
         
         const payment = await createPayChanguPayment({
@@ -241,23 +243,17 @@ const handlePayment = async () => {
           description: `Order #${newOrderId.slice(0, 8).toUpperCase()}`,
         });
         
+        console.log("PayChangu payment response:", payment);
+        
         if (payment.link) {
+          console.log("Redirecting to:", payment.link);
           window.location.href = payment.link;
         } else {
-          setOrderId(newOrderId);
-          clear();
-          navigate(`/orders/${newOrderId}`);
-          toast({ title: "Order placed!", description: `Order #${newOrderId.slice(0, 8).toUpperCase()}` });
+          toast({ title: "Payment link not received", description: "Please try WhatsApp option", variant: "destructive" });
         }
-      } else {
-        setOrderId(newOrderId);
-        clear();
-        navigate(`/orders/${newOrderId}`);
-        toast({ title: "Order placed!", description: `Order #${newOrderId.slice(0, 8).toUpperCase()}` });
-      }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Payment error:", err);
-      toast({ title: "Payment failed", description: "Please try again or use WhatsApp option", variant: "destructive" });
+      toast({ title: "Payment failed", description: err.message || "Please try again or use WhatsApp", variant: "destructive" });
     } finally {
       setSubmitting(false);
     }

@@ -276,7 +276,7 @@ const AdminOrders = () => {
                 )}
                 {order.status !== "delivered" && order.status !== "cancelled" && (
                   <div className="flex gap-1">
-                    {STATUSES.slice(0, 4).map((status) => (
+                    {STATUSES.map((status) => (
                       <Button key={status} variant={order.status === status ? "default" : "outline"} size="sm" onClick={() => updateStatus(order.id, status)} disabled={order.status === status}>
                         <span className="capitalize">{status}</span>
                       </Button>

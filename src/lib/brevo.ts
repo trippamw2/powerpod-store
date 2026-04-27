@@ -21,64 +21,87 @@ const BRAND = {
   businessName: "PowerPod Electronics",
 };
 
-// Email wrapper with branding
+// Premium Email wrapper with branding
 const wrapEmail = (content: string, title: string) => `
 <!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${BRAND.name}</title>
 </head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #111111;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #111111; padding: 40px 0;">
+<body style="margin: 0; padding: 40px 0; font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif; background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0d0d0d 100%);">
+  
+  <!-- Outer wrapper with glass effect -->
+  <table width="100%" cellpadding="0" cellspacing="0">
     <tr>
-      <td align="center">
-        <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 600px; background-color: #1a1a1a; border-radius: 16px; overflow: hidden; border: 1px solid #333333;">
-          <!-- Header with Logo -->
+      <td align="center" style="padding: 0 16px;">
+        
+        <!-- Main card with premium styling -->
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 580px; background: linear-gradient(180deg, #1c1c1c 0%, #141414 100%); border-radius: 24px; overflow: hidden; box-shadow: 0 25px 80px rgba(0,0,0,0.5), 0 0 1px rgba(255,107,0,0.3); border: 1px solid rgba(255,255,255,0.08);">
+          
+          <!-- Premium Header -->
           <tr>
-            <td style="background: linear-gradient(135deg, #FF6B00 0%, #FF8C00 100%); padding: 32px; text-align: center;">
-              <h1 style="color: #ffffff; margin: 0; font-size: 36px; font-weight: 900; letter-spacing: 2px;">⚡ ${BRAND.name}</h1>
-              <p style="color: #ffffff; margin: 8px 0 0 0; font-size: 16px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase;">${BRAND.tagline}</p>
+            <td style="background: linear-gradient(135deg, #FF6B00 0%, #FF8C00 50%, #FF6B00 100%); padding: 40px 32px; position: relative; overflow: hidden;">
+              <!-- Decorative glow -->
+              <div style="position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 60%); pointer-events: none;"></div>
+              
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td align="center">
+                    <!-- Logo icon -->
+                    <div style="display: inline-block; width: 64px; height: 64px; background: rgba(0,0,0,0.3); border-radius: 20px; line-height: 64px; font-size: 28px; margin-bottom: 16px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2);">⚡</div>
+                    <!-- Brand name -->
+                    <h1 style="color: #ffffff; margin: 0; font-size: 32px; font-weight: 800; letter-spacing: 3px; text-shadow: 0 2px 20px rgba(0,0,0,0.3);">${BRAND.name}</h1>
+                    <!-- Tagline -->
+                    <p style="color: rgba(255, 255, 255, 0.95); margin: 8px 0 0 0; font-size: 13px; font-weight: 500; letter-spacing: 4px; text-transform: uppercase;">${BRAND.tagline}</p>
+                  </td>
+                </tr>
+              </table>
             </td>
           </tr>
           
-          <!-- Content -->
+          <!-- Premium Content area -->
           <tr>
-            <td style="padding: 32px; color: #ffffff;">
+            <td style="padding: 40px 32px; color: #ffffff; background: linear-gradient(180deg, rgba(255,255,255,0.02) 0%, transparent 100%);">
               ${content}
             </td>
           </tr>
           
-          <!-- Footer -->
+          <!-- Divider -->
           <tr>
-            <td style="background-color: #0a0a0a; padding: 24px 32px; border-top: 1px solid #333333;">
+            <td style="padding: 0 32px;">
+              <div style="height: 1px; background: linear-gradient(90deg, transparent 0%, rgba(255,107,0,0.4) 50%, transparent 100%);"></div>
+            </td>
+          </tr>
+          
+          <!-- Premium Footer -->
+          <tr>
+            <td style="background: #0d0d0d; padding: 32px; border-top: 1px solid rgba(255,255,255,0.05);">
               <table width="100%" cellpadding="0" cellspacing="0">
                 <tr>
                   <td align="center">
-                    <p style="color: #888888; font-size: 13px; margin: 0 0 8px 0;">${BRAND.businessName} • ${BRAND.address}</p>
-                    <p style="color: #666666; font-size: 12px; margin: 0 0 16px 0;">📱 ${BRAND.phone} • 📧 ${BRAND.email}</p>
                     
-                    <!-- Social Links -->
-                    <table cellpadding="0" cellspacing="0" style="margin: 0 auto 16px auto;">
+                    <!-- Brand badge -->
+                    <div style="display: inline-block; background: linear-gradient(135deg, rgba(255,107,0,0.15) 0%, rgba(255,107,0,0.05) 100%); border: 1px solid rgba(255,107,0,0.3); border-radius: 12px; padding: 8px 16px; margin-bottom: 20px;">
+                      <span style="color: #FF6B00; font-size: 12px; font-weight: 600; letter-spacing: 1px;">${BRAND.businessName}</span>
+                    </div>
+                    
+                    <!-- Contact info -->
+                    <p style="color: #666666; font-size: 13px; margin: 0 0 4px 0;">${BRAND.address}</p>
+                    <p style="color: #555555; font-size: 12px; margin: 0 0 24px 0;">${BRAND.email}</p>
+                    
+                    <!-- Social links with premium buttons -->
+                    <table cellpadding="0" cellspacing="0" style="margin: 0 auto 24px auto;">
                       <tr>
-                        <td style="padding: 0 16px;">
-                          <a href="${BRAND.website}" style="color: #FF6B00; text-decoration: none; font-size: 13px; font-weight: 600;">SHOP</a>
-                        </td>
-                        <td style="padding: 0 16px;">
-                          <a href="${BRAND.whatsapp}" style="color: #FF6B00; text-decoration: none; font-size: 13px; font-weight: 600;">WHATSAPP</a>
-                        </td>
-                        <td style="padding: 0 16px;">
-                          <a href="${BRAND.facebook}" style="color: #FF6B00; text-decoration: none; font-size: 13px; font-weight: 600;">FACEBOOK</a>
-                        </td>
-                        <td style="padding: 0 16px;">
-                          <a href="${BRAND.instagram}" style="color: #FF6B00; text-decoration: none; font-size: 13px; font-weight: 600;">INSTAGRAM</a>
-                        </td>
+                        <td style="padding: 0 8px;"><a href="${BRAND.whatsapp}" style="display: inline-block; background: #25D366; color: #ffffff; text-decoration: none; font-size: 11px; font-weight: 600; padding: 10px 16px; border-radius: 10px; letter-spacing: 0.5px;">WhatsApp</a></td>
+                        <td style="padding: 0 8px;"><a href="${BRAND.website}" style="display: inline-block; background: #FF6B00; color: #ffffff; text-decoration: none; font-size: 11px; font-weight: 600; padding: 10px 16px; border-radius: 10px; letter-spacing: 0.5px;">Shop</a></td>
                       </tr>
                     </table>
                     
-                    <p style="color: #444444; font-size: 10px; margin: 16px 0 0 0; border-top: 1px solid #222222; padding-top: 16px;">
-                      © ${new Date().getFullYear()} ${BRAND.name}. ${BRAND.tagline}<br>
-                      <span style="color: #555555;">This email was sent because of your order on ${BRAND.website}</span>
+                    <!-- Copyright -->
+                    <p style="color: #444444; font-size: 11px; margin: 24px 0 0 0; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.05);">
+                      © ${new Date().getFullYear()} ${BRAND.name}. ${BRAND.tagline}
                     </p>
                   </td>
                 </tr>
@@ -87,8 +110,12 @@ const wrapEmail = (content: string, title: string) => `
           </tr>
         </table>
         
-        <!-- Extra spacing -->
-        <p style="color: #555555; font-size: 11px; text-align: center; margin: 24px 0;">${BRAND.tagline} 💪🏿</p>
+        <!-- Tagline badge -->
+        <div style="margin-top: 24px; text-align: center;">
+          <span style="display: inline-block; background: rgba(255,107,0,0.1); border: 1px solid rgba(255,107,0,0.2); border-radius: 20px; padding: 8px 20px;">
+            <span style="color: #FF6B00; font-size: 11px; font-weight: 600; letter-spacing: 2px;">${BRAND.tagline}</span>
+          </span>
+        </div>
       </td>
     </tr>
   </table>

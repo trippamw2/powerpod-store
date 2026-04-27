@@ -188,6 +188,19 @@ const Checkout = () => {
 
       console.log("Order created successfully:", order);
 
+      // FIX: Insert order items so customers see their items
+      if (order) {
+        for (const item of items) {
+          await supabase.from("order_ items").insert({
+            order_id: order.id,
+            product_key: item.productKey,
+            product_name: item.name,
+            quantity: item.quantity,
+            unit_price_mwk: item.price,
+          });
+        }
+      }
+
       // Increment promo code usage if applied
       if (promoApplied?.code) {
         await supabase.rpc("increment_promo_usage", { promo_code: promoApplied.code }).catch(() => {});

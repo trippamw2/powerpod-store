@@ -220,15 +220,34 @@ Thanks for choosing PowerPod! 🙏`;
 const handlePayment = async () => {
     setSubmitting(true);
     try {
+      console.log("=== PAYMENT FLOW ===");
+      console.log("Payment method selected:", paymentMethod);
+      console.log("Amount:", calculatedTotal);
+      
       const newOrderId = await createOrder();
       if (!newOrderId) return;
-
-      const customerEmail = `${formData.phone.replace(/[^0-9]/g, "")}@powerpod.mw`;
-      const customerName = formData.name;
-
-      console.log("Creating PayChangu payment for:", calculatedTotal);
       
-      const { createPayChanguPayment } = await import("@/lib/paychangu");
+      console.log("Order created:", newOrderId);
+
+      if (paymentMethod === "whatsapp") {
+        // WhatsApp flow
+        console.log("Using WhatsApp flow");
+        const phone = formData.phone.replace(/[^0-9]/g, "");
+        const waPhone = phone.startsWith("0") ? `265${phone.slice(1)}` : phone;
+        const msg = `🛒 *ORDER - PowerPod* #${newOrderId.slice(0, 8).toUpperCase()}
+...`;
+        window.open(`https://wa.me/${waPhone}?text=${encodeURIComponent(msg)}`, "_blank");
+        setOrderId(newOrderId);
+        clear();
+        navigate(`/orders/${newOrderId}`);
+        toast({ title: "Order sent to WhatsApp!" });
+      } else {
+        // PayChangu flow
+        console.log("Using PayChangu flow");
+        const customerEmail = `${formData.phone.replace(/[^0-9]/g, "")}@powerpod.mw`;
+        const customerName = formData.name;
+
+        const { createPayChanguPayment } = await import("@/lib/paychangu");
         
         const payment = await createPayChanguPayment({
           amount: calculatedTotal,
@@ -243,15 +262,19 @@ const handlePayment = async () => {
           description: `Order #${newOrderId.slice(0, 8).toUpperCase()}`,
         });
         
-        console.log("PayChangu payment response:", payment);
+        console.log("PayChangu returned:", payment);
         
         if (payment.link) {
-          console.log("Redirecting to:", payment.link);
-          // Use window.location.replace to avoid back button issues
+          console.log("REDIRECTING to PayChangu:", payment.link);
           window.location.replace(payment.link);
         } else {
-          toast({ title: "Payment link not received", description: "Please try WhatsApp option", variant: "destructive" });
+          console.log("No payment link received from PayChangu");
+          setOrderId(newOrderId);
+          clear();
+          navigate(`/orders/${newOrderId}`);
+          toast({ title: "Order placed!", description: `Order #${newOrderId.slice(0, 8).toUpperCase()}` });
         }
+      }
     } catch (err: any) {
       console.error("Payment error:", err);
       toast({ title: "Payment failed", description: err.message || "Please try again or use WhatsApp", variant: "destructive" });
@@ -559,27 +582,19 @@ Thank you! 🙏`;
             <Button type="button" variant="outline" onClick={() => setStep("delivery")}>
               Back
             </Button>
-            {paymentMethod === "whatsapp" ? (
-              <Button
-                variant="hero"
-                size="lg"
-                className="flex-1 bg-green-600 hover:bg-green-700"
-                onClick={handleWhatsAppOrder}
-                disabled={submitting}
-              >
-                {submitting ? <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Processing...</> : <><MessageCircle className="h-4 w-4 mr-2" /> Complete via WhatsApp</>}
-              </Button>
-            ) : (
-              <Button
-                variant="hero"
-                size="lg"
-                className="flex-1"
-                onClick={handlePayment}
-                disabled={submitting}
-              >
-                {submitting ? <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Processing...</> : `Pay ${formatMWK(calculatedTotal)} Now`}
-              </Button>
-            )}
+            <Button
+              variant="hero"
+              size="lg"
+              className="flex-1"
+              onClick={handlePayment}
+              disabled={submitting}
+            >
+              {submitting ? <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Processing...</> : (
+                paymentMethod === "whatsapp" 
+                  ? <><MessageCircle className="h-4 w-4 mr-2" /> Complete via WhatsApp</>
+                  : <><Wallet className="h-4 w-4 mr-2" /> Pay {formatMWK(calculatedTotal)} Now</>
+              )}
+            </Button>
           </div>
         </div>
       )}

@@ -143,6 +143,10 @@ const AdminOrders = () => {
     setOrders((prev) => prev.map((o) => (o.id === orderId ? { ...o, ...updates } : o)));
     
     if (order && STATUS_MESSAGES[newStatus] && !markPaid) {
+      // Fetch order items for email
+      const { data: items } = await supabase.from("order_items").select("product_name, unit_price_mwk, quantity").eq("order_id", orderId);
+      const orderItems = items?.map(i => ({ name: i.product_name, quantity: i.quantity, price: i.unit_price_mwk })) || [];
+      
       sendWhatsAppNotification(order, newStatus);
       
       // Send email notification based on status
@@ -155,7 +159,7 @@ const AdminOrders = () => {
             to: email,
             toName: order.customer_name,
             orderId: order.id,
-            items: [],
+            items: orderItems,
             total: order.total_mwk,
             location: order.customer_location || "",
             deliveryMethod: order.delivery_method || "standard",
@@ -166,7 +170,7 @@ const AdminOrders = () => {
             to: email,
             toName: order.customer_name,
             orderId: order.id,
-            items: [],
+            items: orderItems,
             total: order.total_mwk,
             location: order.customer_location || "",
             deliveryMethod: order.delivery_method || "standard",
@@ -178,15 +182,15 @@ const AdminOrders = () => {
             to: email,
             toName: order.customer_name,
             orderId: order.id,
-            items: [],
+            items: orderItems,
             total: order.total_mwk,
             location: order.customer_location || "",
-            deliveryMethod: order.delivery_method || "standard",
+            deliveryMethod: order.delivery_method || "",
             type: "delivered",
           });
         }
       } catch (e) {
-        console.log("Email notification skipped");
+        console.log("Email notification skipped", e);
       }
     }
   };

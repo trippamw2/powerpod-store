@@ -22,7 +22,7 @@ export interface PayChanguResponse {
 }
 
 export const createPayChanguPayment = async (params: PayChanguPaymentParams): Promise<PayChanguResponse> => {
-  const PAYCHANGU_API_URL = "https://api.paychangu.com/v1/payment";
+  const PAYCHANGU_API_URL = "https://api.paychangu.com/payment";
   
   const payload = {
     amount: params.amount.toString(),

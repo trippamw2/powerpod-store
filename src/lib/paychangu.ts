@@ -22,6 +22,8 @@ export interface PayChanguResponse {
 }
 
 export const createPayChanguPayment = async (params: PayChanguPaymentParams): Promise<PayChanguResponse> => {
+  const PAYCHANGU_API_URL = "https://api.paychangu.com/v1/payment";
+  
   const payload = {
     amount: params.amount.toString(),
     currency: params.currency || "MWK",
@@ -37,8 +39,11 @@ export const createPayChanguPayment = async (params: PayChanguPaymentParams): Pr
     },
   };
 
+  console.log("PayChangu API URL:", PAYCHANGU_API_URL);
+  console.log("PayChangu payload:", payload);
+
   try {
-    const response = await fetch("https://api.paychangu.com/payment", {
+    const response = await fetch(PAYCHANGU_API_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -48,15 +53,17 @@ export const createPayChanguPayment = async (params: PayChanguPaymentParams): Pr
     });
 
     const data = await response.json();
+    console.log("PayChangu response:", data);
+    console.log("Response status:", response.status);
 
-    if (data.link) {
+    if (response.ok && data.link) {
       return {
         link: data.link,
         txRef: data.tx_ref,
       };
     }
 
-    throw new Error(data.message || "Payment creation failed");
+    throw new Error(data.message || `Payment creation failed: ${response.status}`);
   } catch (error) {
     console.error("PayChangu error:", error);
     throw error;

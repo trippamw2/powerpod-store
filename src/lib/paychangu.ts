@@ -56,16 +56,18 @@ export const createPayChanguPayment = async (params: PayChanguPaymentParams): Pr
     console.log("PayChangu response:", data);
     console.log("Response status:", response.status);
 
-    if (response.ok && (data.data?.checkout_url || data.link)) {
-      const checkoutUrl = data.data?.checkout_url || data.link;
+    if (response.ok && (data.data?.checkout_url || data.link || data.checkout_url)) {
+      const checkoutUrl = data.data?.checkout_url || data.checkout_url || data.link;
       const txRef = data.data?.tx_ref || data.tx_ref;
       console.log("PayChangu checkout URL:", checkoutUrl);
+      console.log("PayChangu tx_ref:", txRef);
       return {
         link: checkoutUrl,
         txRef: txRef,
       };
     }
 
+    console.error("PayChangu full response:", JSON.stringify(data, null, 2));
     throw new Error(data.message || data.data?.message || `Payment creation failed: ${response.status}`);
   } catch (error) {
     console.error("PayChangu error:", error);

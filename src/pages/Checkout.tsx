@@ -273,11 +273,14 @@ const handlePayment = async () => {
     setSubmitting(true);
     try {
       const selectedMethod = paymentMethod;
+      console.log("Payment method selected:", selectedMethod);
       const newOrderId = await createOrder();
       if (!newOrderId) {
+        setSubmitting(false);
         return;
       }
-      // DIRECT check - not using else
+      
+      // WhatsApp flow
       if (selectedMethod === "whatsapp") {
         // WhatsApp flow - use AI agent to generate message
         const phone = formData.phone.replace(/[^0-9]/g, "");
@@ -303,12 +306,14 @@ const handlePayment = async () => {
         setSubmitting(false);
         return;
       }
-
-      // PayChangu flow only reached if NOT whatsapp
+      
+      // PayChangu flow
+      console.log("Processing PayChangu payment for order:", newOrderId);
       const customerEmail = `${formData.phone.replace(/[^0-9]/g, "")}@powerpod.mw`;
       const customerName = formData.name;
 
       const { createPayChanguPayment } = await import("@/lib/paychangu");
+      console.log("Creating PayChangu payment...");
         
       const payment = await createPayChanguPayment({
         amount: calculatedTotal,
@@ -323,7 +328,10 @@ const handlePayment = async () => {
         description: `Order #${newOrderId.slice(0, 8).toUpperCase()}`,
       });
       
+      console.log("Payment response:", payment);
+      
       if (payment.link) {
+        console.log("Redirecting to PayChangu:", payment.link);
         window.location.replace(payment.link);
       } else {
         setOrderId(newOrderId);

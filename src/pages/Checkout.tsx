@@ -220,64 +220,85 @@ Thanks for choosing PowerPod! 🙏`;
 const handlePayment = async () => {
     setSubmitting(true);
     try {
-      console.log("=== PAYMENT FLOW ===");
-      console.log("Payment method selected:", paymentMethod);
-      console.log("Amount:", calculatedTotal);
+      const selectedMethod = paymentMethod;
+      console.log("=== PAYMENT FLOW START ===");
+      console.log("Selected method from state:", selectedMethod);
       
       const newOrderId = await createOrder();
-      if (!newOrderId) return;
-      
+      if (!newOrderId) {
+        console.log("ERROR: No order ID created");
+        return;
+      }
       console.log("Order created:", newOrderId);
 
-      if (paymentMethod === "whatsapp") {
-        // WhatsApp flow
-        console.log("Using WhatsApp flow");
+      // DIRECT check - not using else
+      if (selectedMethod === "whatsapp") {
+        console.log(">>> WHATSAPP FLOW CHOSEN <<<");
+        // WhatsApp flow - open chat
         const phone = formData.phone.replace(/[^0-9]/g, "");
         const waPhone = phone.startsWith("0") ? `265${phone.slice(1)}` : phone;
+        const itemsTxt = items.map(i => `• ${i.quantity} × ${i.name}`).join('\n');
         const msg = `🛒 *ORDER - PowerPod* #${newOrderId.slice(0, 8).toUpperCase()}
-...`;
+
+👤 ${formData.name}
+📱 ${formData.phone}
+📍 ${formData.location}
+
+🛒 Items:
+${itemsTxt}
+
+💰 Total: ${formatMWK(calculatedTotal)}
+🚚 Delivery: ${formData.location}
+
+💳 Payment: Pay on Delivery
+
+Thank you! 🙏`;
+        console.log("Opening WhatsApp with phone:", waPhone);
         window.open(`https://wa.me/${waPhone}?text=${encodeURIComponent(msg)}`, "_blank");
+
         setOrderId(newOrderId);
         clear();
         navigate(`/orders/${newOrderId}`);
         toast({ title: "Order sent to WhatsApp!" });
-      } else {
-        // PayChangu flow
-        console.log("Using PayChangu flow");
-        const customerEmail = `${formData.phone.replace(/[^0-9]/g, "")}@powerpod.mw`;
-        const customerName = formData.name;
+        setSubmitting(false);
+        return;
+      }
 
-        const { createPayChanguPayment } = await import("@/lib/paychangu");
+      // PayChangu flow only reached if NOT whatsapp
+      console.log(">>> PAYCHANGU FLOW CHOSEN <<<");
+      const customerEmail = `${formData.phone.replace(/[^0-9]/g, "")}@powerpod.mw`;
+      const customerName = formData.name;
+
+      const { createPayChanguPayment } = await import("@/lib/paychangu");
         
-        const payment = await createPayChanguPayment({
-          amount: calculatedTotal,
-          currency: "MWK",
-          email: customerEmail,
-          firstName: customerName.split(" ")[0] || customerName,
-          lastName: customerName.split(" ").slice(1).join(" ") || "",
-          txRef: `PP-${newOrderId.slice(0, 8).toUpperCase()}`,
-          callbackUrl: `${window.location.origin}/api/payment/callback?orderId=${newOrderId}`,
-          returnUrl: `${window.location.origin}/orders/${newOrderId}?payment=complete`,
-          title: "PowerPod Order Payment",
-          description: `Order #${newOrderId.slice(0, 8).toUpperCase()}`,
-        });
-        
-        console.log("PayChangu returned:", payment);
-        
-        if (payment.link) {
-          console.log("REDIRECTING to PayChangu:", payment.link);
-          window.location.replace(payment.link);
-        } else {
-          console.log("No payment link received from PayChangu");
-          setOrderId(newOrderId);
-          clear();
-          navigate(`/orders/${newOrderId}`);
-          toast({ title: "Order placed!", description: `Order #${newOrderId.slice(0, 8).toUpperCase()}` });
-        }
+      const payment = await createPayChanguPayment({
+        amount: calculatedTotal,
+        currency: "MWK",
+        email: customerEmail,
+        firstName: customerName.split(" ")[0] || customerName,
+        lastName: customerName.split(" ").slice(1).join(" ") || "",
+        txRef: `PP-${newOrderId.slice(0, 8).toUpperCase()}`,
+        callbackUrl: `${window.location.origin}/api/payment/callback?orderId=${newOrderId}`,
+        returnUrl: `${window.location.origin}/orders/${newOrderId}?payment=complete`,
+        title: "PowerPod Order Payment",
+        description: `Order #${newOrderId.slice(0, 8).toUpperCase()}`,
+      });
+      
+      console.log("PayChangu response:", payment);
+      
+      if (payment.link) {
+        console.log("!!! REDIRECTING TO PAYCHANGU:", payment.link);
+        window.location.replace(payment.link);
+      } else {
+        console.log("ERROR: No link from PayChangu");
+        setOrderId(newOrderId);
+        clear();
+        navigate(`/orders/${newOrderId}`);
+        toast({ title: "Order placed!", description: `Order #${newOrderId.slice(0, 8).toUpperCase()}` });
       }
     } catch (err: any) {
       console.error("Payment error:", err);
-      toast({ title: "Payment failed", description: err.message || "Please try again or use WhatsApp", variant: "destructive" });
+      toast({ title: "Payment failed", description: err.message || "Please try again", variant: "destructive" });
     } finally {
       setSubmitting(false);
     }
@@ -473,7 +494,10 @@ Thank you! 🙏`;
                   name="payment"
                   value="paychangu"
                   checked={paymentMethod === "paychangu"}
-                  onChange={(e) => setPaymentMethod(e.target.value as "paychangu")}
+                  onChange={() => {
+                    console.log("Radio: Setting paymentMethod to paychangu");
+                    setPaymentMethod("paychangu");
+                  }}
                   className="h-4 w-4"
                 />
                 <Wallet className="h-5 w-5 text-green-600" />
@@ -493,7 +517,10 @@ Thank you! 🙏`;
                   name="payment"
                   value="whatsapp"
                   checked={paymentMethod === "whatsapp"}
-                  onChange={(e) => setPaymentMethod(e.target.value as "whatsapp")}
+                  onChange={() => {
+                    console.log("Radio: Setting paymentMethod to whatsapp");
+                    setPaymentMethod("whatsapp");
+                  }}
                   className="h-4 w-4"
                 />
                 <MessageCircle className="h-5 w-5 text-green-500" />

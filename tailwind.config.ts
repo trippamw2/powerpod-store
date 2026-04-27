@@ -14,38 +14,43 @@ export default {
     },
     extend: {
       colors: {
-        background: "#fafafa",
-        foreground: "#0a0a0a",
+        background: "#0a0a0a",
+        foreground: "#fafafa",
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
         primary: {
-          DEFAULT: "hsl(var(--primary))",
-          foreground: "hsl(var(--primary-foreground))",
+          DEFAULT: "#FF6B00",
+          foreground: "#ffffff",
+          50: "#FFF3E0",
+          100: "#FFE0B2",
+          500: "#FF6B00",
+          600: "#E65100",
+          700: "#BF360C",
         },
         secondary: {
-          DEFAULT: "hsl(var(--secondary))",
-          foreground: "hsl(var(--secondary-foreground))",
+          DEFAULT: "#1a1a1a",
+          foreground: "#fafafa",
         },
         destructive: {
-          DEFAULT: "hsl(var(--destructive))",
-          foreground: "hsl(var(--destructive-foreground))",
+          DEFAULT: "#ef4444",
+          foreground: "#ffffff",
         },
         muted: {
-          DEFAULT: "hsl(var(--muted))",
-          foreground: "hsl(var(--muted-foreground))",
+          DEFAULT: "#1a1a1a",
+          foreground: "#a3a3a3",
         },
         accent: {
-          DEFAULT: "hsl(var(--accent))",
-          foreground: "hsl(var(--accent-foreground))",
+          DEFAULT: "#FF6B00",
+          foreground: "#ffffff",
         },
         popover: {
-          DEFAULT: "hsl(var(--popover))",
-          foreground: "hsl(var(--popover-foreground))",
+          DEFAULT: "#1a1a1a",
+          foreground: "#fafafa",
         },
         card: {
-          DEFAULT: "hsl(var(--card))",
-          foreground: "hsl(var(--card-foreground))",
+          DEFAULT: "#141414",
+          foreground: "#fafafa",
         },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
@@ -65,7 +70,7 @@ export default {
       },
       fontFamily: {
         display: ["Sora", "sans-serif"],
-        sans: ["Inter", "sans-serif"],
+        sans: ["Sora", "Inter", "sans-serif"],
       },
       backgroundImage: {
         "gradient-brand": "var(--gradient-brand)",

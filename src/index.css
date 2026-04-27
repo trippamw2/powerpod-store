@@ -19,54 +19,55 @@ body {
   margin: 0;
   padding: 0;
   min-height: 100vh;
-  background-color: #fafafa;
-  color: #0a0a0a;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background-color: #0a0a0a;
+  color: #fafafa;
+  font-family: 'Sora', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 @layer base {
   :root {
-    --background: 0 0% 98%;
-    --foreground: 0 0% 9%;
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 9%;
-    --primary: 25 100% 50%;
+    /* Premium Dark Theme - PowerPod Brand */
+    --background: 0 0% 6%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 28 100% 50%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 0 0% 96%;
-    --secondary-foreground: 0 0% 9%;
-    --muted: 0 0% 96%;
-    --muted-foreground: 0 0% 45%;
-    --accent: 35 100% 50%;
+    --secondary: 0 0% 12%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 63%;
+    --accent: 28 100% 50%;
     --accent-foreground: 0 0% 100%;
-    --destructive: 0 84% 60%;
+    --destructive: 0 62% 50%;
     --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 90%;
-    --input: 0 0% 90%;
-    --ring: 25 100% 50%;
+    --border: 0 0% 18%;
+    --input: 0 0% 18%;
+    --ring: 28 100% 50%;
     --radius: 0.75rem;
 
-    --color-orange: #f97316;
+    /* PowerPod Brand Colors */
+    --color-orange: #FF6B00;
+    --color-orange-light: #FF8C00;
     --color-teal: #0d9488;
     --color-black: #0a0a0a;
 
-    --gradient-brand: linear-gradient(135deg, hsl(0 0% 8%) 0%, hsl(25 100% 50%) 50%, hsl(35 100% 55%) 100%);
-    --gradient-brand-soft: linear-gradient(135deg, hsl(0 0% 8% / 0.1) 0%, hsl(25 100% 50% / 0.1) 50%, hsl(35 100% 55% / 0.1) 100%);
-    --gradient-text: linear-gradient(135deg, hsl(0 0% 8%), hsl(25 100% 50%));
-    --shadow-glow: 0 20px 60px -20px hsl(25 100% 50% / 0.3);
-    --shadow-card: 0 10px 40px -15px hsl(35 100% 55% / 0.15);
-    --shadow-button: 0 8px 30px -8px hsl(25 100% 50% / 0.4);
-  }
-
-  .dark {
-    --background: 0 55% 8%;
-    --foreground: 30 30% 98%;
-    --card: 0 45% 11%;
-    --card-foreground: 30 30% 98%;
-    --border: 0 30% 20%;
+    /* Premium Gradients */
+    --gradient-brand: linear-gradient(135deg, #FF6B00 0%, #FF8C00 50%, #FF6B00 100%);
+    --gradient-brand-soft: linear-gradient(135deg, rgba(255, 107, 0, 0.15) 0%, rgba(255, 140, 0, 0.1) 100%);
+    --gradient-text: linear-gradient(135deg, #FF6B00 0%, #FF8C00 100%);
+    --gradient-dark: linear-gradient(180deg, #111111 0%, #0a0a0a 100%);
+    --gradient-card: linear-gradient(145deg, #1a1a1a 0%, #141414 100%);
+    
+    /* Premium Shadows */
+    --shadow-glow: 0 0 40px rgba(255, 107, 0, 0.3);
+    --shadow-card: 0 25px 80px -20px rgba(0, 0, 0, 0.5);
+    --shadow-button: 0 8px 30px -8px rgba(255, 107, 0, 0.4);
+    --shadow-card-hover: 0 30px 60px -15px rgba(255, 107, 0, 0.2);
   }
 }
 
@@ -186,4 +187,41 @@ body {
   .animate-slide-up {
     animation: slide-up 0.5s ease-out forwards;
   }
+}
+
+/* Premium Glass Effect Classes */
+.glass {
+  background: rgba(26, 26, 26, 0.7);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-card {
+  background: linear-gradient(145deg, rgba(26, 26, 26, 0.9) 0%, rgba(20, 20, 20, 0.9) 100%);
+  border: 1px solid rgba(255, 107, 0, 0.1);
+}
+
+.glow-orange {
+  box-shadow: 0 0 40px rgba(255, 107, 0, 0.3);
+}
+
+.glow-orange-sm {
+  box-shadow: 0 0 20px rgba(255, 107, 0, 0.2);
+}
+
+.card-hover {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-card-hover);
+  border-color: rgba(255, 107, 0, 0.3);
+}
+
+.text-gradient-orange {
+  background: linear-gradient(135deg, #FF6B00 0%, #FF8C00 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }

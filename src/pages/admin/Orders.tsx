@@ -186,8 +186,6 @@ const AdminOrders = () => {
                   </div>
                 )}
               </div>
-                )}
-              </div>
             </div>
           ))}
         </div>

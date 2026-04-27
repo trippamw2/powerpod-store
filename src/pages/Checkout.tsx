@@ -198,8 +198,10 @@ const Checkout = () => {
         sendOrderConfirmationWhatsApp(order.id);
         
         // Send email notification (Brevo)
-        const { sendOrderConfirmationEmail } = await import("@/lib/brevo");
+        const { sendOrderConfirmationEmail, sendAdminNotificationEmail } = await import("@/lib/brevo");
         const customerEmail = `${formData.phone.replace(/[^0-9]/g, "")}@powerpod.mw`;
+        
+        // Send to customer
         sendOrderConfirmationEmail({
           to: customerEmail,
           toName: formData.name,
@@ -209,7 +211,19 @@ const Checkout = () => {
           location: formData.location,
           deliveryMethod: deliveryMethod,
           type: "confirmation",
-        }).catch(() => {}); // Don't fail if email fails
+        }).catch(() => {});
+        
+        // Send to admin
+        sendAdminNotificationEmail({
+          to: "admin",
+          toName: "Admin",
+          orderId: order.id,
+          items: items.map(i => ({ name: i.name, quantity: i.quantity, price: i.price })),
+          total: calculatedTotal,
+          location: formData.location,
+          deliveryMethod: deliveryMethod,
+          type: "confirmation",
+        }).catch(() => {});
         
         return order.id;
       }

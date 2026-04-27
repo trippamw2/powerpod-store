@@ -3,6 +3,7 @@
 
 const BREVO_API_KEY = import.meta.env.VITE_BREVO_API_KEY;
 const BREVO_LIST_ID = import.meta.env.VITE_BREVO_LIST_ID || "2";
+const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || "powerpodstore.mw@gmail.com";
 
 interface SendEmailParams {
   to: string;
@@ -236,6 +237,55 @@ export const sendEmail = async (to: string, subject: string, html: string) => {
   return sendBrevoEmail({
     to,
     subject,
+    htmlContent: html,
+  });
+};
+
+// ============================================
+// SEND ADMIN NOTIFICATION (New Order Alert)
+// ============================================
+export const sendAdminNotificationEmail = async (order: OrderEmailParams) => {
+  const itemsHtml = order.items
+    .map(
+      (item) => `
+      <tr>
+        <td style="padding: 8px 0;">${item.quantity} × ${item.name}</td>
+        <td style="padding: 8px 0; text-align: right;">MK ${(item.price * item.quantity).toLocaleString()}</td>
+      </tr>
+    `
+    )
+    .join("");
+
+  const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+      <h2 style="color: #f97316;">🛒 New Order Received!</h2>
+      
+      <table style="width: 100%; border-collapse: collapse;">
+        ${itemsHtml}
+        <tr style="border-top: 2px solid #f97316;">
+          <td style="padding: 12px 0; font-weight: bold;">Total</td>
+          <td style="padding: 12px 0; text-align: right; font-weight: bold;">MK ${order.total.toLocaleString()}</td>
+        </tr>
+      </table>
+      
+      <div style="background: #f3f4f6; padding: 16px; margin: 16px 0; border-radius: 8px;">
+        <p style="margin: 4px 0;"><strong>👤 Customer:</strong> ${order.toName}</p>
+        <p style="margin: 4px 0;"><strong>📱 Phone:</strong> ${order.to}</p>
+        <p style="margin: 4px 0;"><strong>📍 Location:</strong> ${order.location}</p>
+        <p style="margin: 4px 0;"><strong>🚚 Delivery:</strong> ${order.deliveryMethod}</p>
+      </div>
+      
+      <p>Order #${order.orderId.slice(0, 8).toUpperCase()}</p>
+      <p style="margin-top: 16px;">
+        <a href="https://powerpod-store.vercel.app/admin/orders" style="background: #f97316; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px;">View in Admin</a>
+      </p>
+    </div>
+  `;
+
+  return sendBrevoEmail({
+    to: ADMIN_EMAIL,
+    toName: "PowerPod Admin",
+    subject: `🛒 NEW ORDER #${order.orderId.slice(0, 8).toUpperCase()} - MK ${order.total.toLocaleString()}`,
     htmlContent: html,
   });
 };

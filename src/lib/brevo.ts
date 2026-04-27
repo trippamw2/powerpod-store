@@ -8,12 +8,17 @@ const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || "powerpodstore.mw@gmail.
 // Brand configuration
 const BRAND = {
   name: "PowerPod",
+  tagline: "Your Power, Your Music",
   email: "orders@powerpod.mw",
-  website: "powerpod-store.vercel.app",
+  website: "https://powerpod-store.vercel.app",
+  // Use text-based header since images can be blocked
+  useLogoImage: false,
   phone: "+265 991 234 567",
   facebook: "https://facebook.com/powerpodmw",
   instagram: "https://instagram.com/powerpodmw",
+  whatsapp: "https://wa.me/265991234567",
   address: "Blantyre, Malawi",
+  businessName: "PowerPod Electronics",
 };
 
 // Email wrapper with branding
@@ -24,53 +29,56 @@ const wrapEmail = (content: string, title: string) => `
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f3f4f6;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f3f4f6; padding: 40px 0;">
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #111111;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #111111; padding: 40px 0;">
     <tr>
       <td align="center">
-        <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 600px; background-color: #ffffff; border-radius: 12px; overflow: hidden;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 600px; background-color: #1a1a1a; border-radius: 16px; overflow: hidden; border: 1px solid #333333;">
           <!-- Header with Logo -->
           <tr>
-            <td style="background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); padding: 32px; text-align: center;">
-              <h1 style="color: #ffffff; margin: 0; font-size: 32px; font-weight: 800;">⚡ ${BRAND.name}</h1>
-              <p style="color: #ffffff; margin: 8px 0 0 0; font-size: 14px; opacity: 0.9;">Premium Electronics in Malawi</p>
+            <td style="background: linear-gradient(135deg, #FF6B00 0%, #FF8C00 100%); padding: 32px; text-align: center;">
+              <h1 style="color: #ffffff; margin: 0; font-size: 36px; font-weight: 900; letter-spacing: 2px;">⚡ ${BRAND.name}</h1>
+              <p style="color: #ffffff; margin: 8px 0 0 0; font-size: 16px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase;">${BRAND.tagline}</p>
             </td>
           </tr>
           
           <!-- Content -->
           <tr>
-            <td style="padding: 32px;">
+            <td style="padding: 32px; color: #ffffff;">
               ${content}
             </td>
           </tr>
           
           <!-- Footer -->
           <tr>
-            <td style="background-color: #1f2937; padding: 24px 32px;">
+            <td style="background-color: #0a0a0a; padding: 24px 32px; border-top: 1px solid #333333;">
               <table width="100%" cellpadding="0" cellspacing="0">
                 <tr>
                   <td align="center">
-                    <p style="color: #9ca3af; font-size: 14px; margin: 0 0 8px 0;">${BRAND.name} - Premium Electronics in Malawi</p>
-                    <p style="color: #6b7280; font-size: 12px; margin: 0 0 16px 0;">${BRAND.address} • ${BRAND.phone}</p>
+                    <p style="color: #888888; font-size: 13px; margin: 0 0 8px 0;">${BRAND.businessName} • ${BRAND.address}</p>
+                    <p style="color: #666666; font-size: 12px; margin: 0 0 16px 0;">📱 ${BRAND.phone} • 📧 ${BRAND.email}</p>
                     
                     <!-- Social Links -->
                     <table cellpadding="0" cellspacing="0" style="margin: 0 auto 16px auto;">
                       <tr>
-                        <td style="padding: 0 12px;">
-                          <a href="${BRAND.website}" style="color: #f97316; text-decoration: none; font-size: 12px;">Website</a>
+                        <td style="padding: 0 16px;">
+                          <a href="${BRAND.website}" style="color: #FF6B00; text-decoration: none; font-size: 13px; font-weight: 600;">SHOP</a>
                         </td>
-                        <td style="padding: 0 12px;">
-                          <a href="${BRAND.facebook}" style="color: #f97316; text-decoration: none; font-size: 12px;">Facebook</a>
+                        <td style="padding: 0 16px;">
+                          <a href="${BRAND.whatsapp}" style="color: #FF6B00; text-decoration: none; font-size: 13px; font-weight: 600;">WHATSAPP</a>
                         </td>
-                        <td style="padding: 0 12px;">
-                          <a href="${BRAND.instagram}" style="color: #f97316; text-decoration: none; font-size: 12px;">Instagram</a>
+                        <td style="padding: 0 16px;">
+                          <a href="${BRAND.facebook}" style="color: #FF6B00; text-decoration: none; font-size: 13px; font-weight: 600;">FACEBOOK</a>
+                        </td>
+                        <td style="padding: 0 16px;">
+                          <a href="${BRAND.instagram}" style="color: #FF6B00; text-decoration: none; font-size: 13px; font-weight: 600;">INSTAGRAM</a>
                         </td>
                       </tr>
                     </table>
                     
-                    <p style="color: #4b5563; font-size: 11px; margin: 16px 0 0 0; border-top: 1px solid #374151; padding-top: 16px;">
-                      © ${new Date().getFullYear()} ${BRAND.name}. All rights reserved.<br>
-                      This email was sent to you because of your order on ${BRAND.website}
+                    <p style="color: #444444; font-size: 10px; margin: 16px 0 0 0; border-top: 1px solid #222222; padding-top: 16px;">
+                      © ${new Date().getFullYear()} ${BRAND.name}. ${BRAND.tagline}<br>
+                      <span style="color: #555555;">This email was sent because of your order on ${BRAND.website}</span>
                     </p>
                   </td>
                 </tr>
@@ -80,7 +88,7 @@ const wrapEmail = (content: string, title: string) => `
         </table>
         
         <!-- Extra spacing -->
-        <p style="color: #9ca3af; font-size: 12px; text-align: center; margin: 24px 0;">Need help? Reply to this email or call ${BRAND.phone}</p>
+        <p style="color: #555555; font-size: 11px; text-align: center; margin: 24px 0;">${BRAND.tagline} 💪🏿</p>
       </td>
     </tr>
   </table>

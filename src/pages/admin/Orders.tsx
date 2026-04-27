@@ -190,8 +190,7 @@ const AdminOrders = () => {
           });
         }
       } catch (e) {
-        console.log("Email notification skipped", e);
-      }
+        }
     }
   };
 

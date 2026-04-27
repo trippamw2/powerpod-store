@@ -102,8 +102,6 @@ export default async function handler(req: any, res: any) {
     const payload = req.body as WebhookPayload;
     const { from, message, name } = payload;
 
-    console.log('[Webhook] Received:', { from, message: message?.substring(0, 50) });
-
     // Validate we have a message
     if (!message || typeof message !== 'string') {
       return res.status(200).json({ status: 'ignored', reason: 'no_message' });
@@ -111,8 +109,6 @@ export default async function handler(req: any, res: any) {
 
     // Get AI response
     const response = getResponse(message);
-
-    console.log('[Webhook] Sending response:', response.substring(0, 50));
 
     // Return the response
     // The WhatsApp gateway will send this back to the user
@@ -123,7 +119,7 @@ export default async function handler(req: any, res: any) {
     });
 
   } catch (error) {
-    console.error('[Webhook Error]', error);
+    ;
     return res.status(500).json({ error: 'Internal error' });
   }
 }

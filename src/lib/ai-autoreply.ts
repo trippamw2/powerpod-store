@@ -172,8 +172,7 @@ export async function handleWebhook(req: Request): Promise<Response> {
     // If action is reply, send back (this would call WhatsApp API)
     if (aiResponse.action === 'reply') {
       // This would be: sendWhatsAppMessage(from, aiResponse.response)
-      console.log(`[AI] Would reply to ${from}: ${aiResponse.response}`);
-    }
+      }
     
     return Response.json({ success: true, response: aiResponse });
   } catch (error) {

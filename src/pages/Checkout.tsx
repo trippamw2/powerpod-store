@@ -149,14 +149,6 @@ const Checkout = () => {
 
   const createOrder = async () => {
     try {
-      console.log("Creating order with data:", {
-        name: formData.name,
-        phone: formData.phone,
-        location: formData.location,
-        total: calculatedTotal,
-        method: paymentMethod
-      });
-      
       const deliveryZone = detectZone(formData.location);
       const { data: order, error } = await supabase
         .from("orders")
@@ -186,12 +178,10 @@ const Checkout = () => {
         throw new Error(error.message);
       }
 
-      console.log("Order created successfully:", order);
-
       // FIX: Insert order items so customers see their items
       if (order) {
         for (const item of items) {
-          await supabase.from("order_ items").insert({
+          await supabase.from("order_items").insert({
             order_id: order.id,
             product_key: item.productKey,
             product_name: item.name,
@@ -283,19 +273,12 @@ const handlePayment = async () => {
     setSubmitting(true);
     try {
       const selectedMethod = paymentMethod;
-      console.log("=== PAYMENT FLOW START ===");
-      console.log("Selected method from state:", selectedMethod);
-      
       const newOrderId = await createOrder();
       if (!newOrderId) {
-        console.log("ERROR: No order ID created");
         return;
       }
-      console.log("Order created:", newOrderId);
-
       // DIRECT check - not using else
       if (selectedMethod === "whatsapp") {
-        console.log(">>> WHATSAPP FLOW CHOSEN <<<");
         // WhatsApp flow - use AI agent to generate message
         const phone = formData.phone.replace(/[^0-9]/g, "");
         const waPhone = phone.startsWith("0") ? `265${phone.slice(1)}` : phone;
@@ -311,7 +294,6 @@ const handlePayment = async () => {
           paymentMethod: "whatsapp",
         }, "friendly");
         
-        console.log("Opening WhatsApp with AI message:", aiMsg);
         window.open(`https://wa.me/${waPhone}?text=${encodeURIComponent(aiMsg)}`, "_blank");
 
         setOrderId(newOrderId);
@@ -323,7 +305,6 @@ const handlePayment = async () => {
       }
 
       // PayChangu flow only reached if NOT whatsapp
-      console.log(">>> PAYCHANGU FLOW CHOSEN <<<");
       const customerEmail = `${formData.phone.replace(/[^0-9]/g, "")}@powerpod.mw`;
       const customerName = formData.name;
 
@@ -342,13 +323,9 @@ const handlePayment = async () => {
         description: `Order #${newOrderId.slice(0, 8).toUpperCase()}`,
       });
       
-      console.log("PayChangu response:", payment);
-      
       if (payment.link) {
-        console.log("!!! REDIRECTING TO PAYCHANGU:", payment.link);
         window.location.replace(payment.link);
       } else {
-        console.log("ERROR: No link from PayChangu");
         setOrderId(newOrderId);
         clear();
         navigate(`/orders/${newOrderId}`);
@@ -553,7 +530,6 @@ Thank you! 🙏`;
                   value="paychangu"
                   checked={paymentMethod === "paychangu"}
                   onChange={() => {
-                    console.log("Radio: Setting paymentMethod to paychangu");
                     setPaymentMethod("paychangu");
                   }}
                   className="h-4 w-4"
@@ -576,7 +552,6 @@ Thank you! 🙏`;
                   value="whatsapp"
                   checked={paymentMethod === "whatsapp"}
                   onChange={() => {
-                    console.log("Radio: Setting paymentMethod to whatsapp");
                     setPaymentMethod("whatsapp");
                   }}
                   className="h-4 w-4"

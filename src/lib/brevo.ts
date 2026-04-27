@@ -205,7 +205,6 @@ async function sendBrevoEmail(params: SendEmailParams): Promise<boolean> {
       return false;
     }
 
-    console.log("[Brevo] Email sent:", params.subject);
     return true;
   } catch (error) {
     console.error("[Brevo] Failed:", error);

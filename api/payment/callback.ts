@@ -42,12 +42,12 @@ export const config = {
 
 function verifySignature(payload: string, signature: string): boolean {
   if (!WEBHOOK_SECRET || WEBHOOK_SECRET === "your_webhook_secret") {
-    console.warn("WARNING: No webhook secret configured - skipping signature verification");
+    ;
     return true;
   }
   
   if (!signature) {
-    console.error("Missing Signature header");
+    ;
     return false;
   }
 
@@ -76,21 +76,17 @@ export default async function handler(req: any, res: any) {
       rawBody = "";
     }
 
-    console.log("Raw webhook body:", rawBody);
-
     if (!verifySignature(rawBody, signature)) {
-      console.error("Invalid webhook signature");
+      ;
       return res.status(403).json({ error: "Invalid signature" });
     }
 
     const payload = JSON.parse(rawBody) as PayChanguWebhookPayload;
-    console.log("Payment callback received:", payload);
-
     const tx_ref = payload.tx_ref;
     const status = payload.status;
 
     if (!tx_ref) {
-      console.error("Missing tx_ref in webhook");
+      ;
       return res.status(400).json({ error: "Missing tx_ref" });
     }
 
@@ -98,7 +94,6 @@ export default async function handler(req: any, res: any) {
     const isSuccessful = successfulStatuses.includes(status?.toLowerCase() || "");
 
     if (!isSuccessful) {
-      console.log("Payment not successful, status:", status);
       return res.status(200).json({ received: true, status: "not_successful" });
     }
 
@@ -124,18 +119,17 @@ export default async function handler(req: any, res: any) {
         .eq("id", orderId);
 
       if (updateError) {
-        console.error("Failed to update order:", updateError);
+        ;
         return res.status(500).json({ error: "Failed to update order" });
       }
 
-      console.log("Order confirmed:", orderId);
       return res.status(200).json({ success: true, orderId });
     }
 
-    console.warn("No SUPABASE_SERVICE_KEY - cannot update order");
+    ;
     return res.status(200).json({ received: true, warning: "no_service_key" });
   } catch (error) {
-    console.error("Payment callback error:", error);
+    ;
     return res.status(500).json({ error: "Internal server error" });
   }
 }

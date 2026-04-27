@@ -148,6 +148,14 @@ const Checkout = () => {
 
   const createOrder = async () => {
     try {
+      console.log("Creating order with data:", {
+        name: formData.name,
+        phone: formData.phone,
+        location: formData.location,
+        total: calculatedTotal,
+        method: paymentMethod
+      });
+      
       const deliveryZone = detectZone(formData.location);
       const { data: order, error } = await supabase
         .from("orders")
@@ -167,20 +175,31 @@ const Checkout = () => {
           delivery_zone: deliveryZone,
           delivery_method: deliveryMethod,
           tracking_number: `PP-${Date.now().toString(36).toUpperCase()}`,
+          is_paid: false,
         })
         .select()
         .single();
 
-if (error) throw error;
+      if (error) {
+        console.error("ORDER INSERT ERROR:", error);
+        throw new Error(error.message);
+      }
+
+      console.log("Order created successfully:", order);
 
       // Increment promo code usage if applied
       if (promoApplied?.code) {
         await supabase.rpc("increment_promo_usage", { promo_code: promoApplied.code }).catch(() => {});
       }
 
-      sendOrderConfirmationWhatsApp(order.id);
-      return order.id;
+      // Send WhatsApp notification
+      if (order) {
+        sendOrderConfirmationWhatsApp(order.id);
+        return order.id;
+      }
+      return null;
     } catch (err: any) {
+      console.error("CREATE ORDER FAILED:", err);
       toast({ title: "Order failed", description: err.message, variant: "destructive" });
       return null;
     }

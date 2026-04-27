@@ -144,6 +144,50 @@ const AdminOrders = () => {
     
     if (order && STATUS_MESSAGES[newStatus] && !markPaid) {
       sendWhatsAppNotification(order, newStatus);
+      
+      // Send email notification based on status
+      try {
+        const { sendPaymentReceivedEmail, sendDispatchedEmail, sendDeliveredEmail } = await import("@/lib/brevo");
+        const email = `${order.customer_phone.replace(/[^0-9]/g, "")}@powerpod.mw`;
+        
+        if (newStatus === "confirmed" || markPaid) {
+          sendPaymentReceivedEmail({
+            to: email,
+            toName: order.customer_name,
+            orderId: order.id,
+            items: [],
+            total: order.total_mwk,
+            location: order.customer_location || "",
+            deliveryMethod: order.delivery_method || "standard",
+            type: "payment",
+          });
+        } else if (newStatus === "dispatched") {
+          sendDispatchedEmail({
+            to: email,
+            toName: order.customer_name,
+            orderId: order.id,
+            items: [],
+            total: order.total_mwk,
+            location: order.customer_location || "",
+            deliveryMethod: order.delivery_method || "standard",
+            eta: "Today",
+            type: "dispatched",
+          });
+        } else if (newStatus === "delivered") {
+          sendDeliveredEmail({
+            to: email,
+            toName: order.customer_name,
+            orderId: order.id,
+            items: [],
+            total: order.total_mwk,
+            location: order.customer_location || "",
+            deliveryMethod: order.delivery_method || "standard",
+            type: "delivered",
+          });
+        }
+      } catch (e) {
+        console.log("Email notification skipped");
+      }
     }
   };
 

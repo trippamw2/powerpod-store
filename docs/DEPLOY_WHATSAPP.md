@@ -1,29 +1,29 @@
-# Whatomate Deployment Script for Vultr/Docker
-# Run this on a VPS with Docker installed
+# Whatomate Deployment Guide
 
-# 1. Download Whatomate files
-curl -LO https://raw.githubusercontent.com/shridarpatil/whatomate/main/docker/docker-compose.yml
-curl -LO https://raw.githubusercontent.com/shridarpatil/whatomate/main/config.example.toml  
-curl -L https://raw.githubusercontent.com/shridarpatil/whatomate/main/docker/.env.example -o .env
+## Option 1: Koyeb (Free Tier - Recommended)
 
-# 2. Copy config
-cp config.example.toml config.toml
+### Step 1: Sign Up
+1. Go to https://koyeb.com
+2. Sign up with email (sometimes works without card)
 
-# 3. Edit config.toml - Set your settings
-# Key settings:
-# - jwt.secret = generate a strong random string
-# - environment = "production"
-# - debug = false
+### Step 2: Deploy Docker Image
+1. Create new app → Docker
+2. Image: `shridh0r/whatomate:latest`
+3. Port: 8080
+4. Add env vars:
+   - `WHATOMATE_JWT_SECRET` = generate a secure random string
 
-# 4. Run Docker
-docker compose up -d
+### Step 3: Access
+- URL: https://your-app.koyeb.app
+- Login: admin@admin.com / admin
 
-# 5. Access at http://YOUR_SERVER_IP:8080
-# Login: admin@admin.com / admin
+---
 
-# ---
-# To connect to PowerPod:
-# Your WhatsApp API URL will be: http://YOUR_SERVER_IP:8080/api
-# Add to PowerPod .env:
-# VITE_WHATSAPP_API_URL=http://YOUR_SERVER_IP:8080/api
-# VITE_WHATSAPP_API_KEY=your-api-key-from-whatomate
+## Option 2: Railway (Paid After Trial)
+
+### Deploy
+1. Go to https://railway.com/deploy/whatomate
+2. Add card (required)
+3. Deploy
+
+### Cost: $5/month after free trial

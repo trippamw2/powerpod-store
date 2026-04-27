@@ -6,6 +6,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Package, Check, Truck, Phone, MapPin, Loader2, Eye, MessageCircle, Clock, Zap, DollarSign } from "lucide-react";
 import { format } from "date-fns";
 import { DELIVERY_ZONES } from "@/lib/delivery";
+import { 
+  orderConfirmation, 
+  paymentReceived, 
+  orderDispatched, 
+  orderDelivered, 
+  orderCancelled,
+  buildWhatsAppLink 
+} from "@/lib/ai-messages";
 
 interface Order {
   id: string;
@@ -79,8 +87,50 @@ const AdminOrders = () => {
   const sendWhatsAppNotification = (order: Order, newStatus: string) => {
     const phone = order.customer_phone.replace(/[^0-9]/g, "");
     const waPhone = phone.startsWith("0") ? `265${phone.slice(1)}` : phone;
-    const message = `Hi ${order.customer_name}!\n\n${STATUS_MESSAGES[newStatus]}\n\nOrder #${order.id.slice(0, 8).toUpperCase()}\nStatus: ${newStatus}\n\nTrack your order: https://powerpod-store.vercel.app/track/${order.id}\n\nThanks for choosing PowerPod!`;
-    window.open(`https://wa.me/${waPhone}?text=${encodeURIComponent(message)}`, "_blank");
+    
+    // Use AI-generated messages based on status
+    let message: string;
+    if (newStatus === "confirmed") {
+      message = orderConfirmation({
+        orderId: order.id,
+        customerName: order.customer_name,
+        items: [],
+        total: order.total_mwk,
+        location: order.customer_location || "",
+        deliveryMethod: order.delivery_method || "standard",
+        paymentMethod: order.payment_method || "unknown",
+      });
+    } else if (newStatus === "dispatched") {
+      message = orderDispatched({
+        orderId: order.id,
+        customerName: order.customer_name,
+        customerPhone: order.customer_phone,
+        status: "dispatched",
+        items: [],
+        eta: "Today",
+      });
+    } else if (newStatus === "delivered") {
+      message = orderDelivered({
+        orderId: order.id,
+        customerName: order.customer_name,
+        customerPhone: order.customer_phone,
+        status: "delivered",
+        items: [],
+      });
+    } else if (newStatus === "cancelled") {
+      message = orderCancelled({
+        orderId: order.id,
+        customerName: order.customer_name,
+        customerPhone: order.customer_phone,
+        status: "cancelled",
+        items: [],
+        total: order.total_mwk,
+      });
+    } else {
+      message = `Hi ${order.customer_name}!\n\nYour order #${order.id.slice(0, 8).toUpperCase()} status is: ${newStatus}\n\nTrack: https://powerpod-store.vercel.app/track/${order.id}\n\nThanks!`;
+    }
+    
+    window.open(buildWhatsAppLink(message, waPhone), "_blank");
   };
 
   const updateStatus = async (orderId: string, newStatus: string, markPaid = false) => {

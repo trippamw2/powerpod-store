@@ -11,6 +11,7 @@ import { formatMWK } from "@/data/products";
 import { ArrowLeft, User, Truck, CreditCard, Check, Loader2, MessageCircle, Wallet, Clock, MapPin, Tag, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getDeliveryQuote, detectZone, PRICING, DELIVERY_ZONES } from "@/lib/delivery";
+import { WhatsAppAIAgent, generateOrderConfirmation } from "@/lib/ai-agent";
 
 type Step = "details" | "delivery" | "payment";
 
@@ -253,27 +254,23 @@ const handlePayment = async () => {
       // DIRECT check - not using else
       if (selectedMethod === "whatsapp") {
         console.log(">>> WHATSAPP FLOW CHOSEN <<<");
-        // WhatsApp flow - open chat
+        // WhatsApp flow - use AI agent to generate message
         const phone = formData.phone.replace(/[^0-9]/g, "");
         const waPhone = phone.startsWith("0") ? `265${phone.slice(1)}` : phone;
-        const itemsTxt = items.map(i => `• ${i.quantity} × ${i.name}`).join('\n');
-        const msg = `🛒 *ORDER - PowerPod* #${newOrderId.slice(0, 8).toUpperCase()}
-
-👤 ${formData.name}
-📱 ${formData.phone}
-📍 ${formData.location}
-
-🛒 Items:
-${itemsTxt}
-
-💰 Total: ${formatMWK(calculatedTotal)}
-🚚 Delivery: ${formData.location}
-
-💳 Payment: Pay on Delivery
-
-Thank you! 🙏`;
-        console.log("Opening WhatsApp with phone:", waPhone);
-        window.open(`https://wa.me/${waPhone}?text=${encodeURIComponent(msg)}`, "_blank");
+        
+        // Use AI agent to generate personalized message
+        const aiMsg = generateOrderConfirmation({
+          orderId: newOrderId,
+          customerName: formData.name,
+          items: items.map(i => ({ name: i.name, quantity: i.quantity, price: i.price })),
+          total: calculatedTotal,
+          location: formData.location,
+          deliveryMethod: deliveryMethod,
+          paymentMethod: "whatsapp",
+        }, "friendly");
+        
+        console.log("Opening WhatsApp with AI message:", aiMsg);
+        window.open(`https://wa.me/${waPhone}?text=${encodeURIComponent(aiMsg)}`, "_blank");
 
         setOrderId(newOrderId);
         clear();

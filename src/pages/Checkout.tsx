@@ -178,10 +178,9 @@ const Checkout = () => {
         throw new Error(error.message);
       }
 
-      // FIX: Insert order items so customers see their items
+// FIX: Insert order items so customers see their items
       if (order) {
         for (const item of items) {
-          // Insert order item
           await supabase.from("order_items").insert({
             order_id: order.id,
             product_key: item.productKey,
@@ -189,16 +188,6 @@ const Checkout = () => {
             quantity: item.quantity,
             unit_price_mwk: item.price,
           });
-          
-          // Reserve stock (will be deducted when payment confirmed)
-          try {
-            await supabase.rpc("reserve_inventory", { 
-              p_product_id: item.productKey, 
-              p_quantity: item.quantity 
-            });
-          } catch (reserveErr) {
-            console.error("Reserve stock error:", reserveErr);
-          }
         }
       }
 
@@ -214,7 +203,7 @@ const Checkout = () => {
       // Send notifications based on payment method
       if (order) {
         // Only send WhatsApp for offline payment
-        if (payMethod === "offline" || selectedMethod === "offline") {
+        if (selectedPayMethod === "offline") {
           sendOrderConfirmationWhatsApp(order.id);
         }
         
@@ -291,7 +280,7 @@ const handlePayment = async () => {
     setSubmitting(true);
     try {
       const selectedMethod = paymentMethod;
-      const newOrderId = await createOrder();
+      const newOrderId = await createOrder(selectedMethod);
       if (!newOrderId) {
         setSubmitting(false);
         return;

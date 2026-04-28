@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { formatMWK } from "@/data/products";
 import { Link } from "react-router-dom";
-import { Package, DollarSign, TrendingUp, Users, ArrowUpRight, ArrowDownRight, Wallet, Banknote } from "lucide-react";
+import { Package, DollarSign, TrendingUp, Users, ArrowUpRight, ArrowDownRight, Wallet, Banknote, Receipt } from "lucide-react";
 
 interface Stats {
   totalOrders: number;
@@ -104,7 +104,7 @@ const AdminDashboard = () => {
     { 
       label: "Gross Orders", 
       value: formatMWK(stats.grossOrders), 
-      icon: Package,
+      icon: Receipt,
       color: "text-orange-500",
       bgColor: "bg-orange-500/10",
     },

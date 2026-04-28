@@ -61,6 +61,10 @@ export function useProducts() {
         console.log("✅ Products fetched:", dbProducts.length);
         const mappedProducts: Product[] = dbProducts.map((p: DatabaseProduct) => {
           const inv = inventoryMap.get(p.id);
+          // Check for invalid images (external URLs that may not load)
+          if (p.image && !p.image.includes("oalemobile.com")) {
+            console.warn("⚠️ Product has external image:", p.name, p.image);
+          }
           return {
             id: p.id,
             name: p.name,

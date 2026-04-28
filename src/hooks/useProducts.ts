@@ -31,12 +31,11 @@ export function useProducts() {
       setLoading(true);
       setError(null);
 
-      // Fetch products from database
+      // Fetch products from database (all products, no filter)
       const { data: dbProducts, error: productsError } = await supabase
         .from("products")
         .select("*")
-        .eq("is_active", true)
-        .order("name");
+        .order("sort_order");
 
       if (productsError) {
         console.error("Fetch products error:", productsError);

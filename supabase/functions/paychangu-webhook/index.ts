@@ -111,13 +111,61 @@ Deno.serve(async (req) => {
 
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Extract order ID from tx_ref (e.g., "PP-ABC123" -> use full or part)
-    const orderId = txRef.startsWith("PP-") 
-      ? txRef.replace(/^PP-/i, "").toLowerCase()
-      : txRef.toLowerCase();
+    // Extract order ID from tx_ref (format: "PP-{first8chars}")
+    // Need to find order by tx_ref prefix
+    const txRefPrefix = txRef.replace(/^PP-/i, "").substring(0, 8).toUpperCase();
+    console.log("Looking for order with tx_ref prefix:", txRefPrefix);
 
-    console.log("Updating order:", orderId);
+    // Find order by matching tx_ref or id
+    const { data: orders, error: findError } = await supabase
+      .from("orders")
+      .select("id, customer_name")
+      .or(`id.ilike.%${txRefPrefix}%,tracking_number.ilike.%${txRefPrefix}%`)
+      .limit(1);
 
+    if (findError) {
+      console.error("Failed to find order:", findError);
+      return new Response(JSON.stringify({ error: "Failed to find order" }), { status: 500, headers: { "Content-Type": "application/json" } });
+    }
+
+    if (!orders || orders.length === 0) {
+      console.log("Order not found for tx_ref:", txRef);
+      return new Response(JSON.stringify({ received: true, status: "order_not_found" }), { headers: { "Content-Type": "application/json" } });
+    }
+
+    const orderId = orders[0].id;
+    console.log("Found order:", orderId, "customer:", orders[0].customer_name);
+
+    // Get order items to deduct inventory
+    const { data: orderItems } = await supabase
+      .from("order_items")
+      .select("product_key, quantity")
+      .eq("order_id", orderId);
+
+    console.log("Order items:", orderItems);
+
+    // Deduct inventory for each item
+    if (orderItems) {
+      for (const item of orderItems) {
+        if (item.product_key) {
+          console.log("Deducting inventory for:", item.product_key, "qty:", item.quantity);
+          
+          // Call the confirm_inventory_sale function
+          const { error: invError } = await supabase.rpc("confirm_inventory_sale", {
+            p_product_id: item.product_key,
+            p_quantity: item.quantity,
+          });
+          
+          if (invError) {
+            console.error("Inventory update error:", invError);
+          } else {
+            console.log("Inventory deducted for:", item.product_key);
+          }
+        }
+      }
+    }
+
+    // Update order to paid and confirmed
     const { error: updateError } = await supabase
       .from("orders")
       .update({
@@ -137,7 +185,7 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ error: "Failed to update order" }), { status: 500, headers: { "Content-Type": "application/json" } });
     }
 
-    console.log("Order confirmed successfully:", orderId);
+    console.log("Order paid and confirmed:", orderId);
     return new Response(JSON.stringify({ success: true, orderId, status: "paid" }), { headers: { "Content-Type": "application/json" } });
 
   } catch (error) {

@@ -44,12 +44,12 @@ const Checkout = () => {
   const [promoApplied, setPromoApplied] = useState<{ code: string; discount: number } | null>(null);
   const [applyingPromo, setApplyingPromo] = useState(false);
 
-  // Use settings from database
-  // Standard: free if > freeDeliveryThreshold, else deliveryFee
-  // Express: always expressDeliveryFee
+// Use settings from database
+  // Standard: free if >50000, else 5000
+  // Express: always 8500, but if >50000 only charge 3500 (8500-5000 discount)
   const calculatedDeliveryFee = settingsLoading ? 0 : (
     deliveryMethod === "express" 
-      ? settings.expressDeliveryFee 
+      ? (subtotal >= settings.freeDeliveryThreshold ? 3500 : settings.expressDeliveryFee)
       : (subtotal >= settings.freeDeliveryThreshold ? 0 : settings.deliveryFee)
   );
   const discount = promoApplied?.discount || 0;

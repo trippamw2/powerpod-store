@@ -44,17 +44,6 @@ export const AdminLayout = () => {
     );
   }
 
-  if (!user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center space-y-4">
-          <p className="text-gray-500">Please sign in to access admin</p>
-          <a href="/auth?redirect=/admin" className="px-4 py-2 bg-orange-500 text-white rounded-full">Sign In</a>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-gray-50 flex">
       {/* Mobile Overlay */}

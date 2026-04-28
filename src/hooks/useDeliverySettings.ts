@@ -20,7 +20,7 @@ export function useDeliverySettings() {
   const fetchSettings = useCallback(async () => {
     try {
       const { data, error } = await supabase
-        .from("settings")
+        .from("site_settings")
         .select("key, value")
         .in("key", ["free_delivery_threshold", "delivery_fee", "express_delivery_fee"]);
 

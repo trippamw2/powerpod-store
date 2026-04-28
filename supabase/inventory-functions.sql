@@ -1,7 +1,6 @@
--- Inventory Management Functions for Supabase
--- Run these in Supabase SQL Editor
+-- Run this in Supabase SQL Editor - run each statement separately
 
--- Function to reserve inventory (when order placed)
+-- 1. Create reserve_inventory function
 CREATE OR REPLACE FUNCTION reserve_inventory(p_product_id TEXT, p_quantity INTEGER)
 RETURNS VOID
 LANGUAGE plpgsql
@@ -13,7 +12,7 @@ BEGIN
 END;
 $$;
 
--- Function to confirm inventory sale (when payment received)
+-- 2. Create confirm_inventory_sale function
 CREATE OR REPLACE FUNCTION confirm_inventory_sale(p_product_id TEXT, p_quantity INTEGER)
 RETURNS BOOLEAN
 LANGUAGE plpgsql
@@ -42,7 +41,7 @@ BEGIN
 END;
 $$;
 
--- Function to release reserved inventory (when order cancelled)
+-- 3. Create release_inventory function
 CREATE OR REPLACE FUNCTION release_inventory(p_product_id TEXT, p_quantity INTEGER)
 RETURNS VOID
 LANGUAGE plpgsql
@@ -54,7 +53,7 @@ BEGIN
 END;
 $$;
 
--- Function to restock inventory
+-- 4. Create restock_inventory function
 CREATE OR REPLACE FUNCTION restock_inventory(p_product_id TEXT, p_quantity INTEGER)
 RETURNS VOID
 LANGUAGE plpgsql
@@ -65,3 +64,4 @@ BEGIN
       last_restocked = NOW()
   WHERE product_id = p_product_id;
 END;
+$$;

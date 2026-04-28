@@ -1,15 +1,13 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Logo } from "./Logo";
-import { Instagram, Facebook, MessageCircle, Mail, CheckCircle, Shield, Truck, CreditCard, Send, ArrowRight } from "lucide-react";
+import { Instagram, Facebook, MessageCircle, Mail, CheckCircle, Shield, Truck, CreditCard, Send, Loader2 } from "lucide-react";
 import { buildWhatsAppLink, defaultMessage } from "@/lib/whatsapp";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Footer = () => {
   const [email, setEmail] = useState("");
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
   const [subscribed, setSubscribed] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -19,16 +17,9 @@ export const Footer = () => {
     
     setLoading(true);
     try {
-      const subscriberData: Record<string, unknown> = { email };
-      if (name.trim()) subscriberData.name = name.trim();
-      if (phone.replace(/[^0-9]/g, "").length >= 8) {
-        subscriberData.phone = phone.replace(/[^0-9]/g, "");
-        subscriberData.whatsapp_consent = true;
-      }
-
       const { error } = await supabase
         .from("customer_subscribers")
-        .upsert(subscriberData, { onConflict: "email" });
+        .upsert({ email }, { onConflict: "email" });
 
       if (error && error.code !== "23505") {
         console.error("Subscribe error:", error);
@@ -36,7 +27,7 @@ export const Footer = () => {
 
       try {
         const { subscribeToList } = await import("@/lib/brevo");
-        await subscribeToList(email, name || email.split("@")[0]);
+        await subscribeToList(email, email.split("@")[0]);
       } catch (err) {
         console.log("Brevo subscribe skipped");
       }
@@ -76,36 +67,22 @@ export const Footer = () => {
                 <span className="text-white font-medium">You're subscribed!</span>
               </div>
             ) : (
-              <form onSubmit={handleSubscribe} className="flex flex-wrap gap-2">
-                <input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Your name"
-                  className="w-[140px] px-4 py-3 rounded-full text-gray-900 placeholder:text-gray-400 focus:outline-none"
-                  disabled={loading}
-                />
-                <input
-                  type="tel"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  placeholder="WhatsApp number"
-                  className="w-[160px] px-4 py-3 rounded-full text-gray-900 placeholder:text-gray-400 focus:outline-none"
-                  disabled={loading}
-                />
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Your email"
-                  className="flex-1 min-w-[180px] px-4 py-3 rounded-full text-gray-900 placeholder:text-gray-400 focus:outline-none"
-                  required
-                  disabled={loading}
-                />
-                <button type="submit" disabled={loading} className="px-6 py-3 bg-gray-900 text-white rounded-full hover:bg-gray-800 transition-colors flex items-center gap-2 disabled:opacity-50">
-                  {loading ? <span>...</span> : <span>Subscribe <ArrowRight className="h-4 w-4" /></span>}
+              <div className="flex items-center gap-2">
+                <div className="flex-1 min-w-[200px]">
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Enter your email"
+                    className="w-full px-4 py-3 rounded-full text-gray-900 placeholder:text-gray-400 focus:outline-none"
+                    required
+                    disabled={loading}
+                  />
+                </div>
+                <button type="submit" disabled={loading || !email} className="px-6 py-3 bg-gray-900 text-white rounded-full hover:bg-gray-800 transition-colors flex items-center gap-2 disabled:opacity-50">
+                  {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Send className="h-4 w-4" /> Subscribe</>}
                 </button>
-              </form>
+              </div>
             )}
           </div>
         </div>

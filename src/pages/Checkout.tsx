@@ -481,48 +481,44 @@ const handlePayment = async () => {
           <div className="rounded-xl bg-card border border-border/60 p-6">
             <h2 className="font-display font-bold text-lg mb-4">Choose How to Pay</h2>
             <div className="space-y-3">
-              <label className={cn(
+<label className={cn(
                 "flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-colors",
-                paymentMethod === "paychangu" ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"
+                paymentMethod === "paychangu" ? "border-green-500 bg-green-50" : "border-border hover:border-primary/50"
               )}>
                 <input
                   type="radio"
                   name="payment"
                   value="paychangu"
                   checked={paymentMethod === "paychangu"}
-                  onChange={() => {
-                    setPaymentMethod("paychangu");
-                  }}
+                  onChange={() => setPaymentMethod("paychangu")}
                   className="h-4 w-4"
                 />
-                <Wallet className="h-5 w-5 text-green-600" />
+                <CreditCard className="h-5 w-5 text-green-600" />
                 <div className="flex-1">
-                  <p className="font-medium">Pay Now (Mobile Money / Card)</p>
-                  <p className="text-sm text-muted-foreground">PayChangu - Airtel Money, TNM Mpamba, Visa</p>
+                  <p className="font-medium">Pay Online (Mobile Money / Card)</p>
+                  <p className="text-sm text-muted-foreground">Airtel Money, TNM Mpamba, Visa • Fees may apply</p>
                 </div>
                 <Check className={cn("h-5 w-5", paymentMethod === "paychangu" ? "text-green-500" : "text-gray-300")} />
               </label>
 
               <label className={cn(
                 "flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-colors",
-                paymentMethod === "offline" ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"
+                paymentMethod === "offline" ? "border-blue-500 bg-blue-50" : "border-border hover:border-primary/50"
               )}>
                 <input
                   type="radio"
                   name="payment"
                   value="offline"
                   checked={paymentMethod === "offline"}
-                  onChange={() => {
-                    setPaymentMethod("offline");
-                  }}
+                  onChange={() => setPaymentMethod("offline")}
                   className="h-4 w-4"
                 />
-                <CreditCard className="h-5 w-5 text-primary" />
+                <CreditCard className="h-5 w-5 text-blue-600" />
                 <div className="flex-1">
-                  <p className="font-medium">Pay Offline (Bank Transfer)</p>
-                  <p className="text-sm text-muted-foreground">Copy payment details after order</p>
+                  <p className="font-medium">Bank Transfer (Offline)</p>
+                  <p className="text-sm text-muted-foreground">Transfer to our bank account • No extra fees</p>
                 </div>
-                <Check className={cn("h-5 w-5", paymentMethod === "offline" ? "text-primary" : "text-gray-300")} />
+                <Check className={cn("h-5 w-5", paymentMethod === "offline" ? "text-blue-500" : "text-gray-300")} />
               </label>
             </div>
           </div>

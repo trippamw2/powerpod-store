@@ -191,16 +191,24 @@ const Checkout = () => {
           });
           
           // Reserve stock (will be deducted when payment confirmed)
-          await supabase.rpc("reserve_inventory", { 
-            p_product_id: item.productKey, 
-            p_quantity: item.quantity 
-          }).catch(() => {});
+          try {
+            await supabase.rpc("reserve_inventory", { 
+              p_product_id: item.productKey, 
+              p_quantity: item.quantity 
+            });
+          } catch (reserveErr) {
+            console.error("Reserve stock error:", reserveErr);
+          }
         }
       }
 
       // Increment promo code usage if applied
       if (promoApplied?.code) {
-        await supabase.rpc("increment_promo_usage", { promo_code: promoApplied.code }).catch(() => {});
+        try {
+          await supabase.rpc("increment_promo_usage", { promo_code: promoApplied.code });
+        } catch (promoErr) {
+          console.error("Increment promo error:", promoErr);
+        }
       }
 
       // Send notifications based on payment method

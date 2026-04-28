@@ -195,6 +195,24 @@ const AdminOrders = () => {
   };
 
   const markAsPaid = async (orderId: string) => {
+    // Get order items to deduct stock
+    const { data: orderItems } = await supabase
+      .from("order_items")
+      .select("product_key, quantity")
+      .eq("order_id", orderId);
+    
+    // Deduct from actual inventory
+    if (orderItems) {
+      for (const item of orderItems) {
+        if (item.product_key) {
+          await supabase.rpc("confirm_inventory_sale", {
+            p_product_id: item.product_key,
+            p_quantity: item.quantity,
+          }).catch(() => {});
+        }
+      }
+    }
+    
     await updateStatus(orderId, "confirmed", true);
   };
 

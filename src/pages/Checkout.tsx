@@ -181,6 +181,7 @@ const Checkout = () => {
       // FIX: Insert order items so customers see their items
       if (order) {
         for (const item of items) {
+          // Insert order item
           await supabase.from("order_items").insert({
             order_id: order.id,
             product_key: item.productKey,
@@ -188,12 +189,13 @@ const Checkout = () => {
             quantity: item.quantity,
             unit_price_mwk: item.price,
           });
+          
+          // Reserve stock (will be deducted when payment confirmed)
+          await supabase.rpc("reserve_inventory", { 
+            p_product_id: item.productKey, 
+            p_quantity: item.quantity 
+          }).catch(() => {});
         }
-      }
-
-      // Increment promo code usage if applied
-      if (promoApplied?.code) {
-        await supabase.rpc("increment_promo_usage", { promo_code: promoApplied.code }).catch(() => {});
       }
 
       // Increment promo code usage if applied

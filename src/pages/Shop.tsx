@@ -1,13 +1,15 @@
 import { useState } from "react";
-import { products, categories, Category, BRANDS } from "@/data/products";
+import { categories, Category, BRANDS } from "@/data/products";
+import { useProducts } from "@/hooks/useProducts";
 import { ProductCard } from "@/components/ProductCard";
 import { PromotionSlider } from "@/components/PromotionSlider";
-import { Search, X, Grid3X3, List, SlidersHorizontal, ChevronDown, ArrowUpDown } from "lucide-react";
+import { Search, X, Grid3X3, List, SlidersHorizontal, ChevronDown, ArrowUpDown, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 
 const Shop = () => {
+  const { products, loading, getProductsByCategory } = useProducts();
   const [selectedCategory, setSelectedCategory] = useState<Category | "all">("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<"newest" | "price-low" | "price-high" | "name">("newest");
@@ -17,10 +19,14 @@ const Shop = () => {
   const [priceMin, setPriceMin] = useState(0);
   const [priceMax, setPriceMax] = useState(100000);
 
-  const minPrice = Math.min(...products.map(p => p.price));
-  const maxPrice = Math.max(...products.map(p => p.price));
+  // Get products by category
+  const categoryProducts = getProductsByCategory(selectedCategory);
+  const productsToShow = categoryProducts.length > 0 ? categoryProducts : products;
+  
+  const minPrice = productsToShow.length > 0 ? Math.min(...productsToShow.map(p => p.price)) : 0;
+  const maxPrice = productsToShow.length > 0 ? Math.max(...productsToShow.map(p => p.price)) : 100000;
 
-  const filtered = products.filter(p => {
+  const filtered = productsToShow.filter(p => {
     const matchesCategory = selectedCategory === "all" || p.category === selectedCategory;
     const matchesSearch = !searchQuery || p.name.toLowerCase().includes(searchQuery.toLowerCase()) || p.benefit.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesBrand = selectedBrands.length === 0 || selectedBrands.includes((p as any).brand || "");
@@ -52,6 +58,17 @@ const Shop = () => {
   };
 
   const hasFilters = selectedCategory !== "all" || searchQuery || selectedBrands.length > 0;
+
+  if (loading) {
+    return (
+      <div className="container py-8 sm:py-12">
+        <PromotionSlider page="shop" className="mb-6 shadow-lg" />
+        <div className="flex items-center justify-center py-32">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container py-8 sm:py-12">

@@ -141,7 +141,7 @@ export const ProductCard = ({ product, index = 0, showBadge = null, discount = 0
                   />
                 ))}
               </div>
-              <span className="text-xs text-gray-400">(24)</span>
+              <span className="text-xs text-gray-400"></span>
             </div>
           </div>
 

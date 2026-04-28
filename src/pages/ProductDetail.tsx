@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { formatMWK } from "@/data/products";
 import { useCart } from "@/contexts/CartContext";
 import { useProducts } from "@/hooks/useProducts";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Minus, Plus, ShoppingBag, Check, Truck, ShieldCheck, Star, Heart, Share2, ChevronDown, ChevronUp, Loader2 } from "lucide-react";
 import { ProductCard } from "@/components/ProductCard";
@@ -18,12 +19,41 @@ const ProductDetail = () => {
   const [selectedType, setSelectedType] = useState(product?.types[0]?.id || "");
   const [selectedImage, setSelectedImage] = useState(0);
   const [isWishlisted, setIsWishlisted] = useState(false);
+  const [reviews, setReviews] = useState<{rating: number; review_text: string; customer_name: string; created_at: string}[]>([]);
+  const [reviewsLoading, setReviewsLoading] = useState(true);
 
   useEffect(() => {
     if (product?.types?.length > 0) {
       setSelectedType(product.types[0].id);
     }
   }, [product]);
+
+  useEffect(() => {
+    const fetchReviews = async () => {
+      if (!id) return;
+      setReviewsLoading(true);
+      try {
+        const { data } = await supabase
+          .from("product_reviews")
+          .select("rating, review_text, customer_name, created_at")
+          .eq("product_id", id)
+          .eq("is_active", true)
+          .order("created_at", { ascending: false })
+          .limit(10);
+        setReviews(data || []);
+      } catch (err) {
+        console.log("No reviews");
+      } finally {
+        setReviewsLoading(false);
+      }
+    };
+    fetchReviews();
+  }, [id]);
+
+  const avgRating = reviews.length > 0
+    ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
+    : 0;
+  const reviewCount = reviews.length;
 
   if (loading) {
     return (
@@ -135,9 +165,11 @@ const ProductDetail = () => {
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-1">
                 {[1, 2, 3, 4, 5].map((star) => (
-                  <Star key={star} className={`h-5 w-5 ${star <= 4 ? "fill-yellow-400 text-yellow-400" : "fill-gray-200 text-gray-200"}`} />
+                  <Star key={star} className={`h-5 w-5 ${star <= Math.round(avgRating) ? "fill-yellow-400 text-yellow-400" : "fill-gray-200 text-gray-200"}`} />
                 ))}
-                <span className="ml-1 text-sm text-gray-600">(24 reviews)</span>
+                <span className="ml-1 text-sm text-gray-600">
+                  {reviewCount > 0 ? `(${reviewCount} reviews)` : "(No reviews yet)"}
+                </span>
               </div>
               <span className={`flex items-center gap-1 text-sm ${(product.stock ?? 10) > 0 ? "text-green-600" : "text-red-600"}`}>
                 <Check className="h-4 w-4" /> {(product.stock ?? 10) > 0 ? ((product.stock ?? 10) <= 5 ? `Only ${product.stock ?? 10} left` : "In Stock") : "Out of Stock"}

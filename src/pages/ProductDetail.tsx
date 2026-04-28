@@ -226,7 +226,7 @@ const ProductDetail = () => {
               </span>
             )}
             <p className="text-sm font-semibold text-gradient uppercase tracking-widest">{product.category}</p>
-            <h1 className="font-display font-bold text-4xl sm:text-5xl tracking-tight">{product.name}</h1>
+            <h1 className="font-display font-bold text-2xl sm:text-3xl lg:text-4xl tracking-tight">{product.name}</h1>
 <p className="text-muted-foreground text-lg">{product.benefit}</p>
 
             {/* Rating & Stock */}
@@ -245,7 +245,7 @@ const ProductDetail = () => {
             </div>
           </div>
 
-          <p className="font-display font-bold text-4xl text-gradient">{formatMWK(product.price)}</p>
+          <p className="font-display font-bold text-3xl sm:text-4xl text-gradient">{formatMWK(product.price)}</p>
 
           {product.types.length > 0 && (
             <div className="space-y-2">
@@ -342,16 +342,16 @@ const ProductDetail = () => {
           </div>
         ) : (
           <>
-            <div className="rounded-2xl border border-border p-6 mb-6">
-              <div className="flex flex-col sm:flex-row items-center gap-6">
+            <div className="rounded-2xl border border-border p-4 sm:p-6 mb-6">
+              <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
                 <div className="text-center">
-                  <div className="text-5xl font-bold text-gray-900">{avgRating.toFixed(1)}</div>
-                  <div className="flex mt-2 justify-center">
+                  <div className="text-4xl sm:text-5xl font-bold text-gray-900">{avgRating.toFixed(1)}</div>
+                  <div className="flex mt-1 sm:mt-2 justify-center">
                     {[1, 2, 3, 4, 5].map((star) => (
-                      <Star key={star} className={`h-4 w-4 ${star <= Math.round(avgRating) ? "fill-yellow-400 text-yellow-400" : "fill-gray-200 text-gray-200"}`} />
+                      <Star key={star} className={`h-3 w-3 sm:h-4 sm:w-4 ${star <= Math.round(avgRating) ? "fill-yellow-400 text-yellow-400" : "fill-gray-200 text-gray-200"}`} />
                     ))}
                   </div>
-                  <p className="text-sm text-gray-500 mt-1">{reviewCount} review{reviewCount !== 1 ? "s" : ""}</p>
+                  <p className="text-xs sm:text-sm text-gray-500 mt-1">{reviewCount} review{reviewCount !== 1 ? "s" : ""}</p>
                 </div>
                 <div className="flex-1 space-y-2">
                   {[5, 4, 3, 2, 1].map((stars) => {

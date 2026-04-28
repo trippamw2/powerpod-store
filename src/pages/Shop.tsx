@@ -103,8 +103,8 @@ const Shop = () => {
       </div>
 
       <div className="max-w-2xl space-y-3 mb-8">
-        <h1 className="font-display font-bold text-4xl sm:text-5xl tracking-tight">Shop</h1>
-        <p className="text-gray-500 text-lg">Power and sound for your everyday.</p>
+        <h1 className="font-display font-bold text-3xl sm:text-4xl tracking-tight">Shop</h1>
+        <p className="text-gray-500 text-base sm:text-lg">Power and sound for your everyday.</p>
       </div>
 
       {/* Search & Sort Bar */}

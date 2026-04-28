@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS product_reviews (
   product_id TEXT NOT NULL,
   customer_name TEXT,
   customer_phone TEXT,
-  rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
+  rating INTEGER NOT NULL,
   review_text TEXT,
   is_verified BOOLEAN DEFAULT false,
   is_active BOOLEAN DEFAULT true,

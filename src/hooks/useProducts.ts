@@ -9,7 +9,7 @@ interface DatabaseProduct {
   price: number;
   category: string;
   brand: string | null;
-  image_url: string | null;
+  image: string | null;
   is_active: boolean;
   created_at: string;
 }
@@ -68,7 +68,7 @@ export function useProducts() {
             benefit: p.description || "",
             price: p.price,
             category: p.category as Product["category"],
-            image: p.image_url || "",
+            image: p.image || "",
             brand: p.brand || "Generic",
             types: [],
             stock: inv ? inv.quantity - inv.reserved_quantity : 0,

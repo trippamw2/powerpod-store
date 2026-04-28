@@ -1,13 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { useCart, DELIVERY_FEE_MWK, FREE_DELIVERY_THRESHOLD_MWK } from "@/contexts/CartContext";
+import { useCart } from "@/contexts/CartContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { formatMWK } from "@/data/products";
+import { useDeliverySettings } from "@/hooks/useDeliverySettings";
 import { ArrowLeft, User, Truck, CreditCard, Check, Loader2, Wallet, Clock, MapPin, Tag, X, Copy } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getDeliveryQuote, detectZone, PRICING, DELIVERY_ZONES } from "@/lib/delivery";
@@ -20,12 +21,11 @@ const STEPS = [
   { key: "payment" as Step, label: "Payment", icon: CreditCard },
 ];
 
-const EXPRESS_DELIVERY_FEE = 3500;
-
 const Checkout = () => {
   const { user, loading: authLoading } = useAuth();
   const { items, subtotal, clear } = useCart();
   const navigate = useNavigate();
+  const { settings, loading: settingsLoading } = useDeliverySettings();
 
   const [step, setStep] = useState<Step>("details");
   const [formData, setFormData] = useState({
@@ -44,7 +44,12 @@ const Checkout = () => {
   const [promoApplied, setPromoApplied] = useState<{ code: string; discount: number } | null>(null);
   const [applyingPromo, setApplyingPromo] = useState(false);
 
-  const calculatedDeliveryFee = deliveryMethod === "express" ? EXPRESS_DELIVERY_FEE : (subtotal >= 50000 ? 0 : 5000);
+  // Use settings from database
+  const calculatedDeliveryFee = settingsLoading ? 0 : (
+    deliveryMethod === "express" 
+      ? settings.expressDeliveryFee 
+      : (subtotal >= settings.freeDeliveryThreshold ? 0 : settings.deliveryFee)
+  );
   const discount = promoApplied?.discount || 0;
   const finalSubtotal = subtotal - discount;
   const calculatedTotal = finalSubtotal + calculatedDeliveryFee;
@@ -583,7 +588,7 @@ const handlePayment = async () => {
                 </div>
                 {calculatedDeliveryFee > 0 && (
                   <p className="text-xs text-muted-foreground">
-                    Free delivery on orders over {formatMWK(FREE_DELIVERY_THRESHOLD_MWK)}
+                    Free delivery on orders over {formatMWK(settings.freeDeliveryThreshold)}
                   </p>
                 )}
                 <div className="flex justify-between font-bold text-lg mt-2 pt-2 border-t border-border/60">

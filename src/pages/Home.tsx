@@ -19,8 +19,9 @@ const Home = () => {
   const { products, loading, getProductsByCategory } = useProducts();
   const [countdown, setCountdown] = useState({ hours: 0, minutes: 0, seconds: 0 });
 
-  // Get featured products (first 8)
-  const featuredProducts = products.slice(0, 8);
+  const featuredProducts = products.filter((p: any) => (p as any).is_featured || (p as any).is_best_seller).slice(0, 8);
+  const onSaleProducts = products.filter((p: any) => (p as any).is_on_sale).slice(0, 4);
+  const bestSellerProducts = products.filter((p: any) => (p as any).is_best_seller).slice(0, 4);
   
   // For now, use hardcoded combos structure but with product references
   const comboProducts = products.slice(0, 3).map(p => ({
@@ -221,6 +222,28 @@ const Home = () => {
           )}
         </div>
       </section>
+
+      {/* On Sale Products - Urgency */}
+      {onSaleProducts.length > 0 && (
+        <section className="container py-10">
+          <div className="flex items-center justify-between gap-4 mb-6">
+            <div>
+              <p className="text-sm font-semibold text-red-500 uppercase tracking-widest flex items-center gap-2">
+                <Zap className="h-4 w-4" /> Limited Time
+              </p>
+              <h2 className="font-display font-bold text-2xl sm:text-3xl">On Sale Now</h2>
+            </div>
+            <Button asChild variant="ghost" size="sm">
+              <Link to="/shop?sale=true">View All <ArrowRight className="h-4 w-4" /></Link>
+            </Button>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+            {onSaleProducts.slice(0, 4).map((p, i) => (
+              <ProductCard key={p.id} product={p} index={i} />
+            ))}
+          </div>
+        </section>
+      )}
 
       <Testimonials />
 

@@ -15,11 +15,10 @@ const Shop = () => {
   const [selectedCategory, setSelectedCategory] = useState<Category | "all">("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<"newest" | "price-low" | "price-high" | "name">("newest");
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [showFilters, setShowFilters] = useState(false);
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [priceMin, setPriceMin] = useState(0);
-  const [priceMax, setPriceMax] = useState(100000);
+  const [priceMax, setPriceMax] = useState(200000);
   const [visibleCount, setVisibleCount] = useState(PRODUCTS_PER_PAGE);
 
   // Reset visible count when filters change
@@ -291,7 +290,7 @@ const Shop = () => {
       {sorted.length > 0 ? (
         <>
           <div className={viewMode === "grid" 
-            ? "grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5" 
+            ? "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-5" 
             : "grid sm:grid-cols-2 lg:grid-cols-3 gap-4"
           }>
             {visibleProducts.map((p, i) => (

@@ -4,16 +4,44 @@ import { Logo } from "./Logo";
 import { Instagram, Facebook, MessageCircle, Mail, CheckCircle, Shield, Truck, CreditCard, Send, ArrowRight } from "lucide-react";
 import { buildWhatsAppLink, defaultMessage } from "@/lib/whatsapp";
 import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Footer = () => {
   const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const handleSubscribe = (e: React.FormEvent) => {
+  const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email) {
+    if (!email) return;
+    
+    setLoading(true);
+    try {
+      // Save to database first
+      const { error } = await supabase
+        .from("customer_subscribers")
+        .upsert({ email }, { onConflict: "email" });
+
+      if (error && error.code !== "23505") {
+        console.error("Subscribe error:", error);
+      }
+
+      // Also add to Brevo list
+      try {
+        const { subscribeToList } = await import("@/lib/brevo");
+        await subscribeToList(email, email.split("@")[0]);
+      } catch (err) {
+        console.log("Brevo subscribe skipped");
+      }
+
       setSubscribed(true);
       toast({ title: "Subscribed!", description: "Get 10% off your first order" });
+    } catch (err) {
+      console.error("Subscribe error:", err);
+      setSubscribed(true);
+      toast({ title: "Subscribed!", description: "Get 10% off your first order" });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -49,9 +77,10 @@ export const Footer = () => {
                   placeholder="Enter your email"
                   className="flex-1 px-4 py-3 rounded-full text-gray-900 placeholder:text-gray-400 focus:outline-none"
                   required
+                  disabled={loading}
                 />
-                <button type="submit" className="px-6 py-3 bg-gray-900 text-white rounded-full hover:bg-gray-800 transition-colors flex items-center gap-2">
-                  Subscribe <ArrowRight className="h-4 w-4" />
+<button type="submit" disabled={loading} className="px-6 py-3 bg-gray-900 text-white rounded-full hover:bg-gray-800 transition-colors flex items-center gap-2 disabled:opacity-50">
+                  {loading ? <span>...</span> : <span>Subscribe <ArrowRight className="h-4 w-4" /></span>}
                 </button>
               </form>
             )}

@@ -31,9 +31,11 @@ interface Campaign {
 const AdminCRM = () => {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
+  const [subscribers, setSubscribers] = useState<{id: string; email: string; name: string | null; subscribed_at: string; is_active: boolean}[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<"all" | "vip" | "new" | "inactive">("all");
+  const [activeTab, setActiveTab] = useState<"customers" | "subscribers">("customers");
   const [campaignOpen, setCampaignOpen] = useState(false);
   const [sending, setSending] = useState(false);
   const [campaignForm, setCampaignForm] = useState({
@@ -44,7 +46,16 @@ const AdminCRM = () => {
   useEffect(() => {
     fetchCustomers();
     fetchCampaigns();
+    fetchSubscribers();
   }, []);
+
+  const fetchSubscribers = async () => {
+    const { data } = await supabase
+      .from("customer_subscribers")
+      .select("*")
+      .order("subscribed_at", { ascending: false });
+    setSubscribers(data || []);
+  };
 
   const fetchCustomers = async () => {
     const { data: orders } = await supabase
@@ -262,7 +273,18 @@ Thanks for being a valued customer!
         </div>
       </div>
 
+      {/* Tabs */}
+      <div className="flex gap-2 mb-6">
+        <button onClick={() => setActiveTab("customers")} className={`px-4 py-2 rounded-lg font-medium ${activeTab === "customers" ? "bg-gray-900 text-white" : "bg-card border border-border"}`}>
+          <Users className="h-4 w-4 inline mr-2" /> Customers ({customers.length})
+        </button>
+        <button onClick={() => setActiveTab("subscribers")} className={`px-4 py-2 rounded-lg font-medium ${activeTab === "subscribers" ? "bg-gray-900 text-white" : "bg-card border border-border"}`}>
+          <Mail className="h-4 w-4 inline mr-2" /> Subscribers ({subscribers.length})
+        </button>
+      </div>
+
       {/* Filters */}
+      {activeTab === "customers" && (
       <div className="flex flex-wrap gap-3">
         <div className="flex-1 min-w-[200px] relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -287,10 +309,10 @@ Thanks for being a valued customer!
             Inactive
           </button>
         </div>
-        <Button variant="outline" onClick={exportCustomers}>
+<Button variant="outline" onClick={exportCustomers}>
           <Download className="h-4 w-4" /> Export CSV
         </Button>
-      </div>
+      </div>)}
 
       {/* Customer List */}
       <div className="bg-white border border-gray-100 rounded-xl overflow-hidden">
@@ -347,6 +369,49 @@ Thanks for being a valued customer!
           <div className="p-8 text-center text-gray-500">No customers found</div>
         )}
       </div>
+
+      {/* Subscribers Table */}
+      {activeTab === "subscribers" && (
+        <div className="bg-white border border-gray-100 rounded-xl overflow-hidden">
+          <table className="w-full">
+            <thead className="bg-gray-50 border-b border-gray-100">
+              <tr>
+                <th className="text-left p-4 text-sm font-medium text-gray-500">Email</th>
+                <th className="text-left p-4 text-sm font-medium text-gray-500">Name</th>
+                <th className="text-left p-4 text-sm font-medium text-gray-500">Subscribed</th>
+                <th className="text-left p-4 text-sm font-medium text-gray-500">Status</th>
+                <th className="text-right p-4 text-sm font-medium text-gray-500">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {subscribers.map(sub => (
+                <tr key={sub.id} className="border-b border-gray-50 hover:bg-gray-50">
+                  <td className="p-4">
+                    <a href={`mailto:${sub.email}`} className="text-blue-600 hover:underline">{sub.email}</a>
+                  </td>
+                  <td className="p-4">{sub.name || "-"}</td>
+                  <td className="p-4 text-sm text-gray-500">{format(new Date(sub.subscribed_at), "PP")}</td>
+                  <td className="p-4">
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${sub.is_active ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
+                      {sub.is_active ? "Active" : "Unsubscribed"}
+                    </span>
+                  </td>
+                  <td className="p-4 text-right">
+                    <Button variant="outline" size="sm" onClick={() => {
+                      window.open(`mailto:${sub.email}`);
+                    }}>
+                      <Mail className="h-3 w-3" />
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {subscribers.length === 0 && (
+            <div className="p-8 text-center text-gray-500">No subscribers yet</div>
+          )}
+        </div>
+      )}
 
       {/* Campaign Modal */}
       {campaignOpen && (

@@ -51,7 +51,7 @@ export const PromotionSlider = ({ page, className }: PromotionSliderProps) => {
   const promotion = promotions[current];
 
   return (
-    <div className={cn("relative rounded-xl overflow-hidden h-32 sm:h-40 md:h-48", className)}>
+    <div className={cn("relative rounded-xl overflow-hidden h-48 sm:h-56 md:h-64 lg:h-72", className)}>
       <Link
         to={promotion.link}
         className={cn(
@@ -71,12 +71,12 @@ export const PromotionSlider = ({ page, className }: PromotionSliderProps) => {
         ) : (
           <div className={cn("absolute inset-0 bg-gradient-to-r", promotion.background_color)} />
         )}
-        <div className="relative h-full flex items-center px-4 sm:px-8">
-          <div className="max-w-lg">
-            <p className={cn("text-xs sm:text-sm font-medium opacity-90", promotion.text_color)}>
+        <div className="relative h-full flex items-center px-6 sm:px-10">
+          <div className="max-w-xl">
+            <p className={cn("text-sm sm:text-base font-medium opacity-90", promotion.text_color)}>
               {promotion.subtitle}
             </p>
-            <h2 className={cn("font-display font-bold text-lg sm:text-xl md:text-2xl", promotion.text_color)}>
+            <h2 className={cn("font-display font-bold text-xl sm:text-2xl md:text-3xl", promotion.text_color)}>
               {promotion.title}
             </h2>
             <Link

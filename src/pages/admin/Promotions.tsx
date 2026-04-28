@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Promotion } from "@/data/promotions";
 import { Plus, Edit, Trash2, Image as ImageIcon, Loader2 } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 
 const PAGES_OPTIONS = [
   { value: "home", label: "Home" },
@@ -60,24 +61,38 @@ const AdminPromotions = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    const validImages = formData.images.filter(img => img.trim() !== "");
-    const payload = {
-      ...formData,
-      image: validImages[0] || "",
-      images: validImages,
-      pages: formData.pages,
-    };
-
-    if (editingPromotion) {
-      await supabase.from("promotions").update(payload).eq("id", editingPromotion.id);
-    } else {
-      await supabase.from("promotions").insert(payload);
+    if (!formData.title) {
+      toast({ title: "Title is required", variant: "destructive" });
+      return;
     }
+    
+    try {
+      const validImages = formData.images.filter(img => img.trim() !== "");
+      const payload = {
+        ...formData,
+        image: validImages[0] || "",
+        images: validImages,
+        pages: formData.pages,
+      };
 
-    setDialogOpen(false);
-    setEditingPromotion(null);
-    resetForm();
-    fetchPromotions();
+      if (editingPromotion) {
+        const { error } = await supabase.from("promotions").update(payload).eq("id", editingPromotion.id);
+        if (error) throw error;
+        toast({ title: "Promotion updated!" });
+      } else {
+        const { error } = await supabase.from("promotions").insert(payload);
+        if (error) throw error;
+        toast({ title: "Promotion created!" });
+      }
+
+      setDialogOpen(false);
+      setEditingPromotion(null);
+      resetForm();
+      fetchPromotions();
+    } catch (error: any) {
+      console.error("Promotion error:", error);
+      toast({ title: "Error saving promotion", description: error.message, variant: "destructive" });
+    }
   };
 
   const resetForm = () => {
@@ -120,8 +135,14 @@ const AdminPromotions = () => {
 
   const deletePromotion = async (id: string) => {
     if (confirm("Delete this promotion?")) {
-      await supabase.from("promotions").delete().eq("id", id);
-      fetchPromotions();
+      try {
+        const { error } = await supabase.from("promotions").delete().eq("id", id);
+        if (error) throw error;
+        toast({ title: "Promotion deleted" });
+        fetchPromotions();
+      } catch (error: any) {
+        toast({ title: "Error deleting promotion", variant: "destructive" });
+      }
     }
   };
 

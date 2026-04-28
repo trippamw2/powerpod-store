@@ -116,7 +116,7 @@ export const ProductCard = ({ product, index = 0, showBadge = null, discount = 0
           </div>
         </div>
 
-        <div className="p-5 space-y-3">
+        <div className="p-4 sm:p-5 space-y-3">
           {/* Brand */}
           {(product as any).brand && (
             <span className="text-xs font-semibold text-orange-600 bg-orange-50 px-2.5 py-1 rounded-full inline-block">
@@ -126,8 +126,8 @@ export const ProductCard = ({ product, index = 0, showBadge = null, discount = 0
 
           {/* Name & Rating */}
           <div>
-            <h3 className="font-semibold text-gray-900 text-lg">{product.name}</h3>
-            <p className="text-sm text-gray-500 line-clamp-2 mt-1">{product.benefit}</p>
+            <h3 className="font-semibold text-gray-900 text-base sm:text-lg line-clamp-2">{product.name}</h3>
+            <p className="text-xs sm:text-sm text-gray-500 line-clamp-2 mt-1">{product.benefit}</p>
             
             {/* Rating Display */}
             <div className="flex items-center gap-1 mt-2">
@@ -135,7 +135,7 @@ export const ProductCard = ({ product, index = 0, showBadge = null, discount = 0
                 {[1, 2, 3, 4, 5].map((star) => (
                   <Star
                     key={star}
-                    className={`h-3.5 w-3.5 ${
+                    className={`h-3 w-3 sm:h-3.5 sm:w-3.5 ${
                       star <= 4 ? "fill-yellow-400 text-yellow-400" : "fill-gray-200 text-gray-200"
                     }`}
                   />
@@ -181,17 +181,17 @@ export const ProductCard = ({ product, index = 0, showBadge = null, discount = 0
 
           {/* Price */}
           <div className="flex items-center gap-2 pt-2">
-            <span className="font-bold text-2xl text-gray-900">
+            <span className="font-bold text-xl sm:text-2xl text-gray-900">
               {formatMWK(discount > 0 ? displayPrice : product.price)}
             </span>
             {discount > 0 && (
-              <span className="text-sm text-gray-400 line-through">
+              <span className="text-xs sm:text-sm text-gray-400 line-through">
                 {formatMWK(product.price)}
               </span>
             )}
           </div>
 
-          <Button onClick={handleAdd} variant="hero" size="default" className="w-full">
+          <Button onClick={handleAdd} variant="hero" size="default" className="w-full text-sm">
             <ShoppingBag className="h-4 w-4" />
             Add to cart
           </Button>

@@ -2,43 +2,96 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { formatMWK } from "@/data/products";
 import { Link } from "react-router-dom";
-import { Package, DollarSign, TrendingUp, Users, ArrowUpRight, ArrowDownRight } from "lucide-react";
+import { Package, DollarSign, TrendingUp, Users, ArrowUpRight, ArrowDownRight, Wallet, Banknote } from "lucide-react";
 
 interface Stats {
   totalOrders: number;
-  totalRevenue: number;
+  grossOrders: number;
+  netRevenue: number;
+  netProfit: number;
   pendingOrders: number;
+  paidOrders: number;
   totalCustomers: number;
 }
+
+interface StatCard {
+  label: string;
+  value: string;
+  icon: React.ElementType;
+  color: string;
+  bgColor: string;
+  note?: string;
+}
+
+const TRANSPORT_COST = 4000;
+const PAYCHANGU_FEE_PERCENT = 4;
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState<Stats>({
     totalOrders: 0,
-    totalRevenue: 0,
+    grossOrders: 0,
+    netRevenue: 0,
+    netProfit: 0,
     pendingOrders: 0,
+    paidOrders: 0,
     totalCustomers: 0,
   });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    Promise.all([
-      supabase.from("orders").select("id, total_mwk, status", { count: "exact" }),
-      supabase.from("orders").select("customer_phone", { count: "exact" }),
-      supabase.from("orders").select("id", { count: "exact" }).eq("status", "new"),
-      supabase.from("orders").select("id", { count: "exact" }).eq("status", "confirmed"),
-    ]).then(([ordersRes, customersRes, pendingRes, paidRes]) => {
-      const totalOrders = ordersRes.count || 0;
-      const totalRevenue = ordersRes.data?.reduce((sum, o) => sum + (o.total_mwk || 0), 0) || 0;
-      
-      const uniquePhones = new Set(customersRes.data?.map(o => o.customer_phone).filter(Boolean));
-      const totalCustomers = uniquePhones.size;
-      const pendingOrders = pendingRes.count || 0;
-      const paidOrders = paidRes.count || 0;
-      
-      setStats({ totalOrders, totalRevenue, pendingOrders, totalCustomers });
-      setLoading(false);
-    });
+    fetchStats();
   }, []);
+
+  const fetchStats = async () => {
+    // Get all orders
+    const { data: allOrders } = await supabase.from("orders").select("id, total_mwk, delivery_fee_mwk, is_paid, payment_method, status");
+    
+    if (allOrders) {
+      // Gross orders - all orders total
+      const grossOrders = allOrders.reduce((sum, o) => sum + (o.total_mwk || 0), 0);
+      
+      // Paid orders only
+      const paidOrdersList = allOrders.filter(o => o.is_paid === true);
+      const paidOrders = paidOrdersList.length;
+      
+      // Net Revenue - paid orders subtotal (without delivery fees)
+      const netRevenue = paidOrdersList.reduce((sum, o) => sum + ((o.total_mwk || 0) - (o.delivery_fee_mwk || 0)), 0);
+      
+      // Calculate fees and profit
+      let totalDeliveryFees = 0;
+      let totalPaychanguFees = 0;
+      
+      paidOrdersList.forEach(order => {
+        totalDeliveryFees += order.delivery_fee_mwk || 0;
+        // Only apply PayChangu fee for paychangu payments
+        if (order.payment_method === "paychangu") {
+          const orderSubtotal = (order.total_mwk || 0) - (order.delivery_fee_mwk || 0);
+          totalPaychanguFees += Math.round(orderSubtotal * (PAYCHANGU_FEE_PERCENT / 100));
+        }
+      });
+      
+      // Net Profit = Revenue - Delivery Fees - Transport Cost - PayChangu Fees
+      const transportCost = paidOrders * TRANSPORT_COST;
+      const netProfit = netRevenue - totalDeliveryFees - transportCost - totalPaychanguFees;
+      
+      // Get unique customers
+      const uniquePhones = new Set(allOrders.map(o => o.customer_phone).filter(Boolean));
+      
+      // Pending orders
+      const pendingOrders = allOrders.filter(o => o.status === "new" || o.status === "confirmed").length;
+      
+      setStats({
+        totalOrders: allOrders.length,
+        grossOrders,
+        netRevenue,
+        netProfit: Math.max(0, netProfit),
+        pendingOrders,
+        paidOrders,
+        totalCustomers: uniquePhones.size,
+      });
+    }
+    setLoading(false);
+  };
 
   const statCards = [
     { 
@@ -49,25 +102,48 @@ const AdminDashboard = () => {
       bgColor: "bg-accent/10",
     },
     { 
-      label: "Revenue", 
-      value: formatMWK(stats.totalRevenue), 
+      label: "Gross Orders", 
+      value: formatMWK(stats.grossOrders), 
+      icon: Package,
+      color: "text-orange-500",
+      bgColor: "bg-orange-500/10",
+    },
+    { 
+      label: "Net Revenue", 
+      value: formatMWK(stats.netRevenue), 
       icon: DollarSign,
       color: "text-green-500",
       bgColor: "bg-green-500/10",
+      note: "(paid only)",
+    },
+    { 
+      label: "Net Profit", 
+      value: formatMWK(stats.netProfit), 
+      icon: Banknote,
+      color: "text-emerald-600",
+      bgColor: "bg-emerald-600/10",
+      note: "(-delivery -transport)",
+    },
+    { 
+      label: "Paid Orders", 
+      value: stats.paidOrders.toString(), 
+      icon: Wallet,
+      color: "text-blue-500",
+      bgColor: "bg-blue-500/10",
     },
     { 
       label: "Pending", 
       value: stats.pendingOrders.toString(), 
       icon: TrendingUp,
-      color: "text-primary",
-      bgColor: "bg-primary/10",
+      color: "text-yellow-500",
+      bgColor: "bg-yellow-500/10",
     },
     { 
       label: "Customers", 
       value: stats.totalCustomers.toString(), 
       icon: Users,
-      color: "text-blue-500",
-      bgColor: "bg-blue-500/10",
+      color: "text-purple-500",
+      bgColor: "bg-purple-500/10",
     },
   ];
 
@@ -94,6 +170,7 @@ const AdminDashboard = () => {
               <div>
                 <p className="text-sm text-muted-foreground">{stat.label}</p>
                 <p className="font-display font-bold text-2xl mt-1">{stat.value}</p>
+                {stat.note && <p className="text-xs text-muted-foreground mt-0.5">{stat.note}</p>}
               </div>
               <div className={`h-12 w-12 rounded-xl ${stat.bgColor} flex items-center justify-center`}>
                 <stat.icon className={`h-6 w-6 ${stat.color}`} />

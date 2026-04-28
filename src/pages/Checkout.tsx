@@ -146,9 +146,10 @@ const Checkout = () => {
     setStep("payment");
   };
 
-  const createOrder = async () => {
+  const createOrder = async (payMethod?: string) => {
     try {
       const deliveryZone = detectZone(formData.location);
+      const selectedPayMethod = payMethod || paymentMethod;
       const { data: order, error } = await supabase
         .from("orders")
         .insert({
@@ -163,7 +164,7 @@ const Checkout = () => {
           discount_mwk: discount || 0,
           promo_code: promoApplied?.code || null,
           status: "new",
-          payment_method: paymentMethod,
+          payment_method: selectedPayMethod,
           delivery_zone: deliveryZone,
           delivery_method: deliveryMethod,
           tracking_number: `PP-${Date.now().toString(36).toUpperCase()}`,
@@ -195,9 +196,17 @@ const Checkout = () => {
         await supabase.rpc("increment_promo_usage", { promo_code: promoApplied.code }).catch(() => {});
       }
 
-      // Send WhatsApp notification
+      // Increment promo code usage if applied
+      if (promoApplied?.code) {
+        await supabase.rpc("increment_promo_usage", { promo_code: promoApplied.code }).catch(() => {});
+      }
+
+      // Send notifications based on payment method
       if (order) {
-        sendOrderConfirmationWhatsApp(order.id);
+        // Only send WhatsApp for offline payment
+        if (payMethod === "offline" || selectedMethod === "offline") {
+          sendOrderConfirmationWhatsApp(order.id);
+        }
         
         // Send email notification (Brevo)
         const { sendOrderConfirmationEmail, sendAdminNotificationEmail } = await import("@/lib/brevo");

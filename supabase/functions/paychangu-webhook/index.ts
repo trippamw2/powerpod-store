@@ -150,17 +150,30 @@ Deno.serve(async (req) => {
         if (item.product_key) {
           console.log("Deducting inventory for:", item.product_key, "qty:", item.quantity);
           
-          // Call the confirm_inventory_sale function
-          const { error: invError } = await supabase.rpc("confirm_inventory_sale", {
-            p_product_id: item.product_key,
-            p_quantity: item.quantity,
-          });
+          // Direct SQL update instead of function call
+          const { data: invData, error: invError } = await supabase
+            .from("inventory")
+            .select("quantity, reserved_quantity")
+            .eq("product_id", item.product_key)
+            .single();
           
-          if (invError) {
-            console.error("Inventory update error:", invError);
-          } else {
-            console.log("Inventory deducted for:", item.product_key);
+          if (invError || !invData) {
+            console.log("No inventory record for:", item.product_key);
+            continue;
           }
+          
+          const newQty = invData.quantity - item.quantity;
+          const newReserved = Math.max(0, (invData.reserved_quantity || 0) - item.quantity);
+          
+          await supabase
+            .from("inventory")
+            .update({ 
+              quantity: newQty,
+              reserved_quantity: newReserved 
+            })
+            .eq("product_id", item.product_key);
+          
+          console.log("Inventory deducted for:", item.product_key, "new qty:", newQty);
         }
       }
     }

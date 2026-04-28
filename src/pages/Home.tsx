@@ -6,16 +6,28 @@ import { ProductCard } from "@/components/ProductCard";
 import { PromotionSlider } from "@/components/PromotionSlider";
 import { Testimonials } from "@/components/Testimonials";
 import { PartnerBrands } from "@/components/PartnerBrands";
-import { products, combos, formatMWK } from "@/data/products";
+import { formatMWK } from "@/data/products";
 import { useCart } from "@/contexts/CartContext";
-import { Headphones, Heart, ArrowRight, ShieldCheck, Truck, ShoppingBag, Clock, Zap } from "lucide-react";
+import { useProducts } from "@/hooks/useProducts";
+import { Headphones, Heart, ArrowRight, ShieldCheck, Truck, ShoppingBag, Clock, Zap, Loader2 } from "lucide-react";
 import hero from "@/assets/hero-lifestyle.jpg";
 import { toast } from "@/hooks/use-toast";
 import { getItemImage } from "@/data/products";
 
 const Home = () => {
   const { add } = useCart();
+  const { products, loading, getProductsByCategory } = useProducts();
   const [countdown, setCountdown] = useState({ hours: 0, minutes: 0, seconds: 0 });
+
+  // Get featured products (first 8)
+  const featuredProducts = products.slice(0, 8);
+  
+  // For now, use hardcoded combos structure but with product references
+  const comboProducts = products.slice(0, 3).map(p => ({
+    ...p,
+    types: [{ id: "default", name: "Default" }],
+  }));
+  const hasCombos = comboProducts.length >= 2;
 
   useEffect(() => {
     const target = new Date();
@@ -160,7 +172,12 @@ const Home = () => {
         </div>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {combos.slice(0, 4).map((c) => (
+          {loading ? (
+            <div className="col-span-4 flex justify-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          ) : (
+            hasCombos && comboProducts.slice(0, 4).map((c) => (
             <motion.div
               key={c.id}
               initial={{ opacity: 0, y: 20 }}
@@ -172,12 +189,13 @@ const Home = () => {
               <p className="text-xs text-muted-foreground mt-1">{c.tagline}</p>
               <div className="flex items-center justify-between mt-3">
                 <p className="font-bold text-lg">{formatMWK(c.price)}</p>
-                <Button onClick={() => handleAddComboToCart(c)} variant="hero" size="sm">
+                <Button onClick={() => add({ productKey: c.id, name: c.name, price: c.price, image: c.image || "" }, 1)} variant="hero" size="sm">
                   <ShoppingBag className="h-3 w-3" />
                 </Button>
               </div>
             </motion.div>
-          ))}
+          ))
+          )}
         </div>
       </section>
 
@@ -192,9 +210,15 @@ const Home = () => {
           </Button>
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {products.slice(0, 3).map((p, i) => (
-            <ProductCard key={p.id} product={p} index={i} />
-          ))}
+          {loading ? (
+            <div className="col-span-3 flex justify-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          ) : (
+            featuredProducts.slice(0, 3).map((p, i) => (
+              <ProductCard key={p.id} product={p} index={i} />
+            ))
+          )}
         </div>
       </section>
 

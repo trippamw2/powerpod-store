@@ -1,21 +1,37 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
-import { products, formatMWK, getRecommendations } from "@/data/products";
+import { formatMWK } from "@/data/products";
 import { useCart } from "@/contexts/CartContext";
+import { useProducts } from "@/hooks/useProducts";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Minus, Plus, ShoppingBag, Check, Truck, ShieldCheck, Star, Heart, Share2, ChevronDown, ChevronUp } from "lucide-react";
+import { ArrowLeft, Minus, Plus, ShoppingBag, Check, Truck, ShieldCheck, Star, Heart, Share2, ChevronDown, ChevronUp, Loader2 } from "lucide-react";
 import { ProductCard } from "@/components/ProductCard";
 import { toast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
 
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
-  const product = products.find((p) => p.id === id);
+  const { products, loading, getProduct } = useProducts();
+  const product = getProduct(id || "");
   const { add } = useCart();
   const [qty, setQty] = useState(1);
   const [selectedType, setSelectedType] = useState(product?.types[0]?.id || "");
   const [selectedImage, setSelectedImage] = useState(0);
   const [isWishlisted, setIsWishlisted] = useState(false);
+
+  useEffect(() => {
+    if (product?.types?.length > 0) {
+      setSelectedType(product.types[0].id);
+    }
+  }, [product]);
+
+  if (loading) {
+    return (
+      <div className="container py-20 text-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto" />
+      </div>
+    );
+  }
 
   if (!product) {
     return (
@@ -26,7 +42,7 @@ const ProductDetail = () => {
     );
   }
 
-  const recommended = getRecommendations(product, products, 4);
+  const recommended = products.filter(p => p.category === product.category && p.id !== product.id).slice(0, 4);
   
   const handleAdd = () => {
     const typeName = product.types.find(t => t.id === selectedType)?.name || product.types[0]?.name || "";

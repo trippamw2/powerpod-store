@@ -11,7 +11,7 @@ const adminLinks = [
   { to: "/admin/combos", label: "Combos", icon: Package },
   { to: "/admin/orders", label: "Orders", icon: ShoppingCart },
   { to: "/admin/suppliers", label: "Suppliers", icon: Truck },
-  { to: "/admin/promos", label: "Promotions", icon: Zap },
+  { to: "/admin/promotions", label: "Promotions", icon: Zap },
   { to: "/admin/promos", label: "Promo Codes", icon: Tag },
   { to: "/admin/crm", label: "CRM", icon: Users },
   { to: "/admin/testimonials", label: "Testimonials", icon: MessageCircle },

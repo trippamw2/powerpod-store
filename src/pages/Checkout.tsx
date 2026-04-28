@@ -45,6 +45,8 @@ const Checkout = () => {
   const [applyingPromo, setApplyingPromo] = useState(false);
 
   // Use settings from database
+  // Standard: free if > freeDeliveryThreshold, else deliveryFee
+  // Express: always expressDeliveryFee
   const calculatedDeliveryFee = settingsLoading ? 0 : (
     deliveryMethod === "express" 
       ? settings.expressDeliveryFee 

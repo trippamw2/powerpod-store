@@ -71,7 +71,7 @@ export function useProducts() {
             image: p.image || "",
             brand: p.brand || "Generic",
             types: [],
-            stock: inv ? inv.quantity - inv.reserved_quantity : 0,
+            stock: inv ? inv.quantity - (inv.reserved_quantity || 0) : 10,
           };
         });
         setProducts(mappedProducts);

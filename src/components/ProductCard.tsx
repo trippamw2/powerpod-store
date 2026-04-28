@@ -51,10 +51,10 @@ export const ProductCard = ({ product, index = 0 }: ProductCardProps) => {
   const isInStock = stockQty > 0;
 
   const badgeConfig = {
-    new: { label: "New", bg: "bg-green-500", text: "text-white" },
+    new: { label: "NEW", bg: "bg-green-500", text: "text-white" },
     sale: { label: `-${discountPercent}%`, bg: "bg-red-500", text: "text-white" },
-    best: { label: "Best Seller", bg: "bg-orange-500", text: "text-white" },
-    hot: { label: "Hot Deal", bg: "bg-yellow-500", text: "text-gray-900" },
+    best: { label: "BEST", bg: "bg-orange-500", text: "text-white" },
+    hot: { label: "HOT", bg: "bg-yellow-500", text: "text-gray-900" },
   };
   
   // Determine badges based on admin flags
@@ -65,28 +65,28 @@ export const ProductCard = ({ product, index = 0 }: ProductCardProps) => {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 10 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-50px" }}
-      transition={{ duration: 0.5, delay: index * 0.05 }}
+      viewport={{ once: true, margin: "-20px" }}
+      transition={{ duration: 0.3, delay: index * 0.03 }}
     >
       <Link
         to={`/product/${product.id}`}
-        className="group block rounded-2xl bg-white border border-gray-100 overflow-hidden hover:border-orange-200 hover:shadow-xl transition-all duration-300"
+        className="group block rounded-2xl bg-white border border-gray-100 overflow-hidden hover:border-orange-200 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200"
       >
-        <div className="relative aspect-square overflow-hidden bg-gray-50">
+        <div className="relative aspect-[4/3] overflow-hidden bg-gray-50">
           <img
             src={product.image}
             alt={product.name}
             loading="lazy"
-            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+            className="h-full w-full object-contain p-4 transition-transform duration-300 group-hover:scale-105"
           />
           
           {/* Badges - based on admin flags */}
           {displayBadges.length > 0 && (
-            <div className="absolute top-3 left-3 flex flex-col gap-1">
+            <div className="absolute top-2 left-2 flex flex-col gap-0.5">
               {displayBadges.map((badge) => (
-                <span key={badge} className={`px-2 py-1 text-xs font-bold rounded-md ${badgeConfig[badge].bg} ${badgeConfig[badge].text}`}>
+                <span key={badge} className={`px-1.5 py-0.5 text-[10px] font-bold rounded ${badgeConfig[badge].bg} ${badgeConfig[badge].text}`}>
                   {badgeConfig[badge].label}
                 </span>
               ))}
@@ -96,59 +96,55 @@ export const ProductCard = ({ product, index = 0 }: ProductCardProps) => {
           {/* Wishlist Button */}
           <button
             onClick={handleWishlist}
-            className="absolute top-3 right-3 p-2 rounded-full bg-white/90 backdrop-blur-sm shadow-md hover:bg-white hover:scale-110 transition-all duration-200"
+            className="absolute top-2 right-2 p-1.5 rounded-full bg-white/90 backdrop-blur-sm shadow hover:bg-white hover:scale-105 transition-all duration-150"
           >
             <Heart
-              className={`h-4 w-4 transition-colors ${
+              className={`h-3.5 w-3.5 transition-colors ${
                 isWishlisted ? "fill-red-500 text-red-500" : "text-gray-400"
               }`}
             />
           </button>
 
-          {/* Stock Status */}
-          <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
-            <span className={`flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-full ${
-              isInStock ? (stockQty <= 5 ? "bg-yellow-100 text-yellow-700" : "bg-green-100 text-green-700") : "bg-red-100 text-red-700"
-            }`}>
-              {isInStock ? <Check className="h-3 w-3" /> : null}
-              {isInStock ? (stockQty <= 5 ? `Only ${stockQty} left` : "In Stock") : "Out of Stock"}
+          {/* Stock Status - subtle indicator */}
+          {isInStock && stockQty <= 5 && (
+            <span className="absolute bottom-2 left-2 px-1.5 py-0.5 text-[10px] font-medium bg-yellow-100 text-yellow-700 rounded">
+              {stockQty} left
             </span>
-          </div>
+          )}
 
-          {/* Quick View Overlay */}
-          <div className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 translate-y-2 group-hover:translate-y-0">
+          {/* Quick Add overlay */}
+          <div className="absolute inset-x-0 bottom-0 p-2 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 translate-y-2 group-hover:translate-y-0">
             <Link to={`/product/${product.id}`} className="flex items-center justify-center w-full py-2 px-4 bg-white text-gray-900 rounded-lg font-medium hover:bg-gray-100 transition-colors">
               View Product
             </Link>
           </div>
         </div>
 
-        <div className="p-4 sm:p-5 space-y-3">
+        <div className="p-3 sm:p-4 space-y-2">
           {/* Brand */}
           {(product as any).brand && (
-            <span className="text-xs font-semibold text-orange-600 bg-orange-50 px-2.5 py-1 rounded-full inline-block">
+            <span className="text-[10px] font-medium text-gray-500 uppercase tracking-wider">
               {(product as any).brand}
             </span>
           )}
 
           {/* Name & Rating */}
           <div>
-            <h3 className="font-semibold text-gray-900 text-base sm:text-lg line-clamp-2">{product.name}</h3>
-            <p className="text-xs sm:text-sm text-gray-500 line-clamp-2 mt-1">{product.benefit}</p>
+            <h3 className="font-semibold text-gray-900 text-sm sm:text-base line-clamp-2 leading-tight">{product.name}</h3>
             
             {/* Rating Display */}
-            <div className="flex items-center gap-1 mt-2">
+            <div className="flex items-center gap-1 mt-1">
               <div className="flex">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <Star
                     key={star}
-                    className={`h-3 w-3 sm:h-3.5 sm:w-3.5 ${
+                    className={`h-2.5 w-2.5 ${
                       star <= 4 ? "fill-yellow-400 text-yellow-400" : "fill-gray-200 text-gray-200"
                     }`}
                   />
                 ))}
               </div>
-              <span className="text-xs text-gray-400"></span>
+              <span className="text-[10px] text-gray-400"></span>
             </div>
           </div>
 
@@ -187,19 +183,18 @@ export const ProductCard = ({ product, index = 0 }: ProductCardProps) => {
           )}
 
           {/* Price */}
-          <div className="flex items-center gap-2 pt-2">
-            <span className="font-bold text-xl sm:text-2xl text-gray-900">
+          <div className="flex items-center gap-2 pt-1">
+            <span className="font-bold text-lg sm:text-xl text-gray-900">
               {formatMWK(displayPrice)}
             </span>
             {isOnSale && discountPercent > 0 && originalPrice > displayPrice && (
-              <span className="text-xs sm:text-sm text-gray-400 line-through">
+              <span className="text-xs text-gray-400 line-through">
                 {formatMWK(originalPrice)}
               </span>
             )}
           </div>
 
-          <Button onClick={handleAdd} variant="hero" size="default" className="w-full text-sm">
-            <ShoppingBag className="h-4 w-4" />
+          <Button onClick={handleAdd} variant="hero" size="sm" className="w-full text-xs h-9">
             Add to cart
           </Button>
         </div>

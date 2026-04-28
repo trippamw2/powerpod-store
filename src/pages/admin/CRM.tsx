@@ -28,15 +28,26 @@ interface Campaign {
   created_at: string;
 }
 
+interface Subscriber {
+  id: string;
+  email: string;
+  name: string | null;
+  phone: string | null;
+  whatsapp_consent: boolean;
+  subscribed_at: string;
+  is_active: boolean;
+}
+
 const AdminCRM = () => {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
-  const [subscribers, setSubscribers] = useState<{id: string; email: string; name: string | null; subscribed_at: string; is_active: boolean}[]>([]);
+  const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<"all" | "vip" | "new" | "inactive">("all");
   const [activeTab, setActiveTab] = useState<"customers" | "subscribers">("customers");
   const [campaignOpen, setCampaignOpen] = useState(false);
+  const [campaignType, setCampaignType] = useState<"whatsapp" | "email">("whatsapp");
   const [sending, setSending] = useState(false);
   const [campaignForm, setCampaignForm] = useState({
     name: "",
@@ -105,39 +116,64 @@ const AdminCRM = () => {
     setSending(true);
 
     try {
-      const selectedCustomers = getFilteredCustomers();
-      
+      const targetSubscribers = activeTab === "subscribers" 
+        ? subscribers.filter(s => s.is_active && (campaignType === "email" || s.whatsapp_consent))
+        : customers.filter(c => c.phone);
+
+      const validTargets = targetSubscribers.filter(t => 
+        campaignType === "email" ? "email" in t : "phone" in t && t.phone
+      );
+
       // Save campaign
       await supabase.from("whatsapp_campaigns").insert({
         name: campaignForm.name || `Campaign ${Date.now()}`,
         message: campaignForm.message,
-        sent_count: selectedCustomers.length,
+        sent_count: validTargets.length,
       });
 
-      // Send to each customer via WhatsApp
-      let sent = 0;
-      for (const customer of selectedCustomers) {
-        if (customer.phone) {
-          const phone = customer.phone.replace(/[^0-9]/g, "");
-          const waPhone = phone.startsWith("0") ? `265${phone.slice(1)}` : phone;
-          
-          const msg = `💫 *PowerPod Update* 💫
+      if (campaignType === "email") {
+        // Send email campaign via Brevo
+        const { sendEmail } = await import("@/lib/brevo");
+        let sent = 0;
+        for (const sub of validTargets) {
+          if (sub.email) {
+            await sendEmail(sub.email, campaignForm.name || "PowerPod Update", `
+              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                <h2 style="color: #FF6B00;">💫 PowerPod Update</h2>
+                <p>${campaignForm.message.replace(/\n/g, "<br/>")}</p>
+                <p style="margin-top: 20px; color: #666;">Thanks for being a valued customer!</p>
+                <p>- PowerPod Team</p>
+              </div>
+            `);
+            sent++;
+            await new Promise(r => setTimeout(r, 200));
+          }
+        }
+        toast({ title: `Email campaign sent to ${sent} subscribers!` });
+      } else {
+        // WhatsApp campaign
+        let sent = 0;
+        for (const customer of validTargets) {
+          if (customer.phone) {
+            const phone = customer.phone.replace(/[^0-9]/g, "");
+            const waPhone = phone.startsWith("0") ? `265${phone.slice(1)}` : phone;
+            
+            const msg = `💫 *PowerPod Update* 💫
 
 ${campaignForm.message}
 
 Thanks for being a valued customer!
 
 - PowerPod Team`;
-          
-          window.open(`https://wa.me/${waPhone}?text=${encodeURIComponent(msg)}`, "_blank");
-          sent++;
-          
-          // Small delay between sends
-          await new Promise(r => setTimeout(r, 500));
+            
+            window.open(`https://wa.me/${waPhone}?text=${encodeURIComponent(msg)}`, "_blank");
+            sent++;
+            await new Promise(r => setTimeout(r, 500));
+          }
         }
+        toast({ title: `WhatsApp campaign opened for ${sent} contacts!` });
       }
 
-      toast({ title: `Campaign sent to ${sent} customers!` });
       setCampaignOpen(false);
       setCampaignForm({ name: "", message: "" });
       fetchCampaigns();
@@ -378,6 +414,8 @@ Thanks for being a valued customer!
               <tr>
                 <th className="text-left p-4 text-sm font-medium text-gray-500">Email</th>
                 <th className="text-left p-4 text-sm font-medium text-gray-500">Name</th>
+                <th className="text-left p-4 text-sm font-medium text-gray-500">Phone</th>
+                <th className="text-left p-4 text-sm font-medium text-gray-500">WhatsApp</th>
                 <th className="text-left p-4 text-sm font-medium text-gray-500">Subscribed</th>
                 <th className="text-left p-4 text-sm font-medium text-gray-500">Status</th>
                 <th className="text-right p-4 text-sm font-medium text-gray-500">Actions</th>
@@ -390,6 +428,18 @@ Thanks for being a valued customer!
                     <a href={`mailto:${sub.email}`} className="text-blue-600 hover:underline">{sub.email}</a>
                   </td>
                   <td className="p-4">{sub.name || "-"}</td>
+                  <td className="p-4">{sub.phone || "-"}</td>
+                  <td className="p-4">
+                    {sub.whatsapp_consent && sub.phone ? (
+                      <Button variant="outline" size="sm" onClick={() => {
+                        const phone = sub.phone.replace(/[^0-9]/g, "");
+                        const waPhone = phone.startsWith("0") ? `265${phone.slice(1)}` : phone;
+                        window.open(`https://wa.me/${waPhone}`, "_blank");
+                      }}>
+                        <MessageCircle className="h-3 w-3" />
+                      </Button>
+                    ) : <span className="text-gray-300">-</span>}
+                  </td>
                   <td className="p-4 text-sm text-gray-500">{format(new Date(sub.subscribed_at), "PP")}</td>
                   <td className="p-4">
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${sub.is_active ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
@@ -417,8 +467,26 @@ Thanks for being a valued customer!
       {campaignOpen && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl p-6 max-w-lg w-full space-y-4">
-            <h2 className="font-bold text-xl">Send WhatsApp Campaign</h2>
-            <p className="text-sm text-gray-500">This will open WhatsApp for {filteredCustomers.length} customers</p>
+            <h2 className="font-bold text-xl">
+              {campaignType === "email" ? "Send Email Campaign" : "Send WhatsApp Campaign"}
+            </h2>
+            
+            {/* Channel Selection */}
+            <div className="flex gap-2">
+              <button onClick={() => setCampaignType("whatsapp")} className={`flex-1 py-2 rounded-lg font-medium flex items-center justify-center gap-2 ${campaignType === "whatsapp" ? "bg-green-600 text-white" : "bg-gray-100"}`}>
+                <MessageCircle className="h-4 w-4" /> WhatsApp
+              </button>
+              <button onClick={() => setCampaignType("email")} className={`flex-1 py-2 rounded-lg font-medium flex items-center justify-center gap-2 ${campaignType === "email" ? "bg-orange-500 text-white" : "bg-gray-100"}`}>
+                <Mail className="h-4 w-4" /> Email
+              </button>
+            </div>
+
+            <p className="text-sm text-gray-500">
+              {campaignType === "email" 
+                ? `Send to ${subscribers.filter(s => s.is_active).length} subscribers with email consent`
+                : `Open WhatsApp for ${customers.filter(c => c.phone).length} customers`
+              }
+            </p>
             
             <div className="space-y-2">
               <Label>Campaign Name</Label>

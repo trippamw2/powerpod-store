@@ -8,6 +8,8 @@ import { supabase } from "@/integrations/supabase/client";
 
 export const Footer = () => {
   const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
   const [subscribed, setSubscribed] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -17,19 +19,24 @@ export const Footer = () => {
     
     setLoading(true);
     try {
-      // Save to database first
+      const subscriberData: Record<string, unknown> = { email };
+      if (name.trim()) subscriberData.name = name.trim();
+      if (phone.replace(/[^0-9]/g, "").length >= 8) {
+        subscriberData.phone = phone.replace(/[^0-9]/g, "");
+        subscriberData.whatsapp_consent = true;
+      }
+
       const { error } = await supabase
         .from("customer_subscribers")
-        .upsert({ email }, { onConflict: "email" });
+        .upsert(subscriberData, { onConflict: "email" });
 
       if (error && error.code !== "23505") {
         console.error("Subscribe error:", error);
       }
 
-      // Also add to Brevo list
       try {
         const { subscribeToList } = await import("@/lib/brevo");
-        await subscribeToList(email, email.split("@")[0]);
+        await subscribeToList(email, name || email.split("@")[0]);
       } catch (err) {
         console.log("Brevo subscribe skipped");
       }
@@ -63,23 +70,39 @@ export const Footer = () => {
               <h3 className="font-display font-bold text-xl">Get 10% off your first order</h3>
               <p className="text-white/80 text-sm">Subscribe to our newsletter for exclusive deals</p>
             </div>
-            {subscribed ? (
+{subscribed ? (
               <div className="flex items-center gap-2 bg-white/20 px-6 py-3 rounded-full">
                 <CheckCircle className="h-5 w-5 text-white" />
                 <span className="text-white font-medium">You're subscribed!</span>
               </div>
             ) : (
-              <form onSubmit={handleSubscribe} className="flex w-full max-w-md gap-2">
+              <form onSubmit={handleSubscribe} className="flex flex-wrap gap-2">
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Your name"
+                  className="w-[140px] px-4 py-3 rounded-full text-gray-900 placeholder:text-gray-400 focus:outline-none"
+                  disabled={loading}
+                />
+                <input
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="WhatsApp number"
+                  className="w-[160px] px-4 py-3 rounded-full text-gray-900 placeholder:text-gray-400 focus:outline-none"
+                  disabled={loading}
+                />
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter your email"
-                  className="flex-1 px-4 py-3 rounded-full text-gray-900 placeholder:text-gray-400 focus:outline-none"
+                  placeholder="Your email"
+                  className="flex-1 min-w-[180px] px-4 py-3 rounded-full text-gray-900 placeholder:text-gray-400 focus:outline-none"
                   required
                   disabled={loading}
                 />
-<button type="submit" disabled={loading} className="px-6 py-3 bg-gray-900 text-white rounded-full hover:bg-gray-800 transition-colors flex items-center gap-2 disabled:opacity-50">
+                <button type="submit" disabled={loading} className="px-6 py-3 bg-gray-900 text-white rounded-full hover:bg-gray-800 transition-colors flex items-center gap-2 disabled:opacity-50">
                   {loading ? <span>...</span> : <span>Subscribe <ArrowRight className="h-4 w-4" /></span>}
                 </button>
               </form>

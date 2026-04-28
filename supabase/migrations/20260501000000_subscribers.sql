@@ -3,11 +3,18 @@ CREATE TABLE IF NOT EXISTS customer_subscribers (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   email TEXT UNIQUE NOT NULL,
   name TEXT,
+  phone TEXT,
+  whatsapp_consent BOOLEAN DEFAULT false,
   source TEXT DEFAULT 'newsletter',
   is_active BOOLEAN DEFAULT true,
   subscribed_at TIMESTAMPTZ DEFAULT NOW(),
   unsubscribed_at TIMESTAMPTZ
 );
+
+-- Add columns if table exists
+ALTER TABLE customer_subscribers ADD COLUMN IF NOT EXISTS phone TEXT;
+ALTER TABLE customer_subscribers ADD COLUMN IF NOT EXISTS name TEXT;
+ALTER TABLE customer_subscribers ADD COLUMN IF NOT EXISTS whatsapp_consent BOOLEAN DEFAULT false;
 
 -- RLS
 ALTER TABLE customer_subscribers ENABLE ROW LEVEL SECURITY;

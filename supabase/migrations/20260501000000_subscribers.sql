@@ -19,10 +19,18 @@ ALTER TABLE customer_subscribers ADD COLUMN IF NOT EXISTS whatsapp_consent BOOLE
 -- RLS
 ALTER TABLE customer_subscribers ENABLE ROW LEVEL SECURITY;
 
--- Allow public insert
+-- Allow public insert (for website subscription)
 CREATE POLICY "Allow public insert" ON customer_subscribers
-  FOR INSERT TO anon, authenticated
+  FOR INSERT TO anon
   WITH CHECK (true);
+
+-- Create index for faster lookups
+CREATE INDEX IF NOT EXISTS idx_subscribers_email ON customer_subscribers(email);
+
+-- Allow anon read (for checking if already subscribed)
+CREATE POLICY "Allow anon read" ON customer_subscribers
+  FOR SELECT TO anon
+  USING (true);
 
 -- Allow authenticated read
 CREATE POLICY "Allow authenticated read" ON customer_subscribers

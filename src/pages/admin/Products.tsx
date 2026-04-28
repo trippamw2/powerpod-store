@@ -88,6 +88,8 @@ const AdminProducts = () => {
     images: [""],
     is_featured: false,
     is_best_seller: false,
+    is_on_sale: false,
+    discount_percent: 0,
     brand: "generic",
     types: [] as { id: string; name: string }[],
     supplier_id: "",
@@ -135,6 +137,8 @@ const AdminProducts = () => {
         images: validImages,
         is_featured: formData.is_featured,
         is_best_seller: formData.is_best_seller,
+        is_on_sale: formData.is_on_sale,
+        discount_percent: formData.discount_percent || 0,
         brand: formData.brand,
         is_active: true,
         sort_order: 0,
@@ -205,6 +209,8 @@ const AdminProducts = () => {
       images: product.images && product.images.length > 0 ? product.images : [product.image || ""],
       is_featured: product.is_featured || false,
       is_best_seller: product.is_best_seller || false,
+      is_on_sale: (product as any).is_on_sale || false,
+      discount_percent: (product as any).discount_percent || 0,
       brand: product.brand || "generic",
       types: product.types,
       supplier_id: product.supplier_id || "",
@@ -222,6 +228,8 @@ const AdminProducts = () => {
       images: [""],
       is_featured: false,
       is_best_seller: false,
+      is_on_sale: false,
+      discount_percent: 0,
       brand: "generic",
       types: [],
       supplier_id: "",
@@ -440,6 +448,29 @@ const AdminProducts = () => {
                   />
                   <span className="text-sm font-medium">Best Seller</span>
                 </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.is_on_sale}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, is_on_sale: e.target.checked }))}
+                    className="h-4 w-4 rounded border-gray-300"
+                  />
+                  <span className="text-sm font-medium">On Sale</span>
+                </label>
+                {formData.is_on_sale && (
+                  <div className="flex items-center gap-2">
+                    <Label className="text-sm">Discount %</Label>
+                    <Input
+                      type="number"
+                      className="w-20 h-9"
+                      value={formData.discount_percent}
+                      onChange={(e) => setFormData((prev) => ({ ...prev, discount_percent: parseInt(e.target.value) || 0 }))}
+                      placeholder="10"
+                      min={1}
+                      max={99}
+                    />
+                  </div>
+                )}
               </div>
               
               <div className="space-y-2">

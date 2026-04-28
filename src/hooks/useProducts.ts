@@ -59,7 +59,7 @@ export function useProducts() {
       // Map database products to frontend format
       if (dbProducts && dbProducts.length > 0) {
         console.log("✅ Products fetched:", dbProducts.length);
-        const mappedProducts: Product[] = dbProducts.map((p: DatabaseProduct) => {
+        const mappedProducts: Product[] = dbProducts.map((p: any) => {
           const inv = inventoryMap.get(p.id);
           // Check for invalid images (external URLs that may not load)
           if (p.image && !p.image.includes("oalemobile.com")) {
@@ -75,6 +75,10 @@ export function useProducts() {
             brand: p.brand || "Generic",
             types: [],
             stock: inv ? inv.quantity - (inv.reserved_quantity || 0) : 10,
+            is_featured: p.is_featured || false,
+            is_best_seller: p.is_best_seller || false,
+            is_on_sale: p.is_on_sale || false,
+            discount_percent: p.discount_percent || 0,
           };
         });
         setProducts(mappedProducts);

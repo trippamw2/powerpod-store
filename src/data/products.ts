@@ -22,6 +22,10 @@ export interface Product {
   brand?: string;
   types: ProductType[];
   stock?: number;
+  is_featured?: boolean;
+  is_best_seller?: boolean;
+  is_on_sale?: boolean;
+  discount_percent?: number;
 }
 
 export const BRANDS = [

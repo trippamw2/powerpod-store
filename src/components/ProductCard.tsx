@@ -10,21 +10,26 @@ import { toast } from "@/hooks/use-toast";
 interface ProductCardProps {
   product: Product;
   index?: number;
-  showBadge?: "new" | "sale" | "best" | "hot" | null;
-  discount?: number;
 }
 
-export const ProductCard = ({ product, index = 0, showBadge = null, discount = 0 }: ProductCardProps) => {
+export const ProductCard = ({ product, index = 0 }: ProductCardProps) => {
   const { add } = useCart();
   const [selectedType, setSelectedType] = useState(product.types[0]?.id || "");
   const [isWishlisted, setIsWishlisted] = useState(false);
+  
+  // Get sale/discount from product data (admin controlled)
+  const isOnSale = (product as any).is_on_sale || false;
+  const discountPercent = (product as any).discount_percent || 0;
+  const isBestSeller = (product as any).is_best_seller || false;
+  const isFeatured = (product as any).is_featured || false;
 
   const handleAdd = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     const typeName = product.types.find(t => t.id === selectedType)?.name || product.types[0]?.name || "";
     const fullName = `${product.name} (${typeName})`;
-    add({ productKey: `${product.id}-${selectedType}`, name: fullName, price: product.price, image: product.image });
+    const finalPrice = isOnSale && discountPercent > 0 ? product.price * (1 - discountPercent / 100) : product.price;
+    add({ productKey: `${product.id}-${selectedType}`, name: fullName, price: finalPrice, image: product.image });
     toast({ title: "Added to cart", description: fullName });
   };
 
@@ -40,16 +45,23 @@ export const ProductCard = ({ product, index = 0, showBadge = null, discount = 0
 
   const visibleTypes = product.types.slice(0, 3);
   const hiddenTypes = product.types.length > 3 ? product.types.slice(3) : [];
-  const displayPrice = discount > 0 ? product.price * (1 - discount / 100) : product.price;
+  const displayPrice = isOnSale && discountPercent > 0 ? product.price * (1 - discountPercent / 100) : product.price;
+  const originalPrice = product.price;
   const stockQty = product.stock ?? 10;
   const isInStock = stockQty > 0;
 
   const badgeConfig = {
     new: { label: "New", bg: "bg-green-500", text: "text-white" },
-    sale: { label: `-${discount}%`, bg: "bg-red-500", text: "text-white" },
+    sale: { label: `-${discountPercent}%`, bg: "bg-red-500", text: "text-white" },
     best: { label: "Best Seller", bg: "bg-orange-500", text: "text-white" },
     hot: { label: "Hot Deal", bg: "bg-yellow-500", text: "text-gray-900" },
   };
+  
+  // Determine badges based on admin flags
+  const displayBadges: string[] = [];
+  if (isOnSale && discountPercent > 0) displayBadges.push("sale");
+  if (isBestSeller) displayBadges.push("best");
+  if (isFeatured) displayBadges.push("hot");
 
   return (
     <motion.div
@@ -70,19 +82,14 @@ export const ProductCard = ({ product, index = 0, showBadge = null, discount = 0
             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
           />
           
-          {/* Badges */}
-          {(showBadge || discount > 0) && (
+          {/* Badges - based on admin flags */}
+          {displayBadges.length > 0 && (
             <div className="absolute top-3 left-3 flex flex-col gap-1">
-              {discount > 0 && (
-                <span className="px-2 py-1 text-xs font-bold rounded-md bg-red-500 text-white">
-                  -{discount}%
+              {displayBadges.map((badge) => (
+                <span key={badge} className={`px-2 py-1 text-xs font-bold rounded-md ${badgeConfig[badge].bg} ${badgeConfig[badge].text}`}>
+                  {badgeConfig[badge].label}
                 </span>
-              )}
-              {showBadge && showBadge !== "sale" && (
-                <span className={`px-2 py-1 text-xs font-bold rounded-md ${badgeConfig[showBadge].bg} ${badgeConfig[showBadge].text}`}>
-                  {badgeConfig[showBadge].label}
-                </span>
-              )}
+              ))}
             </div>
           )}
 
@@ -182,11 +189,11 @@ export const ProductCard = ({ product, index = 0, showBadge = null, discount = 0
           {/* Price */}
           <div className="flex items-center gap-2 pt-2">
             <span className="font-bold text-xl sm:text-2xl text-gray-900">
-              {formatMWK(discount > 0 ? displayPrice : product.price)}
+              {formatMWK(displayPrice)}
             </span>
-            {discount > 0 && (
+            {isOnSale && discountPercent > 0 && originalPrice > displayPrice && (
               <span className="text-xs sm:text-sm text-gray-400 line-through">
-                {formatMWK(product.price)}
+                {formatMWK(originalPrice)}
               </span>
             )}
           </div>

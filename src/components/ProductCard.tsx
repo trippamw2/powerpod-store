@@ -38,7 +38,7 @@ export const ProductCard = ({ product, index = 0 }: ProductCardProps) => {
     e.stopPropagation();
     setIsWishlisted(!isWishlisted);
     toast({
-      title: isWishlisting ? "Removed from wishlist" : "Added to wishlist",
+      title: isWishlisted ? "Removed from wishlist" : "Added to wishlist",
       description: product.name,
     });
   };

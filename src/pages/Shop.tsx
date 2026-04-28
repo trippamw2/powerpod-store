@@ -20,6 +20,7 @@ const Shop = () => {
   const [priceMin, setPriceMin] = useState(0);
   const [priceMax, setPriceMax] = useState(200000);
   const [visibleCount, setVisibleCount] = useState(PRODUCTS_PER_PAGE);
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
   // Reset visible count when filters change
   const resetVisible = () => setVisibleCount(PRODUCTS_PER_PAGE);

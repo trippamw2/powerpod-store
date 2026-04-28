@@ -5,7 +5,6 @@
 CREATE OR REPLACE FUNCTION reserve_inventory(p_product_id TEXT, p_quantity INTEGER)
 RETURNS VOID
 LANGUAGE plpgsql
-SECURITY DEFINER
 AS $$
 BEGIN
   UPDATE inventory
@@ -18,32 +17,31 @@ $$;
 CREATE OR REPLACE FUNCTION confirm_inventory_sale(p_product_id TEXT, p_quantity INTEGER)
 RETURNS VOID
 LANGUAGE plpgsql
-SECURITY DEFINER
 AS $$
 BEGIN
   UPDATE inventory
   SET quantity = quantity - p_quantity,
       reserved_quantity = GREATEST(0, COALESCE(reserved_quantity, 0) - p_quantity)
-  WHERE product_id = p_product_id;
+  WHERE product_id = p_product_id AND quantity >= p_quantity;
 END;
+$$;
 
 -- Function to release reserved inventory (when order cancelled)
 CREATE OR REPLACE FUNCTION release_inventory(p_product_id TEXT, p_quantity INTEGER)
 RETURNS VOID
 LANGUAGE plpgsql
-SECURITY DEFINER
 AS $$
 BEGIN
   UPDATE inventory
   SET reserved_quantity = GREATEST(0, COALESCE(reserved_quantity, 0) - p_quantity)
   WHERE product_id = p_product_id;
 END;
+$$;
 
 -- Function to restock inventory
 CREATE OR REPLACE FUNCTION restock_inventory(p_product_id TEXT, p_quantity INTEGER)
 RETURNS VOID
 LANGUAGE plpgsql
-SECURITY DEFINER
 AS $$
 BEGIN
   UPDATE inventory

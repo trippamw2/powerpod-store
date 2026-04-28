@@ -60,13 +60,13 @@ const Home = () => {
 
   return (
     <div>
-      {/* Hot Deals Marquee */}
-      <div className="bg-orange-500 text-white py-2 overflow-hidden">
+      {/* Flash Sale Banner */}
+      <div className="bg-gradient-to-r from-red-500 to-orange-500 text-white py-2 overflow-hidden">
         <div className="flex animate-marquee whitespace-nowrap">
           {[...Array(4)].map((_, i) => (
             <span key={i} className="mx-4 flex items-center gap-2">
               <Zap className="h-4 w-4" />
-              🔥 HOT DEALS: Up to 30% off on power banks • Free delivery over MWK 50,000 • New Oraimo products just landed!
+              ⚡ FLASH SALE: Up to 30% off • Free delivery over MWK 50,000 • Ends at midnight!
             </span>
           ))}
         </div>
@@ -156,6 +156,24 @@ const Home = () => {
                 <p className="font-semibold text-sm">{v.title}</p>
                 <p className="text-xs text-muted-foreground">{v.sub}</p>
               </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Trust Counters Section */}
+      <section className="container py-10">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+          {[
+            { value: "2,500+", label: "Happy Customers", icon: Heart },
+            { value: "50+", label: "Products", icon: Zap },
+            { value: "6", label: "Month Warranty", icon: ShieldCheck },
+            { value: "24hr", label: "Delivery", icon: Truck },
+          ].map((stat) => (
+            <div key={stat.label} className="p-4">
+              <stat.icon className="h-6 w-6 text-orange-500 mx-auto mb-2" />
+              <p className="text-2xl sm:text-3xl font-bold text-gray-900">{stat.value}</p>
+              <p className="text-sm text-muted-foreground">{stat.label}</p>
             </div>
           ))}
         </div>

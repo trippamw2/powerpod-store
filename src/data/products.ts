@@ -26,6 +26,9 @@ export interface Product {
   is_best_seller?: boolean;
   is_on_sale?: boolean;
   discount_percent?: number;
+  gallery_images?: string[];
+  specs?: Record<string, string>;
+  reward_points?: number;
 }
 
 export const BRANDS = [

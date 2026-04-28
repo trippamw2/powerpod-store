@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import { formatMWK } from "@/data/products";
 import { useCart } from "@/contexts/CartContext";
 import { useProducts } from "@/hooks/useProducts";
@@ -7,20 +7,28 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, Minus, Plus, ShoppingBag, Check, Truck, ShieldCheck, Star, Heart, Share2, ChevronDown, ChevronUp, Loader2, MessageCircle, Facebook, Instagram, Link2 } from "lucide-react";
+import { ArrowLeft, Minus, Plus, ShoppingBag, Check, Truck, ShieldCheck, Star, Heart, Share2, ChevronDown, ChevronUp, Loader2, MessageCircle, Facebook, Instagram, Link2, Zap, GitCompare, Eye } from "lucide-react";
 import { ProductCard } from "@/components/ProductCard";
 import { toast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
 
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const { products, loading, getProduct } = useProducts();
   const product = getProduct(id || "");
   const { add } = useCart();
   const [qty, setQty] = useState(1);
   const [selectedType, setSelectedType] = useState(product?.types[0]?.id || "");
   const [selectedImage, setSelectedImage] = useState(0);
-  const [isWishlisted, setIsWishlisted] = useState(false);
+  const [isWishlisted, setIsWishlisted] = useState(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("powerpod_wishlist");
+      const list = saved ? JSON.parse(saved) : [];
+      return list.includes(id);
+    }
+    return false;
+  });
   const [showShareModal, setShowShareModal] = useState(false);
   const [reviews, setReviews] = useState<{rating: number; review_text: string; customer_name: string; created_at: string}[]>([]);
   const [reviewsLoading, setReviewsLoading] = useState(true);
@@ -29,6 +37,15 @@ const ProductDetail = () => {
   const [userName, setUserName] = useState("");
   const [userReview, setUserReview] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [viewingCount] = useState(Math.floor(Math.random() * 20) + 5);
+  const [compareList, setCompareList] = useState<string[]>([]);
+  const [wishlistItems, setWishlistItems] = useState<string[]>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("powerpod_wishlist");
+      return saved ? JSON.parse(saved) : [];
+    }
+    return [];
+  });
 
   useEffect(() => {
     if (product?.types?.length > 0) {
@@ -114,6 +131,11 @@ const ProductDetail = () => {
 
   const handleWishlist = () => {
     setIsWishlisted(!isWishlisted);
+    const newWishlist = isWishlisted
+      ? wishlistItems.filter(id => id !== product.id)
+      : [...wishlistItems, product.id];
+    setWishlistItems(newWishlist);
+    localStorage.setItem("powerpod_wishlist", JSON.stringify(newWishlist));
     toast({
       title: isWishlisted ? "Removed from wishlist" : "Added to wishlist",
       description: product.name,
@@ -147,6 +169,7 @@ const ProductDetail = () => {
     { label: "Category", value: product.category },
     { label: "Warranty", value: "6 Months" },
     { label: "SKU", value: product.id.toUpperCase() },
+    ...(product.specs ? Object.entries(product.specs).map(([key, value]) => ({ label: key, value })) : []),
   ];
 
   const faqs = [
@@ -156,7 +179,7 @@ const ProductDetail = () => {
   ];
 
   return (
-    <div className="container py-10 sm:py-14">
+    <div className="container py-10 sm:py-14 pb-24 sm:pb-14">
       <Link to="/shop" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6">
         <ArrowLeft className="h-4 w-4" /> Back to shop
       </Link>
@@ -231,9 +254,12 @@ const ProductDetail = () => {
             )}
           </AnimatePresence>
 
-          {/* Thumbnails */}
+          {/* Thumbnails - Use gallery_images if available, else fallback to main image */}
           <div className="flex gap-3">
-            {[product.image, product.image, product.image].map((img, i) => (
+            {(product.gallery_images && product.gallery_images.length > 0 
+              ? [product.image, ...product.gallery_images]
+              : [product.image, product.image, product.image]
+            ).map((img, i) => (
               <button
                 key={i}
                 onClick={() => setSelectedImage(i)}
@@ -250,6 +276,12 @@ const ProductDetail = () => {
         {/* Product Info */}
         <div className="space-y-6">
           <div className="space-y-3">
+            {/* Social Proof - Viewers */}
+            <div className="flex items-center gap-2 text-sm text-gray-500">
+              <Eye className="h-4 w-4" />
+              <span>{viewingCount} people viewing this</span>
+            </div>
+            
             {product.brand && (
               <span className="text-sm font-semibold text-orange-600 bg-orange-50 px-3 py-1 rounded-full inline-block">
                 {product.brand}
@@ -276,6 +308,46 @@ const ProductDetail = () => {
           </div>
 
           <p className="font-display font-bold text-3xl sm:text-4xl text-gradient">{formatMWK(product.price)}</p>
+
+          {/* Reward Points */}
+          {(product.reward_points ?? 0) > 0 && (
+            <div className="flex items-center gap-2 px-3 py-2 bg-amber-50 rounded-xl border border-amber-200">
+              <Zap className="h-5 w-5 text-amber-500" />
+              <span className="text-sm font-medium text-amber-700">Earn {product.reward_points} points with this purchase</span>
+            </div>
+          )}
+
+          {/* Compare & Wishlist */}
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => {
+                setCompareList(prev => 
+                  prev.includes(product.id) 
+                    ? prev.filter(id => id !== product.id)
+                    : [...prev, product.id]
+                );
+              }}
+              className={`flex items-center gap-2 px-4 py-2 rounded-full border transition-all ${
+                compareList.includes(product.id)
+                  ? "bg-orange-50 border-orange-500 text-orange-600"
+                  : "border-border text-gray-500 hover:border-gray-300"
+              }`}
+            >
+              <GitCompare className="h-4 w-4" />
+              <span className="text-sm">{compareList.includes(product.id) ? "Added to Compare" : "Compare"}</span>
+            </button>
+            <button
+              onClick={handleWishlist}
+              className={`flex items-center gap-2 px-4 py-2 rounded-full border transition-all ${
+                isWishlisted
+                  ? "bg-red-50 border-red-500 text-red-500"
+                  : "border-border text-gray-500 hover:border-gray-300"
+              }`}
+            >
+              <Heart className={`h-4 w-4 ${isWishlisted ? "fill-current" : ""}`} />
+              <span className="text-sm">{isWishlisted ? "In Wishlist" : "Save"}</span>
+            </button>
+          </div>
 
           {product.types.length > 0 && (
             <div className="space-y-2">
@@ -310,11 +382,20 @@ const ProductDetail = () => {
             </div>
             <div className="flex items-center gap-2 text-sm">
               <ShieldCheck className="h-5 w-5 text-green-500" />
-              <span>Genuine Products</span>
+              <span>6 Month Warranty</span>
             </div>
             <div className="flex items-center gap-2 text-sm">
               <Check className="h-5 w-5 text-green-500" />
-              <span>6 Month Warranty</span>
+              <span>100% Genuine</span>
+            </div>
+          </div>
+
+          {/* Prominent Warranty Badge */}
+          <div className="flex items-center gap-3 p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-200">
+            <ShieldCheck className="h-10 w-10 text-green-600" />
+            <div>
+              <p className="font-semibold text-green-800">Official Warranty</p>
+              <p className="text-sm text-green-700">6 months manufacturer warranty included</p>
             </div>
           </div>
 
@@ -326,6 +407,30 @@ const ProductDetail = () => {
             </div>
             <Button onClick={handleAdd} variant="hero" size="lg" className="flex-1">
               <ShoppingBag className="h-5 w-5" /> Add to cart
+            </Button>
+            <Button 
+              onClick={() => {
+                const typeName = product.types.find(t => t.id === selectedType)?.name || product.types[0]?.name || "";
+                const fullName = `${product.name} (${typeName})`;
+                add({ productKey: `${product.id}-${selectedType}`, name: fullName, price: product.price, image: product.image }, qty);
+                navigate("/checkout");
+              }} 
+              size="lg" 
+              className="flex-1 bg-gray-900 hover:bg-gray-800"
+            >
+              <Zap className="h-5 w-5" /> Buy Now
+            </Button>
+          </div>
+
+          {/* Mobile Sticky CTA */}
+          <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-border p-3 sm:p-4 flex items-center gap-3 z-50 sm:hidden">
+            <div className="flex items-center rounded-full border border-border bg-card shrink-0">
+              <button onClick={() => setQty((q) => Math.max(1, q - 1))} className="p-2" aria-label="Decrease"><Minus className="h-4 w-4" /></button>
+              <span className="w-8 text-center font-semibold text-sm">{qty}</span>
+              <button onClick={() => setQty((q) => q + 1)} className="p-2" aria-label="Increase"><Plus className="h-4 w-4" /></button>
+            </div>
+            <Button onClick={handleAdd} variant="hero" className="flex-1 py-2.5 text-sm">
+              <ShoppingBag className="h-4 w-4" /> Add to cart ({formatMWK(product.price * qty)})
             </Button>
           </div>
         </div>

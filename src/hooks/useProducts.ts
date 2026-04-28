@@ -79,6 +79,9 @@ export function useProducts() {
             is_best_seller: p.is_best_seller || false,
             is_on_sale: p.is_on_sale || false,
             discount_percent: p.discount_percent || 0,
+            gallery_images: p.gallery_images || [],
+            specs: p.specs || {},
+            reward_points: p.reward_points || Math.round(p.price / 100),
           };
         });
         setProducts(mappedProducts);

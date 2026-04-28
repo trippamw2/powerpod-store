@@ -28,9 +28,12 @@ export const AdminLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
-    }, [user, authLoading]);
+    if (!authLoading && !user) {
+      navigate("/auth?redirect=/admin", { replace: true });
+    }
+  }, [user, authLoading, navigate]);
 
-  if (authLoading) {
+  if (authLoading || !user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">

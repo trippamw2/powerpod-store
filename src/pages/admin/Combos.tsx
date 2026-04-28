@@ -91,6 +91,11 @@ const AdminCombos = () => {
   };
 
   const handleSave = async () => {
+    if (!formData.name || formData.price <= 0) {
+      toast({ title: "Name and price are required", variant: "destructive" });
+      return;
+    }
+    
     setSaving(true);
     try {
       const validImages = formData.images.filter(img => img.trim() !== "");
@@ -108,25 +113,32 @@ const AdminCombos = () => {
       };
 
       if (editingCombo) {
-        await supabase.from("combos").update(comboData).eq("id", editingCombo.id);
+        const { error } = await supabase.from("combos").update(comboData).eq("id", editingCombo.id);
+        if (error) throw error;
         
         // Delete old items and add new ones
         await supabase.from("combo_items").delete().eq("combo_id", editingCombo.id);
         
         for (const name of formData.item_names) {
-          await supabase.from("combo_items").insert({
+          const { error: itemError } = await supabase.from("combo_items").insert({
             combo_id: editingCombo.id,
             product_name: name,
           });
+          if (itemError) console.error("Item error:", itemError);
         }
         
         toast({ title: "Combo updated!" });
       } else {
-        const { data: newCombo } = await supabase
+        const { data: newCombo, error: insertError } = await supabase
           .from("combos")
           .insert(comboData)
           .select()
           .single();
+        
+        if (insertError) {
+          console.error("Insert error:", insertError);
+          throw insertError;
+        }
         
         if (newCombo) {
           for (const name of formData.item_names) {
@@ -144,8 +156,9 @@ const AdminCombos = () => {
       setEditingCombo(null);
       resetForm();
       fetchCombos();
-    } catch (error) {
-      toast({ title: "Error saving combo", variant: "destructive" });
+    } catch (error: any) {
+      console.error("Save combo error:", error);
+      toast({ title: "Error saving combo", description: error.message, variant: "destructive" });
     } finally {
       setSaving(false);
     }

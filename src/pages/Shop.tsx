@@ -33,9 +33,9 @@ const Shop = () => {
   const maxPrice = productsToShow.length > 0 ? Math.max(...productsToShow.map(p => p.price)) : 100000;
 
   const filtered = productsToShow.filter(p => {
-    const matchesCategory = selectedCategory === "all" || p.category === selectedCategory;
+    const matchesCategory = selectedCategory === "all" || p.category?.toLowerCase() === selectedCategory.toLowerCase();
     const matchesSearch = !searchQuery || p.name.toLowerCase().includes(searchQuery.toLowerCase()) || p.benefit.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesBrand = selectedBrands.length === 0 || selectedBrands.includes((p as any).brand || "");
+    const matchesBrand = selectedBrands.length === 0 || selectedBrands.includes((p as any).brand?.toLowerCase() || "");
     const matchesPrice = p.price >= priceMin && p.price <= priceMax;
     return matchesCategory && matchesSearch && matchesBrand && matchesPrice;
   });

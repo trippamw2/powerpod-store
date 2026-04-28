@@ -103,7 +103,7 @@ const ProductDetail = () => {
     );
   }
 
-  const recommended = products.filter(p => p.category === product.category && p.id !== product.id).slice(0, 4);
+  const recommended = products.filter(p => p.category?.toLowerCase() === product.category?.toLowerCase() && p.id !== product.id).slice(0, 4);
   
   const handleAdd = () => {
     const typeName = product.types.find(t => t.id === selectedType)?.name || product.types[0]?.name || "";

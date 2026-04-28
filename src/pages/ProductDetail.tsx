@@ -5,7 +5,7 @@ import { useCart } from "@/contexts/CartContext";
 import { useProducts } from "@/hooks/useProducts";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Minus, Plus, ShoppingBag, Check, Truck, ShieldCheck, Star, Heart, Share2, ChevronDown, ChevronUp, Loader2 } from "lucide-react";
+import { ArrowLeft, Minus, Plus, ShoppingBag, Check, Truck, ShieldCheck, Star, Heart, Share2, ChevronDown, ChevronUp, Loader2, MessageCircle, Facebook, Instagram, Link2 } from "lucide-react";
 import { ProductCard } from "@/components/ProductCard";
 import { toast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
@@ -19,6 +19,7 @@ const ProductDetail = () => {
   const [selectedType, setSelectedType] = useState(product?.types[0]?.id || "");
   const [selectedImage, setSelectedImage] = useState(0);
   const [isWishlisted, setIsWishlisted] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
   const [reviews, setReviews] = useState<{rating: number; review_text: string; customer_name: string; created_at: string}[]>([]);
   const [reviewsLoading, setReviewsLoading] = useState(true);
 
@@ -89,6 +90,28 @@ const ProductDetail = () => {
     });
   };
 
+  const handleShare = (platform: string) => {
+    const shareUrl = `${window.location.origin}/product/${product.id}`;
+    const shareText = `Check out ${product.name} - ${formatMWK(product.price)}`;
+    
+    let url = "";
+    if (platform === "whatsapp") {
+      url = `https://wa.me/?text=${encodeURIComponent(shareText + " " + shareUrl)}`;
+    } else if (platform === "facebook") {
+      url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
+    } else if (platform === "twitter") {
+      url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
+    } else if (platform === "copy") {
+      navigator.clipboard.writeText(shareUrl);
+      toast({ title: "Link copied!", description: "Share link copied to clipboard" });
+      setShowShareModal(false);
+      return;
+    }
+    
+    if (url) window.open(url, "_blank", "width=600,height=400");
+    setShowShareModal(false);
+  };
+
   const specs = [
     { label: "Brand", value: product.brand || "Generic" },
     { label: "Category", value: product.category },
@@ -127,11 +150,56 @@ const ProductDetail = () => {
               >
                 <Heart className={`h-5 w-5 ${isWishlisted ? "fill-red-500 text-red-500" : "text-gray-600"}`} />
               </button>
-              <button className="p-3 rounded-full bg-white/90 backdrop-blur-sm shadow-lg hover:bg-white hover:scale-110 transition-all">
+              <button 
+                onClick={() => setShowShareModal(true)}
+                className="p-3 rounded-full bg-white/90 backdrop-blur-sm shadow-lg hover:bg-white hover:scale-110 transition-all"
+              >
                 <Share2 className="h-5 w-5 text-gray-600" />
               </button>
             </div>
           </motion.div>
+
+          {/* Share Modal */}
+          <AnimatePresence>
+            {showShareModal && (
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center"
+                onClick={() => setShowShareModal(false)}
+              >
+                <motion.div 
+                  initial={{ y: 100 }}
+                  animate={{ y: 0 }}
+                  exit={{ y: 100 }}
+                  className="bg-white rounded-t-3xl sm:rounded-3xl p-6 w-full max-w-md"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <h3 className="font-bold text-xl mb-4">Share Product</h3>
+                  <div className="grid grid-cols-4 gap-4">
+                    <button onClick={() => handleShare("whatsapp")} className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-green-50 hover:bg-green-100 transition-colors">
+                      <MessageCircle className="h-8 w-8 text-green-500" />
+                      <span className="text-xs font-medium">WhatsApp</span>
+                    </button>
+                    <button onClick={() => handleShare("facebook")} className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-blue-50 hover:bg-blue-100 transition-colors">
+                      <Facebook className="h-8 w-8 text-blue-600" />
+                      <span className="text-xs font-medium">Facebook</span>
+                    </button>
+                    <button onClick={() => handleShare("twitter")} className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-black text-white hover:bg-gray-800 transition-colors">
+                      <svg className="h-8 w-8" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                      <span className="text-xs font-medium">X</span>
+                    </button>
+                    <button onClick={() => handleShare("copy")} className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-gray-50 hover:bg-gray-100 transition-colors">
+                      <Link2 className="h-8 w-8 text-gray-600" />
+                      <span className="text-xs font-medium">Copy</span>
+                    </button>
+                  </div>
+                  <button onClick={() => setShowShareModal(false)} className="w-full mt-4 py-3 text-gray-500 font-medium">Cancel</button>
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* Thumbnails */}
           <div className="flex gap-3">
@@ -263,33 +331,74 @@ const ProductDetail = () => {
       {/* Reviews Section */}
       <div className="mt-16">
         <h2 className="font-display font-bold text-2xl mb-6">Customer Reviews</h2>
-        <div className="rounded-2xl border border-border p-6">
-          <div className="flex items-center gap-6">
-            <div className="text-center">
-              <div className="text-5xl font-bold text-gray-900">4.8</div>
-              <div className="flex mt-2">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <Star key={star} className={`h-4 w-4 ${star <= 4 ? "fill-yellow-400 text-yellow-400" : "fill-gray-200 text-gray-200"}`} />
-                ))}
-              </div>
-              <p className="text-sm text-gray-500 mt-1">24 reviews</p>
-            </div>
-            <div className="flex-1 space-y-2">
-              {[5, 4, 3, 2, 1].map((stars) => (
-                <div key={stars} className="flex items-center gap-2">
-                  <span className="text-sm text-gray-500 w-8">{stars}★</span>
-                  <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-yellow-400 rounded-full" 
-                      style={{ width: stars === 5 ? "70%" : stars === 4 ? "20%" : "10%" }}
-                    />
+        
+        {reviewsLoading ? (
+          <div className="text-center py-8"><Loader2 className="h-6 w-6 animate-spin mx-auto text-orange-500" /></div>
+        ) : reviews.length === 0 ? (
+          <div className="rounded-2xl border border-border p-8 text-center">
+            <Star className="h-12 w-12 text-gray-200 mx-auto mb-4" />
+            <p className="text-gray-500">No reviews yet</p>
+            <p className="text-sm text-gray-400 mt-1">Be the first to review this product!</p>
+          </div>
+        ) : (
+          <>
+            <div className="rounded-2xl border border-border p-6 mb-6">
+              <div className="flex flex-col sm:flex-row items-center gap-6">
+                <div className="text-center">
+                  <div className="text-5xl font-bold text-gray-900">{avgRating.toFixed(1)}</div>
+                  <div className="flex mt-2 justify-center">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <Star key={star} className={`h-4 w-4 ${star <= Math.round(avgRating) ? "fill-yellow-400 text-yellow-400" : "fill-gray-200 text-gray-200"}`} />
+                    ))}
                   </div>
-                  <span className="text-sm text-gray-400 w-8">{stars === 5 ? "70%" : stars === 4 ? "20%" : "10%"}</span>
+                  <p className="text-sm text-gray-500 mt-1">{reviewCount} review{reviewCount !== 1 ? "s" : ""}</p>
+                </div>
+                <div className="flex-1 space-y-2">
+                  {[5, 4, 3, 2, 1].map((stars) => {
+                    const count = reviews.filter(r => Math.round(r.rating) === stars).length;
+                    const pct = reviewCount > 0 ? Math.round((count / reviewCount) * 100) : 0;
+                    return (
+                      <div key={stars} className="flex items-center gap-2">
+                        <span className="text-sm text-gray-500 w-8">{stars}★</span>
+                        <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+                          <div className="h-full bg-yellow-400 rounded-full" style={{ width: `${pct}%` }} />
+                        </div>
+                        <span className="text-sm text-gray-400 w-8">{pct}%</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+            {/* Reviews List */}
+            <div className="space-y-4">
+              {reviews.map((review, idx) => (
+                <div key={idx} className="rounded-2xl border border-border p-5">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center font-bold text-orange-600">
+                        {review.customer_name?.[0]?.toUpperCase() || "?"}
+                      </div>
+                      <div>
+                        <p className="font-medium">{review.customer_name || "Customer"}</p>
+                        <div className="flex items-center gap-1">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <Star key={star} className={`h-3 w-3 ${star <= review.rating ? "fill-yellow-400 text-yellow-400" : "fill-gray-200 text-gray-200"}`} />
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                    <span className="text-sm text-gray-400">
+                      {review.created_at ? new Date(review.created_at).toLocaleDateString() : ""}
+                    </span>
+                  </div>
+                  {review.review_text && <p className="mt-3 text-gray-600">{review.review_text}</p>}
                 </div>
               ))}
             </div>
-          </div>
-        </div>
+          </>
+        )}
       </div>
 
       {/* Recommended Products */}

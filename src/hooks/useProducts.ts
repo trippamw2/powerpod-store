@@ -34,8 +34,7 @@ export function useProducts() {
       // Fetch products from database (all products, no filter)
       const { data: dbProducts, error: productsError } = await supabase
         .from("products")
-        .select("*")
-        .order("sort_order");
+        .select("*");
 
       if (productsError) {
         console.error("Fetch products error:", productsError);
@@ -59,6 +58,7 @@ export function useProducts() {
 
       // Map database products to frontend format
       if (dbProducts && dbProducts.length > 0) {
+        console.log("✅ Products fetched:", dbProducts.length);
         const mappedProducts: Product[] = dbProducts.map((p: DatabaseProduct) => {
           const inv = inventoryMap.get(p.id);
           return {
@@ -75,11 +75,12 @@ export function useProducts() {
         });
         setProducts(mappedProducts);
       } else {
+        console.warn("⚠️ No products from DB, falling back to static. dbProducts:", dbProducts?.length);
         // Fallback to static products if database is empty
         setProducts(staticProducts);
       }
     } catch (err) {
-      console.error("Products fetch error:", err);
+      console.error("❌ Products fetch error:", err);
       setError("Failed to load products");
       // Fallback to static products on error
       setProducts(staticProducts);
@@ -100,7 +101,7 @@ export function useProducts() {
   // Get products by category
   const getProductsByCategory = useCallback((category: string) => {
     if (category === "all") return products;
-    return products.filter((p) => p.category === category);
+    return products.filter((p) => p.category?.toLowerCase() === category.toLowerCase());
   }, [products]);
 
   // Check and reserve stock (for checkout)

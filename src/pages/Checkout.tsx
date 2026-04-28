@@ -8,10 +8,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { formatMWK } from "@/data/products";
-import { ArrowLeft, User, Truck, CreditCard, Check, Loader2, MessageCircle, Wallet, Clock, MapPin, Tag, X } from "lucide-react";
+import { ArrowLeft, User, Truck, CreditCard, Check, Loader2, Wallet, Clock, MapPin, Tag, X, Copy } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getDeliveryQuote, detectZone, PRICING, DELIVERY_ZONES } from "@/lib/delivery";
-import { WhatsAppAIAgent, generateOrderConfirmation } from "@/lib/ai-agent";
 
 type Step = "details" | "delivery" | "payment";
 
@@ -36,7 +35,7 @@ const Checkout = () => {
     deliveryNote: "",
   });
   const [deliveryMethod, setDeliveryMethod] = useState<"standard" | "express">("standard");
-  const [paymentMethod, setPaymentMethod] = useState<"paychangu" | "whatsapp">("paychangu");
+  const [paymentMethod, setPaymentMethod] = useState<"paychangu" | "offline">("paychangu");
   const [submitting, setSubmitting] = useState(false);
   const [orderId, setOrderId] = useState<string | null>(null);
 
@@ -273,47 +272,27 @@ const handlePayment = async () => {
     setSubmitting(true);
     try {
       const selectedMethod = paymentMethod;
-      console.log("Payment method selected:", selectedMethod);
       const newOrderId = await createOrder();
       if (!newOrderId) {
         setSubmitting(false);
         return;
       }
       
-      // WhatsApp flow
-      if (selectedMethod === "whatsapp") {
-        // WhatsApp flow - use AI agent to generate message
-        const phone = formData.phone.replace(/[^0-9]/g, "");
-        const waPhone = phone.startsWith("0") ? `265${phone.slice(1)}` : phone;
-        
-        // Use AI agent to generate personalized message
-        const aiMsg = generateOrderConfirmation({
-          orderId: newOrderId,
-          customerName: formData.name,
-          items: items.map(i => ({ name: i.name, quantity: i.quantity, price: i.price })),
-          total: calculatedTotal,
-          location: formData.location,
-          deliveryMethod: deliveryMethod,
-          paymentMethod: "whatsapp",
-        }, "friendly");
-        
-        window.open(`https://wa.me/${waPhone}?text=${encodeURIComponent(aiMsg)}`, "_blank");
-
+      // Offline payment (copy details) flow
+      if (selectedMethod === "offline") {
         setOrderId(newOrderId);
         clear();
-        navigate(`/orders/${newOrderId}`);
-        toast({ title: "Order sent to WhatsApp!" });
+        navigate(`/orders/${newOrderId}?payment=offline`);
+        toast({ title: "Order placed!", description: "Copy payment details below" });
         setSubmitting(false);
         return;
       }
       
-      // PayChangu flow
-      console.log("Processing PayChangu payment for order:", newOrderId);
+      // PayChangu flow (default)
       const customerEmail = `${formData.phone.replace(/[^0-9]/g, "")}@powerpod.mw`;
       const customerName = formData.name;
 
       const { createPayChanguPayment } = await import("@/lib/paychangu");
-      console.log("Creating PayChangu payment...");
         
       const payment = await createPayChanguPayment({
         amount: calculatedTotal,
@@ -328,10 +307,7 @@ const handlePayment = async () => {
         description: `Order #${newOrderId.slice(0, 8).toUpperCase()}`,
       });
       
-      console.log("Payment response:", payment);
-      
       if (payment.link) {
-        console.log("Redirecting to PayChangu:", payment.link);
         window.location.replace(payment.link);
       } else {
         setOrderId(newOrderId);
@@ -340,47 +316,11 @@ const handlePayment = async () => {
         toast({ title: "Order placed!", description: `Order #${newOrderId.slice(0, 8).toUpperCase()}` });
       }
     } catch (err: any) {
-      console.error("Payment error:", err);
       toast({ title: "Payment failed", description: err.message || "Please try again", variant: "destructive" });
     } finally {
       setSubmitting(false);
     }
-  };
-
-  const handleWhatsAppOrder = async () => {
-    setSubmitting(true);
-    try {
-      const newOrderId = await createOrder();
-      if (!newOrderId) return;
-
-      const phone = formData.phone.replace(/[^0-9]/g, "");
-      const waPhone = phone.startsWith("0") ? `265${phone.slice(1)}` : phone;
-      const itemsTxt = items.map(i => `• ${i.quantity} × ${i.name}`).join('\n');
-      const msg = `🛒 *ORDER - PowerPod* #${newOrderId.slice(0, 8).toUpperCase()}
-
-👤 ${formData.name}
-📱 ${formData.phone}
-📍 ${formData.location}
-
-🛒 Items:
-${itemsTxt}
-
-💰 Total: ${formatMWK(calculatedTotal)}
-🚚 Delivery: ${formData.location}
-
-💳 Payment: Pay on Delivery
-
-Thank you! 🙏`;
-      window.open(`https://wa.me/${waPhone}?text=${encodeURIComponent(msg)}`, "_blank");
-
-      setOrderId(newOrderId);
-      clear();
-      navigate(`/orders/${newOrderId}`);
-      toast({ title: "Order sent to WhatsApp!", description: `Order #${newOrderId.slice(0, 8).toUpperCase()}` });
-    } finally {
-      setSubmitting(false);
-    }
-  };
+  }
 
   return (
     <div className="container py-8 max-w-3xl">
@@ -552,24 +492,24 @@ Thank you! 🙏`;
 
               <label className={cn(
                 "flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-colors",
-                paymentMethod === "whatsapp" ? "border-green-500 bg-green-500/5" : "border-border hover:border-green-500/50"
+                paymentMethod === "offline" ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"
               )}>
                 <input
                   type="radio"
                   name="payment"
-                  value="whatsapp"
-                  checked={paymentMethod === "whatsapp"}
+                  value="offline"
+                  checked={paymentMethod === "offline"}
                   onChange={() => {
-                    setPaymentMethod("whatsapp");
+                    setPaymentMethod("offline");
                   }}
                   className="h-4 w-4"
                 />
-                <MessageCircle className="h-5 w-5 text-green-500" />
+                <CreditCard className="h-5 w-5 text-primary" />
                 <div className="flex-1">
-                  <p className="font-medium">Pay via WhatsApp (Bank Transfer)</p>
-                  <p className="text-sm text-muted-foreground">We'll send bank details - transfer first, we confirm</p>
+                  <p className="font-medium">Pay Offline (Bank Transfer)</p>
+                  <p className="text-sm text-muted-foreground">Copy payment details after order</p>
                 </div>
-                <Check className={cn("h-5 w-5", paymentMethod === "whatsapp" ? "text-green-500" : "text-gray-300")} />
+                <Check className={cn("h-5 w-5", paymentMethod === "offline" ? "text-primary" : "text-gray-300")} />
               </label>
             </div>
           </div>
@@ -658,8 +598,8 @@ Thank you! 🙏`;
               disabled={submitting}
             >
               {submitting ? <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Processing...</> : (
-                paymentMethod === "whatsapp" 
-                  ? <><MessageCircle className="h-4 w-4 mr-2" /> Complete via WhatsApp</>
+                paymentMethod === "offline" 
+                  ? <><Copy className="h-4 w-4 mr-2" /> Copy Payment Details</>
                   : <><Wallet className="h-4 w-4 mr-2" /> Pay {formatMWK(calculatedTotal)} Now</>
               )}
             </Button>

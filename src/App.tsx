@@ -8,6 +8,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { CartProvider } from "@/contexts/CartContext";
 import { Layout } from "./components/Layout";
 import { AdminLayout } from "./components/AdminLayout";
+import { ScrollToTop } from "./components/ScrollToTop";
 import Home from "./pages/Home";
 import Shop from "./pages/Shop";
 import ProductDetail from "./pages/ProductDetail";
@@ -56,7 +57,8 @@ const App = () => (
           <Toaster />
           <Sonner />
             <BrowserRouter>
-              <Routes>
+                <ScrollToTop />
+                <Routes>
                 <Route element={<Layout />}>
                   <Route path="/" element={<Home />} />
                   <Route path="/shop" element={<Shop />} />

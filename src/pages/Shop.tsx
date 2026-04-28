@@ -3,10 +3,12 @@ import { categories, Category, BRANDS } from "@/data/products";
 import { useProducts } from "@/hooks/useProducts";
 import { ProductCard } from "@/components/ProductCard";
 import { PromotionSlider } from "@/components/PromotionSlider";
-import { Search, X, Grid3X3, List, SlidersHorizontal, ChevronDown, ArrowUpDown, Loader2 } from "lucide-react";
+import { Search, X, Grid3X3, List, SlidersHorizontal, ChevronDown, ArrowUpDown, Loader2, ChevronRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
+
+const PRODUCTS_PER_PAGE = 12;
 
 const Shop = () => {
   const { products, loading, getProductsByCategory } = useProducts();
@@ -18,6 +20,10 @@ const Shop = () => {
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [priceMin, setPriceMin] = useState(0);
   const [priceMax, setPriceMax] = useState(100000);
+  const [visibleCount, setVisibleCount] = useState(PRODUCTS_PER_PAGE);
+
+  // Reset visible count when filters change
+  const resetVisible = () => setVisibleCount(PRODUCTS_PER_PAGE);
 
   // Get products by category
   const categoryProducts = getProductsByCategory(selectedCategory);
@@ -43,10 +49,15 @@ const Shop = () => {
     }
   });
 
+  // Products to show based on pagination
+  const visibleProducts = sorted.slice(0, visibleCount);
+  const hasMore = visibleCount < sorted.length;
+
   const clearFilters = () => {
     setSelectedCategory("all");
     setSearchQuery("");
     setSelectedBrands([]);
+    setVisibleCount(PRODUCTS_PER_PAGE);
   };
 
   const toggleBrand = (brandId: string) => {
@@ -55,6 +66,21 @@ const Shop = () => {
         ? prev.filter(b => b !== brandId)
         : [...prev, brandId]
     );
+    setVisibleCount(PRODUCTS_PER_PAGE);
+  };
+
+  const handleSearchChange = (value: string) => {
+    setSearchQuery(value);
+    setVisibleCount(PRODUCTS_PER_PAGE);
+  };
+
+  const handleCategoryChange = (cat: Category | "all") => {
+    setSelectedCategory(cat);
+    setVisibleCount(PRODUCTS_PER_PAGE);
+  };
+
+  const loadMore = () => {
+    setVisibleCount(prev => prev + PRODUCTS_PER_PAGE);
   };
 
   const hasFilters = selectedCategory !== "all" || searchQuery || selectedBrands.length > 0;
@@ -88,7 +114,10 @@ const Shop = () => {
           <Input
             placeholder="Search products..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setVisibleCount(PRODUCTS_PER_PAGE);
+                }}
             className="pl-10"
           />
           {searchQuery && (
@@ -255,19 +284,35 @@ const Shop = () => {
 
       {/* Results count */}
       <p className="text-sm text-muted-foreground mb-4">
-        Showing {sorted.length} of {products.length} products
+        Showing {visibleProducts.length} of {sorted.length} products
       </p>
 
       {/* Products Grid */}
       {sorted.length > 0 ? (
-        <div className={viewMode === "grid" 
-          ? "grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5" 
-          : "grid sm:grid-cols-2 lg:grid-cols-3 gap-4"
-        }>
-          {sorted.map((p, i) => (
-            <ProductCard key={p.id} product={p} index={i} showBadge={i === 0 ? "hot" : i === 1 ? "new" : null} discount={i === 0 ? 15 : 0} />
-          ))}
-        </div>
+        <>
+          <div className={viewMode === "grid" 
+            ? "grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5" 
+            : "grid sm:grid-cols-2 lg:grid-cols-3 gap-4"
+          }>
+            {visibleProducts.map((p, i) => (
+              <ProductCard key={p.id} product={p} index={i} showBadge={i === 0 ? "hot" : i === 1 ? "new" : null} discount={i === 0 ? 15 : 0} />
+            ))}
+          </div>
+          
+          {hasMore && (
+            <div className="flex justify-center mt-10">
+              <Button 
+                onClick={loadMore} 
+                variant="outline" 
+                size="lg"
+                className="px-8 border-orange-500 text-orange-500 hover:bg-orange-50"
+              >
+                View More Products
+                <ChevronRight className="ml-2 h-4 w-4" />
+              </Button>
+            </div>
+          )}
+        </>
       ) : (
         <div className="text-center py-20 space-y-4">
           <p className="text-muted-foreground text-lg">No products found</p>

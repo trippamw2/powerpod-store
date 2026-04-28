@@ -5,6 +5,8 @@ import { useCart } from "@/contexts/CartContext";
 import { useProducts } from "@/hooks/useProducts";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft, Minus, Plus, ShoppingBag, Check, Truck, ShieldCheck, Star, Heart, Share2, ChevronDown, ChevronUp, Loader2, MessageCircle, Facebook, Instagram, Link2 } from "lucide-react";
 import { ProductCard } from "@/components/ProductCard";
 import { toast } from "@/hooks/use-toast";
@@ -22,6 +24,11 @@ const ProductDetail = () => {
   const [showShareModal, setShowShareModal] = useState(false);
   const [reviews, setReviews] = useState<{rating: number; review_text: string; customer_name: string; created_at: string}[]>([]);
   const [reviewsLoading, setReviewsLoading] = useState(true);
+  const [userRating, setUserRating] = useState(0);
+  const [userRatingHover, setUserRatingHover] = useState(0);
+  const [userName, setUserName] = useState("");
+  const [userReview, setUserReview] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     if (product?.types?.length > 0) {
@@ -55,6 +62,29 @@ const ProductDetail = () => {
     ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
     : 0;
   const reviewCount = reviews.length;
+
+  const submitReview = async () => {
+    if (!userRating || !userName.trim() || !id) return;
+    setSubmitting(true);
+    try {
+      await supabase.from("product_reviews").insert({
+        product_id: id,
+        rating: userRating,
+        customer_name: userName.trim(),
+        review_text: userReview.trim() || null,
+        is_active: true,
+      });
+      toast({ title: "Review submitted!", description: "Thank you for your feedback" });
+      setUserRating(0);
+      setUserName("");
+      setUserReview("");
+      fetchReviews();
+    } catch (err) {
+      toast({ title: "Error", description: "Could not submit review", variant: "destructive" });
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -399,6 +429,61 @@ const ProductDetail = () => {
             </div>
           </>
         )}
+      </div>
+
+      {/* Write a Review Form */}
+      <div className="mt-16">
+        <h2 className="font-display font-bold text-2xl mb-6">Write a Review</h2>
+        <div className="rounded-2xl border border-border p-6">
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium mb-2">Your Rating</label>
+              <div className="flex gap-2">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button
+                    key={star}
+                    type="button"
+                    onClick={() => setUserRating(star)}
+                    onMouseEnter={() => setUserRatingHover(star)}
+                    onMouseLeave={() => setUserRatingHover(0)}
+                    className="p-1 transition-transform hover:scale-110"
+                  >
+                    <Star className={`h-8 w-8 ${star <= (userRatingHover || userRating) ? "fill-yellow-400 text-yellow-400" : "fill-gray-200 text-gray-200"}`} />
+                  </button>
+                ))}
+              </div>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium mb-2">Your Name</label>
+              <Input
+                value={userName}
+                onChange={(e) => setUserName(e.target.value)}
+                placeholder="Enter your name"
+                className="max-w-md"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium mb-2">Your Review (optional)</label>
+              <Textarea
+                value={userReview}
+                onChange={(e) => setUserReview(e.target.value)}
+                placeholder="Share your experience with this product..."
+                className="max-w-lg min-h-[100px]"
+              />
+            </div>
+            
+            <Button 
+              onClick={submitReview} 
+              disabled={submitting || !userRating || !userName.trim()}
+              className="bg-orange-500 hover:bg-orange-600"
+            >
+              {submitting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+              Submit Review
+            </Button>
+          </div>
+        </div>
       </div>
 
       {/* Recommended Products */}

@@ -12,6 +12,7 @@ interface PromotionSliderProps {
 export const PromotionSlider = ({ page, className }: PromotionSliderProps) => {
   const [promotions, setPromotions] = useState<Promotion[]>([]);
   const [current, setCurrent] = useState(0);
+  const [currentImage, setCurrentImage] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -44,9 +45,23 @@ export const PromotionSlider = ({ page, className }: PromotionSliderProps) => {
     return () => clearInterval(timer);
   }, [promotions.length]);
 
+  useEffect(() => {
+    const promo = promotions[current];
+    if (promo?.images && promo.images.length > 1) {
+      const imgTimer = setInterval(() => {
+        setCurrentImage(i => (i + 1) % promo.images!.length);
+      }, 2000);
+      return () => clearInterval(imgTimer);
+    }
+  }, [current, promotions]);
+
   if (loading || promotions.length === 0) return null;
 
   const promotion = promotions[current];
+  const sliderImages = promotion.images && promotion.images.length > 0 
+    ? promotion.images 
+    : promotion.image ? [promotion.image] : [];
+  const activeImage = sliderImages[currentImage];
 
   return (
     <div className={cn("relative rounded-xl overflow-hidden h-40 sm:h-48 md:h-56 lg:h-64", className)}>
@@ -54,14 +69,13 @@ export const PromotionSlider = ({ page, className }: PromotionSliderProps) => {
         to={promotion.link}
         className="block relative h-full"
       >
-        {promotion.image ? (
+        {activeImage ? (
           <div className="absolute inset-0">
             <img
-              src={promotion.image}
+              src={activeImage}
               alt={promotion.title}
               className="w-full h-full object-cover"
               onError={(e) => {
-                // Fall back to gradient on error
                 (e.target as HTMLImageElement).style.display = 'none';
               }}
             />

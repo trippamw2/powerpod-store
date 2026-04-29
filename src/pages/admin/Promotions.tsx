@@ -34,6 +34,7 @@ const AdminPromotions = () => {
     subtitle: "",
     description: "",
     image: "",
+    images: [""] as string[],
     link: "/shop",
     link_text: "Shop Now",
     background_color: "from-orange-500 to-orange-600",
@@ -64,50 +65,65 @@ const AdminPromotions = () => {
       toast({ title: "Title is required", variant: "destructive" });
       return;
     }
-
-    // Validate image URLs before saving
-    const validImages = formData.images.filter(img => {
-      const trimmed = img.trim();
-      if (!trimmed) return false;
-      // Must start with http:// or https://
-      return trimmed.startsWith('http://') || trimmed.startsWith('https://');
-    });
-    
-    if (validImages.length === 0 && formData.images[0]) {
-      toast({ title: "Invalid image URL", description: "Image URL must start with http:// or https://", variant: "destructive" });
-      return;
-    }
     
     try {
-      // Validate image URL
-      const trimmedImage = formData.image.trim();
-      if (trimmedImage && !trimmedImage.startsWith('http')) {
-        toast({ title: "Invalid image URL", description: "Image URL must start with http:// or https://", variant: "destructive" });
-        return;
-      }
-
-      const payload = {
-        title: formData.title,
-        subtitle: formData.subtitle,
-        description: formData.description,
-        image: trimmedImage,
-        link: formData.link,
-        link_text: formData.link_text,
-        background_color: formData.background_color,
-        text_color: formData.text_color,
-        is_active: formData.is_active,
-        is_featured: formData.is_featured,
-        sort_order: formData.sort_order,
-        pages: formData.pages,
-      };
+      const validImages = formData.images
+        .map(img => img.trim())
+        .filter(img => img.startsWith('http://') || img.startsWith('https://'));
+      
+      const finalImage = validImages[0] || "";
 
       if (editingPromotion) {
-        const { error } = await supabase.from("promotions").update(payload).eq("id", editingPromotion.id);
-        if (error) throw error;
+        const updateData: Record<string, unknown> = {
+          title: formData.title,
+          subtitle: formData.subtitle,
+          description: formData.description,
+          image: finalImage,
+          link: formData.link,
+          link_text: formData.link_text,
+          background_color: formData.background_color,
+          text_color: formData.text_color,
+          is_active: formData.is_active,
+          is_featured: formData.is_featured,
+          sort_order: formData.sort_order,
+          pages: formData.pages,
+        };
+        
+        if (validImages.length > 0) {
+          updateData.images = validImages;
+        }
+
+        const { error } = await supabase.from("promotions").update(updateData).eq("id", editingPromotion.id);
+        if (error) {
+          console.error("Update error:", error);
+          throw error;
+        }
         toast({ title: "Promotion updated!" });
       } else {
-        const { error } = await supabase.from("promotions").insert(payload);
-        if (error) throw error;
+        const insertData: Record<string, unknown> = {
+          title: formData.title,
+          subtitle: formData.subtitle,
+          description: formData.description,
+          image: finalImage,
+          link: formData.link,
+          link_text: formData.link_text,
+          background_color: formData.background_color,
+          text_color: formData.text_color,
+          is_active: formData.is_active,
+          is_featured: formData.is_featured,
+          sort_order: formData.sort_order,
+          pages: formData.pages,
+        };
+        
+        if (validImages.length > 0) {
+          insertData.images = validImages;
+        }
+
+        const { error } = await supabase.from("promotions").insert(insertData);
+        if (error) {
+          console.error("Insert error:", error);
+          throw error;
+        }
         toast({ title: "Promotion created!" });
       }
 
@@ -127,6 +143,7 @@ const AdminPromotions = () => {
       subtitle: "",
       description: "",
       image: "",
+      images: [""],
       link: "/shop",
       link_text: "Shop Now",
       background_color: "from-orange-500 to-orange-600",
@@ -140,11 +157,15 @@ const AdminPromotions = () => {
 
   const openEdit = (promo: Promotion) => {
     setEditingPromotion(promo);
+    const promoImages = promo.images && promo.images.length > 0 
+      ? promo.images 
+      : promo.image ? [promo.image] : [""];
     setFormData({
       title: promo.title,
       subtitle: promo.subtitle || "",
       description: promo.description || "",
       image: promo.image || "",
+      images: promoImages,
       link: promo.link,
       link_text: promo.link_text,
       background_color: promo.background_color,
@@ -222,24 +243,62 @@ const AdminPromotions = () => {
               </div>
 
               <div className="space-y-2">
-                <Label>Image URL</Label>
-                <Input
-                  value={formData.image}
-                  onChange={e => setFormData(p => ({ ...p, image: e.target.value }))}
-                  placeholder="https://i.ibb.co/xxx/image.jpg"
-                  className={formData.image && !formData.image.startsWith('http') ? "border-red-500" : ""}
-                />
-                <p className="text-xs text-gray-500">Direct image link ending in .jpg, .png, .webp (not webpage)</p>
-                {formData.image && (
-                  <img 
-                    src={formData.image} 
-                    alt="Preview" 
-                    className="h-24 w-auto rounded-lg object-cover"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).style.display = 'none';
-                    }}
-                  />
-                )}
+                <div className="flex items-center justify-between">
+                  <Label>Slider Images (Optional)</Label>
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => setFormData(p => ({ ...p, images: [...p.images, ""] }))}
+                  >
+                    <Plus className="h-3 w-3 mr-1" /> Add
+                  </Button>
+                </div>
+                <p className="text-xs text-gray-500">Add multiple images for auto-sliding gallery</p>
+                <div className="space-y-2">
+                  {formData.images.map((img, idx) => (
+                    <div key={idx} className="flex gap-2">
+                      <Input
+                        value={img}
+                        onChange={e => {
+                          const newImages = [...formData.images];
+                          newImages[idx] = e.target.value;
+                          setFormData(p => ({ ...p, images: newImages }));
+                        }}
+                        placeholder="https://i.ibb.co/xxx/image.jpg"
+                        className={img && !img.startsWith('http') ? "border-red-500" : ""}
+                      />
+                      {formData.images.length > 1 && (
+                        <Button 
+                          type="button" 
+                          variant="ghost" 
+                          size="icon"
+                          onClick={() => {
+                            const newImages = formData.images.filter((_, i) => i !== idx);
+                            setFormData(p => ({ ...p, images: newImages }));
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4 text-red-500" />
+                        </Button>
+                      )}
+                    </div>
+                  ))}
+                  {formData.images[0] && (
+                    <div className="flex gap-2 flex-wrap mt-2">
+                      {formData.images.filter(i => i.startsWith('http')).map((img, idx) => (
+                        <img 
+                          key={idx}
+                          src={img} 
+                          alt={`Preview ${idx + 1}`}
+                          className="h-16 w-16 rounded-lg object-cover"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display = 'none';
+                          }}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div className="grid sm:grid-cols-2 gap-4">

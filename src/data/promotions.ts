@@ -4,6 +4,7 @@ export interface Promotion {
   subtitle: string;
   description?: string;
   image: string;
+  images?: string[];
   link: string;
   link_text: string;
   background_color: string;

@@ -22,6 +22,7 @@ const links = [
   { to: "/", label: "Home" },
   { to: "/shop", label: "Shop" },
   { to: "/combos", label: "Combos" },
+  { to: "/rewards", label: "Rewards" },
   { to: "/contact", label: "Contact" },
 ];
 

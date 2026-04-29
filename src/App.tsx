@@ -34,11 +34,13 @@ import AdminTestimonials from "./pages/admin/Testimonials";
 import AdminSuppliers from "./pages/admin/Suppliers";
 import AdminPromos from "./pages/admin/Promos";
 import AdminCRM from "./pages/admin/CRM";
+import AdminLoyalty from "./pages/admin/Loyalty";
 import Terms from "./pages/policy/Terms";
 import Privacy from "./pages/policy/Privacy";
 import FAQ from "./pages/policy/FAQ";
 import Returns from "./pages/policy/Returns";
 import Warranty from "./pages/policy/Warranty";
+import Loyalty from "./pages/Loyalty";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -76,6 +78,7 @@ const App = () => (
                   <Route path="/faq" element={<FAQ />} />
                   <Route path="/returns" element={<Returns />} />
                   <Route path="/warranty" element={<Warranty />} />
+                  <Route path="/rewards" element={<Loyalty />} />
                   <Route path="*" element={<NotFound />} />
                 </Route>
                 <Route path="/admin" element={<AdminLayout />}>
@@ -92,6 +95,7 @@ const App = () => (
                   <Route path="settings" element={<AdminSettings />} />
                   <Route path="delivery" element={<AdminDelivery />} />
                   <Route path="suppliers" element={<AdminSuppliers />} />
+                  <Route path="loyalty" element={<AdminLoyalty />} />
                 </Route>
               </Routes>
             </BrowserRouter>

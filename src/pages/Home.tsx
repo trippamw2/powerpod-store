@@ -13,14 +13,12 @@ import { Headphones, Heart, ArrowRight, ShieldCheck, Truck, ShoppingBag, Clock, 
 
 const Home = () => {
   const { add } = useCart();
-  const { products, loading, getProductsByCategory } = useProducts();
+  const { products, loading } = useProducts();
   const [countdown, setCountdown] = useState({ hours: 0, minutes: 0, seconds: 0 });
 
   const featuredProducts = products.filter((p: any) => (p as any).is_featured || (p as any).is_best_seller).slice(0, 8);
   const onSaleProducts = products.filter((p: any) => (p as any).is_on_sale).slice(0, 4);
-  const bestSellerProducts = products.filter((p: any) => (p as any).is_best_seller).slice(0, 4);
   
-  // For now, use hardcoded combos structure but with product references
   const comboProducts = products.slice(0, 3).map(p => ({
     ...p,
     types: [{ id: "default", name: "Default" }],
@@ -44,16 +42,6 @@ const Home = () => {
     }, 1000);
     return () => clearInterval(interval);
   }, []);
-
-  const handleAddComboToCart = (combo: typeof combos[0]) => {
-    add({
-      productKey: `combo-${combo.id}`,
-      name: combo.name,
-      price: combo.price,
-      image: getItemImage(combo.items[0]),
-    });
-    toast({ title: "Added to cart!", description: combo.name });
-  };
 
   return (
     <div>

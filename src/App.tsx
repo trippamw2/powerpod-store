@@ -1,4 +1,4 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -35,6 +35,7 @@ import AdminSuppliers from "./pages/admin/Suppliers";
 import AdminPromos from "./pages/admin/Promos";
 import AdminCRM from "./pages/admin/CRM";
 import AdminLoyalty from "./pages/admin/Loyalty";
+import AdminReferrals from "./pages/admin/Referrals";
 import Terms from "./pages/policy/Terms";
 import Privacy from "./pages/policy/Privacy";
 import FAQ from "./pages/policy/FAQ";
@@ -51,9 +52,22 @@ const queryClient = new QueryClient({
   },
 });
 
+// Store referral code from URL for signup use
+const ReferralLoader = () => {
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get("ref");
+    if (ref && !localStorage.getItem("referredBy")) {
+      localStorage.setItem("referredBy", ref);
+    }
+  }, []);
+  return null;
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
+      <ReferralLoader />
       <AuthProvider>
         <CartProvider>
           <Toaster />
@@ -96,6 +110,7 @@ const App = () => (
                   <Route path="delivery" element={<AdminDelivery />} />
                   <Route path="suppliers" element={<AdminSuppliers />} />
                   <Route path="loyalty" element={<AdminLoyalty />} />
+                  <Route path="referrals" element={<AdminReferrals />} />
                 </Route>
               </Routes>
             </BrowserRouter>

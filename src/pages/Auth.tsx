@@ -1,13 +1,14 @@
-import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useReferralSignup } from "@/hooks/useReferral";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
+import { Loader2, Gift } from "lucide-react";
 
 const emailSchema = z.string().trim().email("Enter a valid email").max(255);
 const passwordSchema = z.string().min(6, "At least 6 characters").max(72);
@@ -17,12 +18,26 @@ const phoneSchema = z.string().trim().min(7, "Enter a valid phone").max(20);
 const Auth = () => {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
+  const [searchParams] = useSearchParams();
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
+  const [referredBy, setReferredBy] = useState<string | null>(null);
+  const { applyReferralCode, applying } = useReferralSignup();
+
+  useEffect(() => {
+    const refFromUrl = searchParams.get("ref");
+    const refFromStorage = localStorage.getItem("referredBy");
+    if (refFromUrl) {
+      setReferredBy(refFromUrl);
+      localStorage.removeItem("referredBy");
+    } else if (refFromStorage) {
+      setReferredBy(refFromStorage);
+    }
+  }, [searchParams]);
 
   // Redirect if already logged in
   if (!authLoading && user) {
@@ -45,7 +60,7 @@ const Auth = () => {
         if (!n.success) throw new Error(n.error.issues[0].message);
         if (!ph.success) throw new Error(ph.error.issues[0].message);
 
-        const { error } = await supabase.auth.signUp({
+        const { error, data } = await supabase.auth.signUp({
           email: e1.data,
           password: p1.data,
           options: {
@@ -55,7 +70,13 @@ const Auth = () => {
           },
         });
         if (error) throw error;
-        await supabase.auth.signInWithPassword({ email: e1.data, password: p1.data });
+        
+        if (referredBy && data?.user) {
+          await applyReferralCode(referredBy, data.user.id);
+          toast({ title: "Account created!", description: "You got K200 off with referral!" });
+        } else {
+          toast({ title: "Account created!", description: "Start shopping to earn points!" });
+        }
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email: e1.data, password: p1.data });
         if (error) throw error;
@@ -80,6 +101,12 @@ const Auth = () => {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {referredBy && mode === "signup" && (
+            <div className="flex items-center gap-2 p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm">
+              <Gift className="h-4 w-4" />
+              <span>You get K200 off with referral!</span>
+            </div>
+          )}
           {mode === "signup" && (
             <>
               <div className="space-y-2">

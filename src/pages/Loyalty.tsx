@@ -3,9 +3,10 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLoyalty } from "@/hooks/useLoyalty";
+import { useReferral } from "@/hooks/useReferral";
 import { Button } from "@/components/ui/button";
 import { PromotionSlider } from "@/components/PromotionSlider";
-import { Gift, Star, TrendingUp, Clock, ArrowRight, Loader2, ShoppingBag, Zap, Crown, Award, Gem, Check, Minus, Plus } from "lucide-react";
+import { Gift, Star, TrendingUp, Clock, ArrowRight, Loader2, ShoppingBag, Zap, Crown, Award, Gem, Check, Minus, Plus, Users, Copy, Share2, Gift as GiftIcon } from "lucide-react";
 import { formatMWK } from "@/data/products";
 import { toast } from "@/hooks/use-toast";
 
@@ -19,6 +20,7 @@ const tierConfig = {
 const Loyalty = () => {
   const { user } = useAuth();
   const { loyalty, program, tiers, transactions, loading, getRewardValue, redeemPoints, error } = useLoyalty(user?.id, user?.email);
+  const { referralCode, stats, loading: referralLoading, copied, copyCode, shareReferral } = useReferral();
   const [redeeming, setRedeeming] = useState(false);
 
   if (!user) {
@@ -179,6 +181,51 @@ const Loyalty = () => {
             </div>
           );
         })}
+      </div>
+
+      {/* Referral Program */}
+      <h2 className="font-display font-bold text-lg sm:text-xl mb-3 sm:mb-4 flex items-center gap-2">
+        <Users className="h-5 w-5 text-orange-500" /> Refer Friends
+      </h2>
+      <div className="rounded-xl border-2 border-orange-100 bg-orange-50/50 p-4 sm:p-6 mb-6">
+        <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex-1">
+            <p className="text-sm text-muted-foreground mb-2">Share your code and earn rewards!</p>
+            {referralCode ? (
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <code className="flex-1 bg-white border border-gray-200 rounded-lg px-4 py-3 font-mono text-lg font-bold text-orange-600">
+                    {referralCode.code}
+                  </code>
+                  <Button size="icon" variant="outline" onClick={copyCode} className="h-12 w-12">
+                    {copied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
+                  </Button>
+                </div>
+                <div className="flex gap-2">
+                  <Button onClick={shareReferral} variant="hero" size="sm" className="flex-1">
+                    <Share2 className="h-4 w-4 mr-2" /> Share
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="animate-pulse bg-gray-200 rounded-lg h-12 w-32" />
+            )}
+          </div>
+          <div className="sm:w-32 flex flex-row sm:flex-col gap-3">
+            <div className="flex-1 bg-white rounded-lg p-3 text-center">
+              <p className="text-2xl font-bold text-orange-600">{stats.totalReferrals}</p>
+              <p className="text-xs text-muted-foreground">Referrals</p>
+            </div>
+            <div className="flex-1 bg-white rounded-lg p-3 text-center">
+              <p className="text-2xl font-bold text-green-600">{stats.totalEarned}</p>
+              <p className="text-xs text-muted-foreground">Earned</p>
+            </div>
+          </div>
+        </div>
+        <div className="mt-4 text-xs text-muted-foreground bg-white rounded-lg p-3">
+          <p><strong>Give K200</strong> to your friend • <strong>Earn K500</strong> for yourself</p>
+          <p className="mt-1">Your friend gets K200 off their first order!</p>
+        </div>
       </div>
 
       {/* Recent Activity */}

@@ -18,6 +18,8 @@ const adminLinks = [
   { to: "/admin/business", label: "Business", icon: Building2 },
   { to: "/admin/inventory", label: "Inventory", icon: Warehouse },
   { to: "/admin/delivery", label: "Delivery", icon: Zap },
+  { to: "/admin/loyalty", label: "Loyalty", icon: Zap },
+  { to: "/admin/referrals", label: "Referrals", icon: Users },
   { to: "/admin/settings", label: "Settings", icon: Settings },
 ];
 

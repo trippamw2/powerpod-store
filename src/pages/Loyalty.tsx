@@ -66,7 +66,7 @@ const Loyalty = () => {
   return (
     <div className="container py-4 sm:py-8 md:py-12">
       <div className="mb-4 sm:mb-6">
-        <PromotionSlider page="shop" className="shadow-lg" />
+        <PromotionSlider page="shop" />
       </div>
 
       <div className="max-w-2xl space-y-2 sm:space-y-3 mb-6 sm:mb-8">

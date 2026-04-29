@@ -88,7 +88,7 @@ const Shop = () => {
   if (loading) {
     return (
       <div className="container py-8 sm:py-12">
-        <PromotionSlider page="shop" className="mb-6 shadow-lg" />
+        <PromotionSlider page="shop" className="mb-6" />
         <div className="flex items-center justify-center py-32">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
@@ -99,7 +99,7 @@ const Shop = () => {
   return (
     <div className="container py-4 sm:py-8 md:py-12">
       <div className="mb-4 sm:mb-6">
-        <PromotionSlider page="shop" className="shadow-lg" />
+        <PromotionSlider page="shop" />
       </div>
 
       <div className="max-w-2xl space-y-2 sm:space-y-3 mb-4 sm:mb-8">

@@ -41,13 +41,13 @@ export const config = {
 };
 
 function verifySignature(payload: string, signature: string): boolean {
-  if (!WEBHOOK_SECRET || WEBHOOK_SECRET === "your_webhook_secret") {
-    ;
-    return true;
+  // If no real secret configured, don't accept any callbacks
+  if (!WEBHOOK_SECRET || WEBHOOK_SECRET === "your_webhook_secret" || WEBHOOK_SECRET === "") {
+    console.error("Webhook secret not configured - rejecting callback");
+    return false;
   }
   
   if (!signature) {
-    ;
     return false;
   }
 

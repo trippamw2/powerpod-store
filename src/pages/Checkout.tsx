@@ -150,6 +150,25 @@ const Checkout = () => {
       if (error) throw error;
       const orderId = order.id;
 
+      // Send order confirmation email
+      try {
+        const { sendOrderConfirmationEmail, sendAdminNotificationEmail } = await import("@/lib/brevo");
+        await sendOrderConfirmationEmail({
+          to: formData.phone ? `${formData.phone}@powerpod.mw` : "customer@powerpod.mw",
+          customerName: formData.name,
+          orderId: orderId.slice(0, 8).toUpperCase(),
+          total: formatMWK(total),
+        });
+        await sendAdminNotificationEmail({
+          orderId: orderId.slice(0, 8).toUpperCase(),
+          customerName: formData.name,
+          total: formatMWK(total),
+          paymentMethod,
+        });
+      } catch (e) {
+        console.log("Email sending failed (non-critical):", e);
+      }
+
       // Add order items
       const orderItems = items.map(item => ({
         order_id: orderId,

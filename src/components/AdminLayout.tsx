@@ -28,6 +28,33 @@ export const AdminLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [checkingRole, setCheckingRole] = useState(true);
+
+  // Check admin role
+  useEffect(() => {
+    const checkAdmin = async () => {
+      if (!user) {
+        setCheckingRole(false);
+        return;
+      }
+      try {
+        const { supabase } = await import("@/integrations/supabase/client");
+        const { data } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", user.id)
+          .eq("role", "admin")
+          .maybeSingle();
+        setIsAdmin(!!data);
+      } catch (e) {
+        setIsAdmin(false);
+      } finally {
+        setCheckingRole(false);
+      }
+    };
+    checkAdmin();
+  }, [user]);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -35,7 +62,14 @@ export const AdminLayout = () => {
     }
   }, [user, authLoading, navigate]);
 
-  if (authLoading || !user) {
+  // Redirect non-admins
+  useEffect(() => {
+    if (!checkingRole && user && !isAdmin) {
+      navigate("/", { replace: true });
+    }
+  }, [checkingRole, user, isAdmin, navigate]);
+
+  if (authLoading || checkingRole || !user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">

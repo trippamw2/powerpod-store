@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { products as staticProducts, Product } from "@/data/products";
+import { Product } from "@/data/products";
 
 interface DatabaseProduct {
   id: string;
@@ -58,49 +58,55 @@ export function useProducts() {
       });
 
       // Map database products to frontend format
-      if (dbProducts && dbProducts.length > 0) {
-        console.log("✅ Products fetched:", dbProducts.length);
-        const mappedProducts: Product[] = dbProducts.map((p: any) => {
-          const inv = inventoryMap.get(p.id);
-          // Check for invalid images (external URLs that may not load)
-          if (p.image && !p.image.includes("oalemobile.com")) {
-            console.warn("⚠️ Product has external image:", p.name, p.image);
-          }
-          return {
-            id: p.id,
-            name: p.name,
-            benefit: p.description || "",
-            price: p.price,
-            category: p.category as Product["category"],
-            image: p.image || "",
-            brand: p.brand || "Generic",
-            types: [],
-            stock: inv ? inv.quantity - (inv.reserved_quantity || 0) : 10,
-            is_featured: p.is_featured || false,
-            is_best_seller: p.is_best_seller || false,
-            is_on_sale: p.is_on_sale || false,
-            discount_percent: p.discount_percent || 0,
-            gallery_images: p.gallery_images || [],
-            specs: p.specs || {},
-            reward_points: p.reward_points || Math.round(p.price / 100),
-            rating: p.rating || 0,
-          };
-        });
+const { data: productsArray, error: fetchError } = await supabase
+          .from("products")
+          .select("*")
+          .or("is_active.eq.true,is_active.is.null");
+
+        if (fetchError) {
+          console.error("Products fetch error:", fetchError);
+          setError("Failed to load products");
+          setProducts([]);
+          return;
+        }
+
+        if (!productsArray || productsArray.length === 0) {
+          console.warn("⚠️ No products found in database");
+          setProducts([]);
+          return;
+        }
+
+        // Map database products to frontend format
+        const mappedProducts: Product[] = productsArray.map((p: any) => ({
+          id: p.id,
+          name: p.name,
+          benefit: p.description || p.benefit || "",
+          price: p.price,
+          category: (p.category || "all") as any,
+          image: p.image || "",
+          brand: p.brand || "Generic",
+          types: [],
+          stock: p.stock_quantity || 10,
+          is_featured: p.is_featured || false,
+          is_best_seller: p.is_best_seller || false,
+          is_on_sale: p.is_on_sale || false,
+          discount_percent: p.discount_percent || 0,
+          gallery_images: p.gallery_images || [],
+          specs: p.specs || {},
+          reward_points: p.reward_points || Math.round(p.price / 100),
+          rating: p.rating || 0,
+        }));
+
+        console.log("✅ Products loaded from DB:", mappedProducts.length);
         setProducts(mappedProducts);
-      } else {
-        console.warn("⚠️ No products from DB, falling back to static. dbProducts:", dbProducts?.length);
-        // Fallback to static products if database is empty
-        setProducts(staticProducts);
+      } catch (err) {
+        console.error("❌ Products fetch error:", err);
+        setError("Failed to load products");
+        setProducts([]);
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      console.error("❌ Products fetch error:", err);
-      setError("Failed to load products");
-      // Fallback to static products on error
-      setProducts(staticProducts);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+    }, []);
 
   useEffect(() => {
     fetchProducts();

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { formatMWK } from "@/data/products";
 import { useCart } from "@/contexts/CartContext";
@@ -58,28 +58,29 @@ const ProductDetail = () => {
     }
   }, [product]);
 
-  useEffect(() => {
-    const fetchReviews = async () => {
-      if (!id) return;
-      setReviewsLoading(true);
-      try {
-        const { data, error } = await supabase
-          .from("product_reviews")
-          .select("rating, review_text, customer_name, created_at")
-          .eq("product_id", id)
-          .eq("is_active", true)
-          .order("created_at", { ascending: false })
-          .limit(10);
-        if (error) {
-          console.error("Fetch reviews error:", error);
-        }
-        setReviews(data || []);
-      } catch (err) {
-        console.log("No reviews", err);
-      } finally {
-        setReviewsLoading(false);
+  const fetchReviews = useCallback(async () => {
+    if (!id) return;
+    setReviewsLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from("product_reviews")
+        .select("rating, review_text, customer_name, created_at")
+        .eq("product_id", id)
+        .eq("is_active", true)
+        .order("created_at", { ascending: false })
+        .limit(10);
+      if (error) {
+        console.error("Fetch reviews error:", error);
       }
-    };
+      setReviews(data || []);
+    } catch (err) {
+      console.log("No reviews", err);
+    } finally {
+      setReviewsLoading(false);
+    }
+  }, [id]);
+
+  useEffect(() => {
     fetchReviews();
   }, [id]);
 

@@ -132,20 +132,21 @@ export const ProductCard = ({ product, index = 0 }: ProductCardProps) => {
           <div>
             <h3 className="font-semibold text-gray-900 text-sm sm:text-base line-clamp-2 leading-tight">{product.name}</h3>
             
-            {/* Rating Display */}
-            <div className="flex items-center gap-1 mt-1">
-              <div className="flex">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <Star
-                    key={star}
-                    className={`h-2.5 w-2.5 ${
-                      star <= 4 ? "fill-yellow-400 text-yellow-400" : "fill-gray-200 text-gray-200"
-                    }`}
-                  />
-                ))}
+            {/* Rating Display - show if product has rating */}
+            {(product as any).rating && (
+              <div className="flex items-center gap-1 mt-1">
+                <div className="flex">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <Star
+                      key={star}
+                      className={`h-2.5 w-2.5 ${
+                        star <= (product as any).rating ? "fill-yellow-400 text-yellow-400" : "fill-gray-200 text-gray-200"
+                      }`}
+                    />
+                  ))}
+                </div>
               </div>
-              <span className="text-[10px] text-gray-400"></span>
-            </div>
+            )}
           </div>
 
           {/* Type Selection */}

@@ -90,6 +90,14 @@ const Checkout = () => {
         toast({ title: "Code expired", variant: "destructive" }); return;
       }
       
+      if (data.max_uses && data.used_count >= data.max_uses) {
+        toast({ title: "Code usage limit reached", variant: "destructive" }); return;
+      }
+      
+      if (data.min_order && subtotal < data.min_order) {
+        toast({ title: `Minimum order ${formatMWK(data.min_order)} required`, variant: "destructive" }); return;
+      }
+      
       const disc = data.type === "percentage" 
         ? Math.round(subtotal * (data.value / 100))
         : Math.min(data.value, subtotal);
@@ -146,6 +154,7 @@ const Checkout = () => {
       const orderItems = items.map(item => ({
         order_id: orderId,
         product_id: item.productKey.split("-")[0],
+        product_key: item.productKey,
         product_name: item.name,
         unit_price_mwk: item.price,
         quantity: item.quantity,

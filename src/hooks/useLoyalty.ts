@@ -182,8 +182,7 @@ export function useLoyalty(userId?: string, userEmail?: string) {
     }
 
     const maxRedeem = Math.floor(orderTotal / program.reward_value_mwk) * program.points_to_redeem;
-    const maxPercent = Math.floor(orderTotal * (program.max_redeem_percent / 100));
-    const allowedRedeem = Math.min(pointsToRedeem, maxRedeem, maxPercent);
+    const allowedRedeem = Math.min(pointsToRedeem, maxRedeem);
 
     const redemptions = Math.floor(allowedRedeem / program.points_to_redeem);
     const discount = redemptions * program.reward_value_mwk;

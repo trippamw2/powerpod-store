@@ -190,9 +190,10 @@ const Checkout = () => {
 
       // Payment flow
       if (paymentMethod === "offline") {
+        const businessPhone = import.meta.env.VITE_WHATSAPP_BUSINESS || "265884400000";
         const bankDetails = `Bank: Standard Bank\nAccount: 9100000380567\nPowerPod Store\nReference: PP${orderId.slice(0, 8).toUpperCase()}`;
         const whatsAppMessage = `Hello PowerPod! I want to pay for my order #${orderId.slice(0, 8).toUpperCase()} (${formatMWK(total)}).\n\n${bankDetails}\n\nMy Name: ${formData.name}\nMy Phone: ${formData.phone}\nDelivery: ${formData.location}`;
-        const whatsAppLink = `https://wa.me/265884400000?text=${encodeURIComponent(whatsAppMessage)}`;
+        const whatsAppLink = `https://wa.me/${businessPhone}?text=${encodeURIComponent(whatsAppMessage)}`;
         clear();
         window.open(whatsAppLink, "_blank");
         navigate(`/orders/${orderId}?payment=pending`);

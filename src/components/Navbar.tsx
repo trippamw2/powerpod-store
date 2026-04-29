@@ -226,7 +226,6 @@ export const Navbar = () => {
                             className="flex items-center justify-between text-sm text-gray-500 hover:text-orange-500 transition-colors"
                           >
                             <span>{item.label}</span>
-                            <span className="text-xs bg-gray-100 px-2 py-0.5 rounded-full">{item.count}</span>
                           </Link>
                         </li>
                       ))}

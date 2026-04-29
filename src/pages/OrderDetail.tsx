@@ -135,8 +135,8 @@ const OrderDetailPage = () => {
               Pay <span className="font-bold text-orange-600">{formatMWK(order.total_mwk)}</span> via PayChangu:
             </p>
             <div className="text-sm space-y-2 bg-white p-3 rounded-lg">
-              <p><span className="text-muted-foreground">Airtel Money:</span> <span className="font-mono font-bold">+265 991 234 567</span></p>
-              <p><span className="text-muted-foreground">TNM Mpamba:</span> <span className="font-mono font-bold">+265 991 234 567</span></p>
+              <p><span className="text-muted-foreground">Airtel Money:</span> <span className="font-mono font-bold">{import.meta.env.VITE_PAYMENT_PHONE || "+265 991 234 567"}</span></p>
+              <p><span className="text-muted-foreground">TNM Mpamba:</span> <span className="font-mono font-bold">{import.meta.env.VITE_PAYMENT_PHONE || "+265 991 234 567"}</span></p>
             </div>
             <p className="text-xs text-muted-foreground">
               Use order ref <span className="font-bold">{order.id.slice(0, 8).toUpperCase()}</span> as payment reference.

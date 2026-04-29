@@ -66,7 +66,6 @@ const Auth = () => {
           options: {
             emailRedirectTo: `${window.location.origin}/`,
             data: { full_name: n.data, phone: ph.data },
-            emailConfirm: false,
           },
         });
         if (error) throw error;

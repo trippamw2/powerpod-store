@@ -89,27 +89,36 @@ export function useLoyalty(userId?: string, userEmail?: string) {
       }
 
       // Fetch active program
-      const { data: programData } = await supabase
+      const { data: programData, error: programError } = await supabase
         .from("loyalty_programs")
         .select("*")
         .eq("is_active", true)
         .single();
+      if (programError) {
+        console.error("Program fetch error:", programError);
+      }
       setProgram(programData);
 
       // Fetch tiers
-      const { data: tiersData } = await supabase
+      const { data: tiersData, error: tiersError } = await supabase
         .from("loyalty_tiers")
         .select("*")
         .order("min_lifetime_points", { ascending: true });
+      if (tiersError) {
+        console.error("Tiers fetch error:", tiersError);
+      }
       setTiers(tiersData || []);
 
       // Fetch recent transactions
-      const { data: txData } = await supabase
+      const { data: txData, error: txError } = await supabase
         .from("loyalty_transactions")
         .select("*")
         .eq("user_id", userId)
         .order("created_at", { ascending: false })
         .limit(10);
+      if (txError) {
+        console.error("Transactions fetch error:", txError);
+      }
       setTransactions(txData || []);
     } catch (err) {
       console.error("Loyalty fetch error:", err);

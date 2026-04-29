@@ -108,6 +108,21 @@ const Checkout = () => {
 
     setSubmitting(true);
     try {
+      // Verify stock availability
+      const productIds = items.map(i => i.productKey.split("-")[0]);
+      const { data: inventory } = await supabase.from("inventory").select("product_id, quantity").in("product_id", productIds);
+      const inventoryMap = new Map(inventory?.map(i => [i.product_id, i.quantity]) || []);
+      
+      for (const item of items) {
+        const pid = item.productKey.split("-")[0];
+        const available = inventoryMap.get(pid) ?? 10;
+        if (item.quantity > available) {
+          toast({ title: "Stock issue", description: `${item.name} only has ${available} in stock`, variant: "destructive" });
+          setSubmitting(false);
+          return;
+        }
+      }
+
       // Create order
       const { data: order, error } = await supabase.from("orders").insert({
         user_id: user?.id,
@@ -137,10 +152,9 @@ const Checkout = () => {
       }));
       await supabase.from("order_items").insert(orderItems);
 
-      // Use promo code
+      // Use promo code - increment usage using RPC
       if (promoApplied) {
-        await supabase.from("promo_codes").update({ used_count: 1 })
-          .eq("code", promoApplied.code);
+        await supabase.rpc("increment_promo_usage", { promo_code: promoApplied.code });
       }
 
       // Use loyalty points - deduct redeemed points

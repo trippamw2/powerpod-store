@@ -64,7 +64,7 @@ export const PromotionSlider = ({ page, className }: PromotionSliderProps) => {
   const textColor = promo.text_color || "text-white";
 
   return (
-    <div className={cn("relative rounded-xl overflow-hidden w-full", className)} style={{ aspectRatio: "16/5", maxHeight: "200px" }}>
+    <div className={cn("relative rounded-xl overflow-hidden w-full h-24 sm:h-32 md:h-40 lg:h-48", className)}>
       <Link to={promo.link || "/shop"} className="block relative w-full h-full">
         {promo.image ? (
           <div className="absolute inset-0">

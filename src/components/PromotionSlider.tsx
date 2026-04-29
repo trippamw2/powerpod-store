@@ -60,6 +60,10 @@ export const PromotionSlider = ({ page, className }: PromotionSliderProps) => {
               src={promotion.image}
               alt={promotion.title}
               className="w-full h-full object-cover"
+              onError={(e) => {
+                // Fall back to gradient on error
+                (e.target as HTMLImageElement).style.display = 'none';
+              }}
             />
             <div className="absolute inset-0 bg-black/30" />
           </div>

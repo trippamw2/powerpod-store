@@ -128,50 +128,86 @@ const AdminOrders = () => {
     });
   };
 
-  const sendWhatsAppNotification = (order: Order, newStatus: string) => {
+  const sendWhatsAppNotification = async (order: Order, newStatus: string, markPaid = false) => {
     const phone = order.customer_phone.replace(/[^0-9]/g, "");
     const waPhone = phone.startsWith("0") ? `265${phone.slice(1)}` : phone;
     
-    // Use AI-generated messages based on status
+    // Fetch order items for the message
+    const { data: orderItems } = await supabase
+      .from("order_items")
+      .select("product_name, quantity, unit_price_mwk")
+      .eq("order_id", order.id);
+    
+    const itemsList = orderItems?.map(i => ({ name: i.product_name, quantity: i.quantity, price: i.unit_price_mwk })) || [];
+    
+    // Use different message templates based on status
     let message: string;
-    if (newStatus === "confirmed") {
-      message = orderConfirmation({
+    
+    // 1. Payment confirmation - when payment is confirmed
+    if (markPaid || newStatus === "confirmed") {
+      message = paymentReceived({
         orderId: order.id,
         customerName: order.customer_name,
-        items: [],
+        items: itemsList,
         total: order.total_mwk,
         location: order.customer_location || "",
         deliveryMethod: order.delivery_method || "standard",
-        paymentMethod: order.payment_method || "unknown",
       });
-    } else if (newStatus === "dispatched") {
+    } 
+    // 2. Order being processed
+    else if (newStatus === "processing") {
+      message = orderConfirmation({
+        orderId: order.id,
+        customerName: order.customer_name,
+        items: itemsList,
+        total: order.total_mwk,
+        location: order.customer_location || "",
+        deliveryMethod: order.delivery_method || "standard",
+      });
+    }
+    // 3. Order dispatched
+    else if (newStatus === "dispatched") {
       message = orderDispatched({
         orderId: order.id,
         customerName: order.customer_name,
         customerPhone: order.customer_phone,
         status: "dispatched",
-        items: [],
+        items: itemsList,
         eta: "Today",
       });
-    } else if (newStatus === "delivered") {
+    }
+    // 4. Order delivered
+    else if (newStatus === "delivered") {
       message = orderDelivered({
         orderId: order.id,
         customerName: order.customer_name,
         customerPhone: order.customer_phone,
         status: "delivered",
-        items: [],
+        items: itemsList,
       });
-    } else if (newStatus === "cancelled") {
+    }
+    // 5. Order cancelled
+    else if (newStatus === "cancelled") {
       message = orderCancelled({
         orderId: order.id,
         customerName: order.customer_name,
         customerPhone: order.customer_phone,
         status: "cancelled",
-        items: [],
+        items: itemsList,
         total: order.total_mwk,
       });
-    } else {
-      message = `Hi ${order.customer_name}!\n\nYour order #${order.id.slice(0, 8).toUpperCase()} status is: ${newStatus}\n\nTrack: https://powerpod-store.vercel.app/track/${order.id}\n\nThanks!`;
+    }
+    // 6. Generic status update
+    else {
+      message = `📦 *Order Update* @${order.customer_name.split(' ')[0]}
+
+Your order #${order.id.slice(0, 8).toUpperCase()} status: *${newStatus.toUpperCase()}*
+
+${itemsList.map(i => `• ${i.quantity}× ${i.name}`).join('\n')}
+
+Total: MK ${order.total_mwk.toLocaleString()}
+
+Track: https://powerpod-store.vercel.app/track/${order.id}`;
     }
     
     window.open(buildWhatsAppLink(message, waPhone), "_blank");

@@ -34,7 +34,6 @@ const AdminPromotions = () => {
     subtitle: "",
     description: "",
     image: "",
-    images: [""] as string[],
     link: "/shop",
     link_text: "Shop Now",
     background_color: "from-orange-500 to-orange-600",
@@ -65,13 +64,40 @@ const AdminPromotions = () => {
       toast({ title: "Title is required", variant: "destructive" });
       return;
     }
+
+    // Validate image URLs before saving
+    const validImages = formData.images.filter(img => {
+      const trimmed = img.trim();
+      if (!trimmed) return false;
+      // Must start with http:// or https://
+      return trimmed.startsWith('http://') || trimmed.startsWith('https://');
+    });
+    
+    if (validImages.length === 0 && formData.images[0]) {
+      toast({ title: "Invalid image URL", description: "Image URL must start with http:// or https://", variant: "destructive" });
+      return;
+    }
     
     try {
-      const validImages = formData.images.filter(img => img.trim() !== "");
+      // Validate image URL
+      const trimmedImage = formData.image.trim();
+      if (trimmedImage && !trimmedImage.startsWith('http')) {
+        toast({ title: "Invalid image URL", description: "Image URL must start with http:// or https://", variant: "destructive" });
+        return;
+      }
+
       const payload = {
-        ...formData,
-        image: validImages[0] || "",
-        images: validImages,
+        title: formData.title,
+        subtitle: formData.subtitle,
+        description: formData.description,
+        image: trimmedImage,
+        link: formData.link,
+        link_text: formData.link_text,
+        background_color: formData.background_color,
+        text_color: formData.text_color,
+        is_active: formData.is_active,
+        is_featured: formData.is_featured,
+        sort_order: formData.sort_order,
         pages: formData.pages,
       };
 
@@ -101,7 +127,6 @@ const AdminPromotions = () => {
       subtitle: "",
       description: "",
       image: "",
-      images: [""],
       link: "/shop",
       link_text: "Shop Now",
       background_color: "from-orange-500 to-orange-600",
@@ -120,7 +145,6 @@ const AdminPromotions = () => {
       subtitle: promo.subtitle || "",
       description: promo.description || "",
       image: promo.image || "",
-      images: promo.images && promo.images.length > 0 ? promo.images : [promo.image || ""],
       link: promo.link,
       link_text: promo.link_text,
       background_color: promo.background_color,
@@ -198,42 +222,24 @@ const AdminPromotions = () => {
               </div>
 
               <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label>Image URLs</Label>
-                  <Button type="button" variant="outline" size="sm" onClick={() => setFormData(p => ({ ...p, images: [...p.images, ""] }))}>
-                    <Plus className="h-3 w-3" /> Add Image
-                  </Button>
-                </div>
-                <div className="space-y-2">
-                  {formData.images.map((img, index) => (
-                    <div key={index} className="flex gap-2">
-                      <Input
-                        value={img}
-                        onChange={e => {
-                          const newImages = [...formData.images];
-                          newImages[index] = e.target.value;
-                          setFormData(p => ({ ...p, images: newImages, image: newImages[0] || "" }));
-                        }}
-                        placeholder="https://example.com/image.jpg"
-                      />
-                      {formData.images.length > 1 && (
-                        <Button type="button" variant="ghost" size="icon" onClick={() => {
-                          const newImages = formData.images.filter((_, i) => i !== index);
-                          setFormData(p => ({ ...p, images: newImages, image: newImages[0] || "" }));
-                        }}>
-                          <Trash2 className="h-4 w-4 text-red-500" />
-                        </Button>
-                      )}
-                    </div>
-                  ))}
-                  {formData.images[0] && (
-                    <div className="flex gap-2 flex-wrap mt-2">
-                      {formData.images.filter(i => i).map((img, i) => (
-                        <img key={i} src={img} alt={`Preview ${i}`} className="h-16 w-16 rounded-lg object-cover" />
-                      ))}
-                    </div>
-                  )}
-                </div>
+                <Label>Image URL</Label>
+                <Input
+                  value={formData.image}
+                  onChange={e => setFormData(p => ({ ...p, image: e.target.value }))}
+                  placeholder="https://i.ibb.co/xxx/image.jpg"
+                  className={formData.image && !formData.image.startsWith('http') ? "border-red-500" : ""}
+                />
+                <p className="text-xs text-gray-500">Direct image link ending in .jpg, .png, .webp (not webpage)</p>
+                {formData.image && (
+                  <img 
+                    src={formData.image} 
+                    alt="Preview" 
+                    className="h-24 w-auto rounded-lg object-cover"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).style.display = 'none';
+                    }}
+                  />
+                )}
               </div>
 
               <div className="grid sm:grid-cols-2 gap-4">
@@ -332,7 +338,14 @@ const AdminPromotions = () => {
             <div key={promo.id} className="relative rounded-xl overflow-hidden bg-white border border-gray-100 group">
               <div className={`h-40 bg-gradient-to-r ${promo.background_color} relative`}>
                 {promo.image && (
-                  <img src={promo.image} alt={promo.title} className="w-full h-full object-cover opacity-50" />
+                  <img 
+                    src={promo.image} 
+                    alt={promo.title} 
+                    className="w-full h-full object-cover opacity-50" 
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).style.display = 'none';
+                    }}
+                  />
                 )}
                 <div className="absolute inset-0 bg-gradient-to-r ${promo.background_color}" />
                 <div className="absolute inset-0 flex items-center p-4">

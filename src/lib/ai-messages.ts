@@ -8,16 +8,17 @@ interface OrderDetails {
   total: number;
   location: string;
   deliveryMethod: string;
-  paymentMethod: string;
+  paymentMethod?: string;
   eta?: string;
 }
 
 interface StatusUpdate {
   orderId: string;
   customerName: string;
-  customerPhone: string;
-  status: 'confirmed' | 'processing' | 'dispatched' | 'delivered' | 'cancelled';
-  items: Array<{ name: string; quantity: number }>;
+  customerPhone?: string;
+  status: 'new' | 'confirmed' | 'processing' | 'dispatched' | 'delivered' | 'cancelled';
+  items: Array<{ name: string; quantity: number; price?: number }>;
+  total?: number;
   eta?: string;
 }
 
@@ -28,32 +29,33 @@ const generateTrackingCode = (orderId: string) => `PP-${orderId.slice(0, 6).toUp
 const formatMWK = (amount: number) => `MK ${amount.toLocaleString('en-US')}`;
 
 // ============================================
-// ORDER CONFIRMATION MESSAGE
+// ORDER CONFIRMATION MESSAGE (Order Created)
 // ============================================
 export const orderConfirmation = (details: OrderDetails) => {
   const { customerName, items, total, location, deliveryMethod, eta = '1-2 days' } = details;
   const trackingCode = generateTrackingCode(details.orderId);
   
-  const itemsList = items
-    .map(i => `• ${i.quantity}× ${i.name}`)
-    .join('\n');
+  const itemsList = items.map(i => `• ${i.quantity}× ${i.name}`).join('\n');
 
-  return `🛒 *Order Confirmed!* @${customerName.split(' ')[0]} ✅
+  return `🛒 *Order Confirmed!* ${customerName.split(' ')[0]} ✅
 
-Your PowerPod order is in! Here's the summary:
+Your PowerPod order has been received!
 
+📦 *ORDER DETAILS*
 ${itemsList}
 
-━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━━━
 💰 Total: ${formatMWK(total)}
-🚚 Delivery: ${location}
-📦 ETA: ${eta} (${deliveryMethod})
-🔢 Tracking: ${trackingCode}
-━━━━━━━━━━━━━━━━━━
+📍 Delivery: ${location}
+🚚 Type: ${deliveryMethod}
+📦 ETA: ${eta}
+🔢 Ref: ${trackingCode}
+━━━━━━━━━━━━━━━━━━━━
 
-We'll WhatsApp you when it's dispatched! 
-
-Need help? Just reply here. 🙏
+📌 *Next Steps*
+1. We'll confirm payment shortly
+2. Prepare your items
+3. Dispatch & notify you
 
 Track: https://powerpod-store.vercel.app/track/${details.orderId}`;
 };
@@ -62,49 +64,61 @@ Track: https://powerpod-store.vercel.app/track/${details.orderId}`;
 // PAYMENT CONFIRMATION MESSAGE  
 // ============================================
 export const paymentReceived = (details: OrderDetails) => {
-  const { orderId, customerName, items, total, location } = details;
+  const { orderId, customerName, items, total, location, deliveryMethod, eta = '1-2 days' } = details;
   const trackingCode = generateTrackingCode(orderId);
+  
+  const itemsList = items.map(i => `• ${i.quantity}× ${i.name}`).join('\n');
 
-  return `✅ *Payment Confirmed!* @${customerName.split(' ')[0]}
+  return `✅ *Payment Confirmed!* ${customerName.split(' ')[0]} 🎉
 
-Thanks for paying! 🎉 Your order is now being processed.
+Thank you for your payment! Your order is now being prepared.
 
-📦 Order: ${trackingCode}
-💰 Amount: ${formatMWK(total)}
-📍 Shipping to: ${location}
+📦 *ORDER DETAILS*
+${itemsList}
 
-We'll let you know when it's on its way!
+━━━━━━━━━━━━━━━━━━━━
+💰 Total Paid: ${formatMWK(total)}
+📍 Delivery to: ${location}
+🚚 Delivery: ${deliveryMethod}
+📦 ETA: ${eta}
+🔢 Tracking: ${trackingCode}
+━━━━━━━━━━━━━━━━━━━━
+
+We'll notify you when it's dispatched! 📦
 
 Track: https://powerpod-store.vercel.app/track/${orderId}`;
 };
 
 // ============================================
-// ORDER DISPATCHED MESSAGE
+// ORDER DISPATCHED MESSAGE (Out for delivery)
 // ============================================
 export const orderDispatched = (update: StatusUpdate) => {
-  const { orderId, customerName, items, eta = 'Today' } = update;
+  const { orderId, customerName, items, eta = 'Today/Tomorrow' } = update;
   const trackingCode = generateTrackingCode(orderId);
   
   const itemsList = items.map(i => `• ${i.quantity}× ${i.name}`).join('\n');
 
-  return `🚚 *Order On The Way!* @${customerName.split(' ')[0]}
+  return `🚚 *Order On The Way!* ${customerName.split(' ')[0]} 📦
 
-Your PowerPod order is out for delivery! 📦
+Your PowerPod order is out for delivery!
 
+📦 *ITEMS*
 ${itemsList}
 
-━━━━━━━━━━━━━━━━━━
-🔢 Order: ${trackingCode}
-📦 Est. delivery: ${eta}
-━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━━━
+🔢 Order Ref: ${trackingCode}
+📦 Est. Delivery: ${eta}
+━━━━━━━━━━━━━━━━━━━━
 
-Track your rider: https://powerpod-store.vercel.app/track/${orderId}
+📌 Please ensure someone is available to receive your order.
+
+Track your delivery: https://powerpod-store.vercel.app/track/${orderId}
 
 Questions? Just reply here! 🙏`;
 };
 
 // ============================================
-// ORDER DELIVERED MESSAGE
+// ORDER DELIVERED MESSAGE (Complete)
 // ============================================
 export const orderDelivered = (update: StatusUpdate) => {
   const { orderId, customerName, items } = update;
@@ -112,23 +126,24 @@ export const orderDelivered = (update: StatusUpdate) => {
   
   const itemsList = items.map(i => `• ${i.quantity}× ${i.name}`).join('\n');
 
-  return `🎉 *Order Delivered!* @${customerName.split(' ')[0]}
+  return `🎉 *Order Delivered!* ${customerName.split(' ')[0]} 🙌
 
-You got it! 🙌 
+You received your PowerPod order! 🎉
 
+📦 *DELIVERED ITEMS*
 ${itemsList}
 
-━━━━━━━━━━━━━━━━━━
-🔢 Order: ${trackingCode}
-━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━━━
+🔢 Ref: ${trackingCode}
+━━━━━━━━━━━━━━━━━━━━
 
-Hope you love your PowerPod gear! 
+Thank you for choosing PowerPod! 🙏
 
-Leave a review? It helps other customers! ⭐
+📝 Please leave a review to help other customers:
+https://powerpod-store.vercel.app/product/powerbank-001
 
-Thanks for choosing PowerPod! 🙏✨
+Need anything else? Just reply! ✨`;
 
-Feedback: https://powerpod-store.vercel.app/reviews`;
 };
 
 // ============================================
@@ -136,14 +151,18 @@ Feedback: https://powerpod-store.vercel.app/reviews`;
 // ============================================
 export const orderCancelled = (update: StatusUpdate) => {
   const { orderId, customerName, total } = update;
+  const trackingCode = generateTrackingCode(orderId);
 
-  return `😔 *Order Cancelled* @${customerName.split(' ')[0]}
+  return `😔 *Order Cancelled* ${customerName.split(' ')[0]}
 
-Your order #${generateTrackingCode(orderId)} (${formatMWK(total)}) has been cancelled.
+Your order ${trackingCode} (${formatMWK(total)}) has been cancelled.
 
-If this was a mistake or you want to reorder, just let us know! We're always here to help. 👍
+If this was a mistake, we'd love to help you reorder! 
 
-Questions? Reply here! 🙏`;
+Browse: https://powerpod-store.vercel.app/shop
+
+Questions? Just reply here! 🙏`;
+
 };
 
 // ============================================

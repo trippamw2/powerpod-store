@@ -63,16 +63,19 @@ const ProductDetail = () => {
       if (!id) return;
       setReviewsLoading(true);
       try {
-        const { data } = await supabase
+        const { data, error } = await supabase
           .from("product_reviews")
           .select("rating, review_text, customer_name, created_at")
           .eq("product_id", id)
           .eq("is_active", true)
           .order("created_at", { ascending: false })
           .limit(10);
+        if (error) {
+          console.error("Fetch reviews error:", error);
+        }
         setReviews(data || []);
       } catch (err) {
-        console.log("No reviews");
+        console.log("No reviews", err);
       } finally {
         setReviewsLoading(false);
       }
@@ -109,7 +112,7 @@ const ProductDetail = () => {
       }).select();
       
       if (error) {
-        console.error("Review insert error:", error);
+        console.error("Review insert error:", error.code, error.message, error.details);
         toast({ title: "Error", description: error.message || "Could not submit review", variant: "destructive" });
         setSubmitting(false);
         return;
@@ -121,9 +124,9 @@ const ProductDetail = () => {
       setUserName("");
       setUserReview("");
       fetchReviews();
-    } catch (err) {
-      console.error("Review submit error:", err);
-      toast({ title: "Error", description: "Could not submit review", variant: "destructive" });
+    } catch (err: any) {
+      console.error("Review submit error:", err?.message || err);
+      toast({ title: "Error", description: err?.message || "Could not submit review", variant: "destructive" });
     } finally {
       setSubmitting(false);
     }

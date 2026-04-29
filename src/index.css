@@ -24,14 +24,18 @@ body {
   font-family: 'Sora', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  overflow-x: hidden;
-  max-width: 100vw;
 }
 
-/* Prevent horizontal scroll on all elements */
+/* Scrollbar styling - hide on all elements */
 * {
-  max-width: 100vw;
-  overflow-x: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+*::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
 }
 
 /* Scrollbar hide - only when explicitly needed */

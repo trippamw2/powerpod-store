@@ -9,13 +9,15 @@ import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { formatMWK } from "@/data/products";
 import { useDeliverySettings } from "@/hooks/useDeliverySettings";
-import { ArrowLeft, Check, Loader2, Truck, CreditCard, MapPin, Tag, Zap } from "lucide-react";
+import { useLoyalty } from "@/hooks/useLoyalty";
+import { ArrowLeft, Check, Loader2, Truck, CreditCard, MapPin, Tag, Zap, Gift } from "lucide-react";
 
 const Checkout = () => {
   const { user } = useAuth();
   const { items, subtotal, clear } = useCart();
   const navigate = useNavigate();
   const { settings, loading: settingsLoading } = useDeliverySettings();
+  const { loyalty, program, getRewardValue, redeemPoints } = useLoyalty(user?.id, user?.email);
 
   const [formData, setFormData] = useState({
     name: user?.user_metadata?.full_name || user?.email?.split("@")[0] || "",
@@ -28,6 +30,8 @@ const Checkout = () => {
   const [submitting, setSubmitting] = useState(false);
   const [promoCode, setPromoCode] = useState("");
   const [promoApplied, setPromoApplied] = useState<{ code: string; discount: number } | null>(null);
+  const [usePoints, setUsePoints] = useState(false);
+  const [redeeming, setRedeeming] = useState(false);
 
   // Calculate totals
   const deliveryFee = settingsLoading ? 0 : (
@@ -35,8 +39,42 @@ const Checkout = () => {
       ? (subtotal >= (settings.freeDeliveryThreshold || 50000) ? 3500 : (settings.expressDeliveryFee || 8500))
       : (subtotal >= (settings.freeDeliveryThreshold || 50000) ? 0 : (settings.deliveryFee || 5000))
   );
-  const discount = promoApplied?.discount || 0;
-  const total = subtotal - discount + deliveryFee;
+  const promoDiscount = promoApplied?.discount || 0;
+  
+  // Calculate loyalty discount
+  const availablePoints = loyalty?.available_points || 0;
+  const maxPointsToUse = Math.min(availablePoints, program?.points_to_redeem || 100);
+  const loyaltyDiscount = usePoints && loyalty && program 
+    ? Math.floor(maxPointsToUse / program.points_to_redeem) * program.reward_value_mwk 
+    : 0;
+  
+  const totalDiscount = promoDiscount + loyaltyDiscount;
+  const total = subtotal - totalDiscount + deliveryFee;
+
+  const handleRedeemPoints = async () => {
+    if (!user || !loyalty || !program) return;
+    
+    const maxPoints = Math.min(availablePoints, program.points_to_redeem);
+    if (maxPoints < program.points_to_redeem) {
+      toast({ title: `Need ${program.points_to_redeem} points to redeem`, variant: "destructive" });
+      return;
+    }
+    
+    setRedeeming(true);
+    try {
+      const result = await redeemPoints(maxPoints, subtotal);
+      if (result.success) {
+        setUsePoints(true);
+        toast({ title: "Points applied!", description: `-${formatMWK(result.discount)} discount` });
+      } else {
+        toast({ title: "Could not redeem", description: result.error, variant: "destructive" });
+      }
+    } catch {
+      toast({ title: "Error redeeming points", variant: "destructive" });
+    } finally {
+      setRedeeming(false);
+    }
+  };
 
   const applyPromo = async () => {
     if (!promoCode.trim()) return;
@@ -77,7 +115,7 @@ const Checkout = () => {
         notes: formData.deliveryNote,
         subtotal_mwk: subtotal,
         delivery_fee_mwk: deliveryFee,
-        discount_mwk: discount,
+        discount_mwk: totalDiscount,
         total_mwk: total,
         payment_method: paymentMethod,
         delivery_method: deliveryMethod,
@@ -101,6 +139,12 @@ const Checkout = () => {
       if (promoApplied) {
         await supabase.from("promo_codes").update({ used_count: 1 })
           .eq("code", promoApplied.code);
+      }
+
+      // Use loyalty points
+      if (usePoints && loyalty && program) {
+        const pointsToRedeem = Math.min(loyalty.available_points, program.points_to_redeem);
+        // Points will be deducted by the redeemPoints function
       }
 
       // Payment flow
@@ -272,6 +316,36 @@ const Checkout = () => {
           </div>
         </div>
 
+        {/* Loyalty Points - only show if logged in and has points */}
+        {user && loyalty && loyalty.available_points >= (program?.points_to_redeem || 100) && (
+          <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Gift className="h-5 w-5 text-amber-600" />
+                <div>
+                  <p className="font-medium text-sm">Use Rewards Points</p>
+                  <p className="text-xs text-gray-600">{loyalty.available_points} points available</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={handleRedeemPoints}
+                disabled={redeeming || usePoints}
+                className={`py-1.5 px-3 rounded-lg text-sm font-medium ${
+                  usePoints 
+                    ? "bg-green-500 text-white"
+                    : "bg-amber-500 text-white hover:bg-amber-600"
+                }`}
+              >
+                {redeeming ? "Applying..." : usePoints ? "Applied!" : "Use Points"}
+              </button>
+            </div>
+            {loyaltyDiscount > 0 && (
+              <p className="text-xs text-green-600 mt-2">✓ -{formatMWK(loyaltyDiscount)} discount applied!</p>
+            )}
+          </div>
+        )}
+
         {/* Promo */}
         <div className="bg-gray-50 rounded-xl p-4">
           <Label className="text-xs">Promo Code</Label>
@@ -294,10 +368,16 @@ const Checkout = () => {
               <span>{items.length} items</span>
               <span>{formatMWK(subtotal)}</span>
             </div>
-            {discount > 0 && (
+            {promoDiscount > 0 && (
               <div className="flex justify-between text-green-400">
-                <span>Discount</span>
-                <span>-{formatMWK(discount)}</span>
+                <span>Promo ({promoApplied?.code})</span>
+                <span>-{formatMWK(promoDiscount)}</span>
+              </div>
+            )}
+            {loyaltyDiscount > 0 && (
+              <div className="flex justify-between text-green-400">
+                <span>Rewards Points</span>
+                <span>-{formatMWK(loyaltyDiscount)}</span>
               </div>
             )}
             <div className="flex justify-between">

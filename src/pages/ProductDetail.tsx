@@ -38,6 +38,11 @@ const ProductDetail = () => {
   const [userReview, setUserReview] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [viewingCount] = useState(Math.floor(Math.random() * 20) + 5);
+  
+  const galleryImages = product.gallery_images && product.gallery_images.length > 0 
+    ? [product.image, ...product.gallery_images]
+    : [product.image];
+  const selectedImageSrc = galleryImages[selectedImage] || product.image;
   const [compareList, setCompareList] = useState<string[]>([]);
   const [wishlistItems, setWishlistItems] = useState<string[]>(() => {
     if (typeof window !== "undefined") {
@@ -205,16 +210,17 @@ const ProductDetail = () => {
         <ArrowLeft className="h-4 w-4" /> Back to shop
       </Link>
 
-      <div className="grid lg:grid-cols-2 gap-10">
+      <div className="grid lg:grid-cols-2 gap-8">
         {/* Image Gallery */}
         <div className="space-y-4">
           <motion.div 
-            className="relative rounded-3xl overflow-hidden bg-gray-100 border border-border/60 aspect-[4/5] sm:aspect-square"
+            className="relative rounded-2xl overflow-hidden bg-gray-100 border border-border/60"
+            style={{ aspectRatio: "1/1" }}
           >
             <img 
-              src={product.image} 
+              src={selectedImageSrc} 
               alt={product.name} 
-              className="w-full h-full object-contain sm:object-cover"
+              className="w-full h-full object-contain"
             />
             {/* Quick Actions */}
             <div className="absolute top-4 right-4 flex gap-2">

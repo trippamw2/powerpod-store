@@ -64,21 +64,21 @@ export const PromotionSlider = ({ page, className }: PromotionSliderProps) => {
   const textColor = promo.text_color || "text-white";
 
   return (
-    <div className={cn("relative rounded-xl overflow-hidden h-28 sm:h-36 md:h-44 lg:h-52 w-full", className)}>
-      <Link to={promo.link || "/shop"} className="block relative h-full w-full">
+    <div className={cn("relative rounded-xl overflow-hidden w-full", className)} style={{ aspectRatio: "16/5", maxHeight: "200px" }}>
+      <Link to={promo.link || "/shop"} className="block relative w-full h-full">
         {promo.image ? (
           <div className="absolute inset-0">
             <img src={promo.image} alt={promo.title} className="w-full h-full object-cover" />
-            <div className="absolute inset-0 bg-black/40" />
+            <div className="absolute inset-0 bg-black/30" />
           </div>
         ) : (
           <div className={cn("absolute inset-0 bg-gradient-to-r", bgColor)} />
         )}
-        <div className="absolute inset-0 flex items-center">
-          <div className="pl-4 sm:pl-6 md:pl-10 max-w-xl sm:max-w-2xl">
-            <p className={cn("text-[10px] sm:text-xs font-medium opacity-90", textColor)}>{promo.subtitle}</p>
-            <h2 className={cn("font-display font-bold text-sm sm:text-lg md:text-xl lg:text-2xl mt-0.5 sm:mt-1", textColor)}>{promo.title}</h2>
-            <span className={cn("inline-block px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-[9px] sm:text-xs font-medium mt-1", textColor, "bg-white/20")}>
+        <div className="absolute inset-0 flex items-center px-4 sm:px-8">
+          <div className="max-w-xs sm:max-w-lg">
+            <p className={cn("text-xs sm:text-sm font-medium opacity-90", textColor)}>{promo.subtitle}</p>
+            <h2 className={cn("font-display font-bold text-sm sm:text-xl md:text-2xl mt-0.5", textColor)}>{promo.title}</h2>
+            <span className={cn("inline-block px-2 sm:px-3 py-1 rounded-full text-[10px] sm:text-xs font-medium mt-1", textColor, "bg-white/20")}>
               {promo.link_text || "Shop Now"}
             </span>
           </div>

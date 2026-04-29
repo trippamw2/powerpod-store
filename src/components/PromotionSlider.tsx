@@ -102,19 +102,6 @@ export const PromotionSlider = ({ page, className }: PromotionSliderProps) => {
           </div>
         </div>
       </Link>
-      {promotions.length > 1 && (
-        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2">
-          {promotions.map((_, i) => (
-            <div
-              key={i}
-              className={cn(
-                "h-2 rounded-full transition-all",
-                i === current ? "bg-white w-5" : "bg-white/50 w-2"
-              )}
-            />
-          ))}
-        </div>
-      )}
     </div>
   );
 };

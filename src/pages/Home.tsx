@@ -10,9 +10,6 @@ import { formatMWK } from "@/data/products";
 import { useCart } from "@/contexts/CartContext";
 import { useProducts } from "@/hooks/useProducts";
 import { Headphones, Heart, ArrowRight, ShieldCheck, Truck, ShoppingBag, Clock, Zap, Loader2 } from "lucide-react";
-import hero from "@/assets/hero-lifestyle.jpg";
-import { toast } from "@/hooks/use-toast";
-import { getItemImage } from "@/data/products";
 
 const Home = () => {
   const { add } = useCart();
@@ -106,23 +103,11 @@ const Home = () => {
             </p>
             <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
               <Button asChild variant="hero" size="sm" className="text-sm">
-                <Link to="/shop">Shop Now <ArrowRight className="h-3.5 sm:h-4 w-3.5 sm:w-4" /></Link>
+                <Link to="/shop">Shop</Link>
               </Button>
               <Button asChild size="sm" className="bg-gray-900 hover:bg-gray-800 text-sm">
                 <Link to="/contact">Contact</Link>
               </Button>
-            </div>
-            
-            {/* Social Proof - minimal on mobile */}
-            <div className="flex items-center gap-2 sm:gap-4 pt-1 sm:pt-2">
-              <div className="flex -space-x-1.5 sm:-space-x-2">
-                {[1,2,3,4].map((i) => (
-                  <div key={i} className="w-6 sm:w-8 h-6 sm:h-8 rounded-full bg-gray-200 border-2 border-white" />
-                ))}
-              </div>
-              <div className="text-xs sm:text-sm">
-                <span className="font-semibold">2,500+</span> customers
-              </div>
             </div>
           </motion.div>
 
@@ -180,14 +165,9 @@ const Home = () => {
       </section>
 
       <section className="container py-12">
-        <div className="flex items-center justify-between gap-4 mb-6">
-          <div>
-            <p className="text-sm font-semibold text-gradient uppercase tracking-widest">Power Packs</p>
-            <h2 className="font-display font-bold text-2xl sm:text-3xl">Bundles for you</h2>
-          </div>
-          <Button asChild variant="ghost" size="sm">
-            <Link to="/combos">View All <ArrowRight className="h-4 w-4" /></Link>
-          </Button>
+        <div className="mb-6">
+          <p className="text-sm font-semibold text-gradient uppercase tracking-widest">Power Packs</p>
+          <h2 className="font-display font-bold text-2xl sm:text-3xl">Bundles for you</h2>
         </div>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -219,14 +199,9 @@ const Home = () => {
       </section>
 
       <section className="container py-12">
-        <div className="flex items-center justify-between gap-4 mb-6">
-          <div>
-            <p className="text-sm font-semibold text-gradient uppercase tracking-widest">Trending</p>
-            <h2 className="font-display font-bold text-2xl sm:text-3xl">Featured Products</h2>
-          </div>
-          <Button asChild variant="ghost" size="sm">
-            <Link to="/shop">Shop All <ArrowRight className="h-4 w-4" /></Link>
-          </Button>
+        <div className="mb-6">
+          <p className="text-sm font-semibold text-gradient uppercase tracking-widest">Trending</p>
+          <h2 className="font-display font-bold text-2xl sm:text-3xl">Featured Products</h2>
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {loading ? (
@@ -243,19 +218,14 @@ const Home = () => {
 
       {/* On Sale Products - Urgency */}
       {onSaleProducts.length > 0 && (
-        <section className="container py-10">
-          <div className="flex items-center justify-between gap-4 mb-6">
-            <div>
-              <p className="text-sm font-semibold text-red-500 uppercase tracking-widest flex items-center gap-2">
-                <Zap className="h-4 w-4" /> Limited Time
-              </p>
-              <h2 className="font-display font-bold text-2xl sm:text-3xl">On Sale Now</h2>
-            </div>
-            <Button asChild variant="ghost" size="sm">
-              <Link to="/shop?sale=true">View All <ArrowRight className="h-4 w-4" /></Link>
-            </Button>
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+<section className="container py-10">
+        <div className="mb-6">
+          <p className="text-sm font-semibold text-red-500 uppercase tracking-widest flex items-center gap-2">
+            <Zap className="h-4 w-4" /> Limited Time
+          </p>
+          <h2 className="font-display font-bold text-2xl sm:text-3xl">On Sale Now</h2>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
             {onSaleProducts.slice(0, 4).map((p, i) => (
               <ProductCard key={p.id} product={p} index={i} />
             ))}

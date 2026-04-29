@@ -102,18 +102,15 @@ export const PromotionSlider = ({ page, className }: PromotionSliderProps) => {
           </div>
         </div>
       </Link>
-
       {promotions.length > 1 && (
         <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2">
           {promotions.map((_, i) => (
-            <button
+            <div
               key={i}
-              onClick={() => setCurrent(i)}
               className={cn(
-                "h-2 rounded-full transition-all cursor-pointer",
-                i === current ? "bg-white w-5" : "bg-white/50 w-2 hover:bg-white/75"
+                "h-2 rounded-full transition-all",
+                i === current ? "bg-white w-5" : "bg-white/50 w-2"
               )}
-              aria-label={`Go to slide ${i + 1}`}
             />
           ))}
         </div>

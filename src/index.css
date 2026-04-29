@@ -34,7 +34,7 @@ body {
   overflow-x: hidden;
 }
 
-/* Mobile-safe scrolling */
+/* Scrollbar hide - only when explicitly needed */
 @layer utilities {
   .overflow-x-hidden {
     overflow-x: hidden !important;
@@ -48,26 +48,11 @@ body {
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
-  
-  .scrollbar-hide::-webkit-scrollbar-track {
-    display: none;
-  }
-  
-  .scrollbar-hide::-webkit-scrollbar-thumb {
-    display: none;
-  }
 }
 
-/* Global scrollbar hide - hide all scrollbars */
-*::-webkit-scrollbar {
-  width: 0 !important;
-  height: 0 !important;
-  display: none !important;
-}
-
-* {
-  scrollbar-width: none !important;
-  -ms-overflow-style: none !important;
+/* Allow normal scrolling - hide only ugly custom scrollbars */
+html {
+  scrollbar-width: normal;
 }
 
 @layer base {

@@ -153,7 +153,7 @@ export const Navbar = () => {
                 className="p-2 sm:p-2.5 rounded-full hover:bg-gray-100"
                 aria-label="Search"
               >
-                <Search className="h-4 sm:h-5 w-4 sm:w-5 text-gray-700" />
+                <Search className="h-5 sm:h-6 w-5 sm:w-6 text-gray-900" />
               </button>
             )}
           </div>
@@ -161,21 +161,21 @@ export const Navbar = () => {
           {/* Cart */}
           <CartDrawer>
             <button className="relative p-2 sm:p-2.5 rounded-full hover:bg-gray-100" aria-label="Open cart">
-              <ShoppingBag className="h-4 sm:h-5 w-4 sm:w-5 text-gray-700" />
+              <ShoppingBag className="h-5 sm:h-6 w-5 sm:w-6 text-gray-900" />
               {count > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 h-4 sm:h-5 min-w-4 sm:min-w-5 px-0.5 sm:px-1 rounded-full bg-orange-500 text-white text-[9px] sm:text-[10px] font-bold flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 h-5 sm:h-5 min-w-5 px-1 rounded-full bg-orange-500 text-white text-[10px] sm:text-[11px] font-bold flex items-center justify-center">
                   {count}
                 </span>
               )}
             </button>
           </CartDrawer>
 
-          {/* User Menu - icon only on mobile */}
+{/* User Menu - icon only on mobile */}
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="p-2 sm:p-2.5 rounded-full hover:bg-gray-100" aria-label="Account">
-                  <User className="h-4 sm:h-5 w-4 sm:w-5 text-gray-700" />
+                  <User className="h-5 sm:h-6 w-5 sm:w-6 text-gray-900" />
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
@@ -194,7 +194,7 @@ export const Navbar = () => {
             onClick={() => setOpen((o) => !o)}
             aria-label="Toggle menu"
           >
-            {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>
         </div>
       </nav>

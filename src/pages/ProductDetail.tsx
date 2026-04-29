@@ -21,14 +21,14 @@ const ProductDetail = () => {
   const [qty, setQty] = useState(1);
   const [selectedType, setSelectedType] = useState(product?.types[0]?.id || "");
   const [selectedImage, setSelectedImage] = useState(0);
-  const [isWishlisted, setIsWishlisted] = useState(() => {
+  const [wishlistItems, setWishlistItems] = useState<string[]>(() => {
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem("powerpod_wishlist");
-      const list = saved ? JSON.parse(saved) : [];
-      return list.includes(id);
+      return saved ? JSON.parse(saved) : [];
     }
-    return false;
+    return [];
   });
+  const isWishlisted = wishlistItems.includes(id);
   const [showShareModal, setShowShareModal] = useState(false);
   const [reviews, setReviews] = useState<{rating: number; review_text: string; customer_name: string; created_at: string}[]>([]);
   const [reviewsLoading, setReviewsLoading] = useState(true);
@@ -37,20 +37,12 @@ const ProductDetail = () => {
   const [userName, setUserName] = useState("");
   const [userReview, setUserReview] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [viewingCount] = useState(Math.floor(Math.random() * 20) + 5);
+  const [compareList, setCompareList] = useState<string[]>([]);
   
   const galleryImages = product.gallery_images && product.gallery_images.length > 0 
     ? [product.image, ...product.gallery_images]
     : [product.image];
   const selectedImageSrc = galleryImages[selectedImage] || product.image;
-  const [compareList, setCompareList] = useState<string[]>([]);
-  const [wishlistItems, setWishlistItems] = useState<string[]>(() => {
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("powerpod_wishlist");
-      return saved ? JSON.parse(saved) : [];
-    }
-    return [];
-  });
 
   useEffect(() => {
     if (product?.types?.length > 0) {

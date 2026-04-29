@@ -34,7 +34,7 @@ export const CartDrawer = ({ children }: { children: React.ReactNode }) => {
           </div>
         ) : (
           <>
-            <div className="flex-1 overflow-y-auto -mx-4 sm:-mx-6 px-4 sm:px-6 py-4 space-y-3">
+            <div className="flex-1 -mx-4 sm:-mx-6 px-4 sm:px-6 py-4 space-y-3">
               {items.map((i) => (
                 <div key={i.productKey} className="flex gap-3 p-3 bg-secondary/10 rounded-xl">
                   <div className="h-16 w-16 rounded-lg overflow-hidden shrink-0">

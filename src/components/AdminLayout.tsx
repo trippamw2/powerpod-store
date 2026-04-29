@@ -67,7 +67,7 @@ export const AdminLayout = () => {
             <p className="text-xs text-gray-400 mt-1">Admin Panel</p>
           </div>
 
-          <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+          <nav className="flex-1 p-4 space-y-1">
             {adminLinks.map((link) => {
               const isActive = location.pathname === link.to ||
                 (link.to !== "/admin" && location.pathname.startsWith(link.to));

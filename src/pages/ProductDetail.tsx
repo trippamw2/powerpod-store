@@ -81,22 +81,43 @@ const ProductDetail = () => {
   const reviewCount = reviews.length;
 
   const submitReview = async () => {
-    if (!userRating || !userName.trim() || !id) return;
+    if (!id) {
+      toast({ title: "Error", description: "Product not found", variant: "destructive" });
+      return;
+    }
+    if (!userName.trim()) {
+      toast({ title: "Error", description: "Please enter your name", variant: "destructive" });
+      return;
+    }
+    if (!userRating) {
+      toast({ title: "Error", description: "Please select a rating", variant: "destructive" });
+      return;
+    }
     setSubmitting(true);
     try {
-      await supabase.from("product_reviews").insert({
+      const { data, error } = await supabase.from("product_reviews").insert({
         product_id: id,
         rating: userRating,
         customer_name: userName.trim(),
         review_text: userReview.trim() || null,
         is_active: true,
-      });
+      }).select();
+      
+      if (error) {
+        console.error("Review insert error:", error);
+        toast({ title: "Error", description: error.message || "Could not submit review", variant: "destructive" });
+        setSubmitting(false);
+        return;
+      }
+      
+      console.log("Review submitted:", data);
       toast({ title: "Review submitted!", description: "Thank you for your feedback" });
       setUserRating(0);
       setUserName("");
       setUserReview("");
       fetchReviews();
     } catch (err) {
+      console.error("Review submit error:", err);
       toast({ title: "Error", description: "Could not submit review", variant: "destructive" });
     } finally {
       setSubmitting(false);
@@ -188,12 +209,12 @@ const ProductDetail = () => {
         {/* Image Gallery */}
         <div className="space-y-4">
           <motion.div 
-            className="relative rounded-3xl overflow-hidden bg-gray-100 border border-border/60 aspect-square"
+            className="relative rounded-3xl overflow-hidden bg-gray-100 border border-border/60 aspect-[4/5] sm:aspect-square"
           >
             <img 
               src={product.image} 
               alt={product.name} 
-              className="w-full h-full object-cover"
+              className="w-full h-full object-contain sm:object-cover"
             />
             {/* Quick Actions */}
             <div className="absolute top-4 right-4 flex gap-2">

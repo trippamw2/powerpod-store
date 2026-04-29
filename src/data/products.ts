@@ -29,6 +29,7 @@ export interface Product {
   gallery_images?: string[];
   specs?: Record<string, string>;
   reward_points?: number;
+  rating?: number;
 }
 
 export const BRANDS = [

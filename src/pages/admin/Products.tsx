@@ -149,14 +149,24 @@ const AdminProducts = () => {
       if (editingProduct) {
         await supabase.from("products").update(productData).eq("id", editingProduct.id);
         
-        await supabase.from("product_types").delete().eq("product_id", editingProduct.id);
+        // Delete old types
+        const { error: deleteError } = await supabase.from("product_types").delete().eq("product_id", editingProduct.id);
+        if (deleteError) {
+          toast({ title: "Error updating types", variant: "destructive" });
+          return;
+        }
         
+        // Insert new types
         for (let i = 0; i < formData.types.length; i++) {
-          await supabase.from("product_types").insert({
+          const { error: insertError } = await supabase.from("product_types").insert({
             product_id: editingProduct.id,
             name: formData.types[i].name,
             sort_order: i,
           });
+          if (insertError) {
+            toast({ title: "Error saving types", description: insertError.message, variant: "destructive" });
+            return;
+          }
         }
         
         toast({ title: "Product updated!" });

@@ -82,6 +82,7 @@ export function useProducts() {
             gallery_images: p.gallery_images || [],
             specs: p.specs || {},
             reward_points: p.reward_points || Math.round(p.price / 100),
+            rating: p.rating || 0,
           };
         });
         setProducts(mappedProducts);

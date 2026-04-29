@@ -18,10 +18,11 @@ export const ProductCard = ({ product, index = 0 }: ProductCardProps) => {
   const [isWishlisted, setIsWishlisted] = useState(false);
   
   // Get sale/discount from product data (admin controlled)
-  const isOnSale = (product as any).is_on_sale || false;
-  const discountPercent = (product as any).discount_percent || 0;
-  const isBestSeller = (product as any).is_best_seller || false;
-  const isFeatured = (product as any).is_featured || false;
+  const isOnSale = product.is_on_sale || false;
+  const discountPercent = product.discount_percent || 0;
+  const isBestSeller = product.is_best_seller || false;
+  const isFeatured = product.is_featured || false;
+  const rating = product.rating || 0;
 
   const handleAdd = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -133,14 +134,14 @@ export const ProductCard = ({ product, index = 0 }: ProductCardProps) => {
             <h3 className="font-semibold text-gray-900 text-sm sm:text-base line-clamp-2 leading-tight">{product.name}</h3>
             
             {/* Rating Display - show if product has rating */}
-            {(product as any).rating && (
+            {rating > 0 && (
               <div className="flex items-center gap-1 mt-1">
                 <div className="flex">
                   {[1, 2, 3, 4, 5].map((star) => (
                     <Star
                       key={star}
                       className={`h-2.5 w-2.5 ${
-                        star <= (product as any).rating ? "fill-yellow-400 text-yellow-400" : "fill-gray-200 text-gray-200"
+                        star <= rating ? "fill-yellow-400 text-yellow-400" : "fill-gray-200 text-gray-200"
                       }`}
                     />
                   ))}

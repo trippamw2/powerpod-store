@@ -3,7 +3,7 @@ export interface Promotion {
   title: string;
   subtitle: string;
   description?: string;
-  image: string;
+  image?: string;
   images?: string[];
   link: string;
   link_text: string;
@@ -12,6 +12,6 @@ export interface Promotion {
   is_active: boolean;
   is_featured: boolean;
   sort_order: number;
-  pages: string[];
+  pages?: string[];
   created_at: string;
 }

@@ -19,13 +19,14 @@ export const PromotionSlider = ({ page, className }: PromotionSliderProps) => {
       try {
         const { data, error } = await supabase
           .from("promotions")
-          .select("*")
+          .select("id,title,subtitle,image,link,link_text,background_color,text_color")
           .eq("is_active", true)
-          .contains("pages", [page])
-          .order("sort_order", { ascending: true });
+          .order("sort_order", { ascending: true })
+          .limit(5);
 
-        if (!error && data && data.length > 0) {
-          setPromotions(data);
+        if (!error && data) {
+          const filtered = data.filter(p => p.pages?.includes(page));
+          setPromotions(filtered);
         }
       } catch (err) {
         console.error("Failed to fetch promotions:", err);
@@ -44,7 +45,7 @@ export const PromotionSlider = ({ page, className }: PromotionSliderProps) => {
     return () => clearInterval(timer);
   }, [promotions.length]);
 
-  if (loading || promotions.length === 0) {
+  if (loading) {
     return (
       <div className={cn("relative rounded-xl overflow-hidden h-40 sm:h-48 md:h-56 lg:h-64 bg-gradient-to-r from-orange-500 to-orange-600", className)}>
         <div className="flex items-center justify-center h-full">
@@ -54,11 +55,12 @@ export const PromotionSlider = ({ page, className }: PromotionSliderProps) => {
     );
   }
 
+  if (promotions.length === 0) {
+    return null;
+  }
+
   const promotion = promotions[current];
-  const sliderImages = promotion.images && promotion.images.length > 0 
-    ? promotion.images 
-    : promotion.image ? [promotion.image] : [];
-  const activeImage = sliderImages[0];
+  const activeImage = promotion.image;
 
   if (!activeImage) {
     return (

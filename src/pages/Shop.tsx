@@ -97,47 +97,47 @@ const Shop = () => {
   }
 
   return (
-    <div className="container py-8 sm:py-12">
-      <div className="mb-6">
+    <div className="container py-4 sm:py-8 md:py-12">
+      <div className="mb-4 sm:mb-6">
         <PromotionSlider page="shop" className="shadow-lg" />
       </div>
 
-      <div className="max-w-2xl space-y-3 mb-8">
-        <h1 className="font-display font-bold text-3xl sm:text-4xl tracking-tight">Shop</h1>
-        <p className="text-gray-500 text-base sm:text-lg">Power and sound for your everyday.</p>
+      <div className="max-w-2xl space-y-2 sm:space-y-3 mb-4 sm:mb-8">
+        <h1 className="font-display font-bold text-2xl sm:text-3xl lg:text-4xl tracking-tight">Shop</h1>
+        <p className="text-gray-500 text-sm sm:text-base">Power and sound for your everyday.</p>
       </div>
 
       {/* Search & Sort Bar */}
-      <div className="flex flex-col md:flex-row gap-4 mb-6">
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+      <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 mb-4 sm:mb-6">
+        <div className="relative flex-1 max-w-sm sm:max-w-md">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 sm:h-5 w-4 sm:w-5 text-muted-foreground" />
           <Input
-            placeholder="Search products..."
+            placeholder="Search..."
             value={searchQuery}
             onChange={(e) => {
                   setSearchQuery(e.target.value);
                   setVisibleCount(PRODUCTS_PER_PAGE);
                 }}
-            className="pl-10"
+            className="pl-9 sm:pl-10 h-9 sm:h-10 text-sm"
           />
           {searchQuery && (
             <button onClick={() => setSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2">
-              <X className="h-4 w-4 text-muted-foreground hover:text-foreground" />
+              <X className="h-3.5 sm:h-4 w-3.5 sm:w-4 text-muted-foreground hover:text-foreground" />
             </button>
           )}
         </div>
 
-        <div className="flex items-center gap-2">
-          {/* Filter Toggle */}
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
+          {/* Filter Toggle - hidden on mobile, shows in drawer */}
           <Button
             variant={showFilters ? "default" : "outline"}
             onClick={() => setShowFilters(!showFilters)}
-            className="gap-2"
+            className="gap-1.5 sm:gap-2 text-sm h-9 sm:h-10 px-3 sm:px-4"
           >
-            <SlidersHorizontal className="h-4 w-4" />
-            Filters
+            <SlidersHorizontal className="h-3.5 sm:h-4 w-3.5 sm:w-4" />
+            <span className="hidden sm:inline">Filters</span>
             {selectedBrands.length > 0 && (
-              <span className="ml-1 px-1.5 py-0.5 bg-white text-gray-900 rounded-full text-xs">{selectedBrands.length}</span>
+              <span className="ml-0.5 sm:ml-1 px-1.5 py-0.5 bg-white text-gray-900 rounded-full text-xs">{selectedBrands.length}</span>
             )}
           </Button>
 
@@ -146,17 +146,17 @@ const Shop = () => {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as any)}
-              className="appearance-none pl-4 pr-10 py-2 rounded-full border border-gray-200 bg-white text-sm font-medium focus:outline-none focus:border-teal-500"
+              className="appearance-none pl-3 sm:px-4 pr-8 sm:pr-10 py-1.5 sm:py-2 rounded-full border border-gray-200 bg-white text-sm font-medium focus:outline-none focus:border-teal-500"
             >
               <option value="newest">Newest</option>
-              <option value="price-low">Price: Low to High</option>
-              <option value="price-high">Price: High to Low</option>
-              <option value="name">Name A-Z</option>
+              <option value="price-low">Price: Low</option>
+              <option value="price-high">Price: High</option>
+              <option value="name">Name</option>
             </select>
-            <ArrowUpDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+            <ArrowUpDown className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 h-3.5 sm:h-4 w-3.5 sm:w-4 text-gray-400 pointer-events-none" />
           </div>
 
-          {/* View Toggle */}
+          {/* View Toggle - hidden on mobile */}
           <div className="hidden md:flex border border-gray-200 rounded-full overflow-hidden">
             <button
               onClick={() => setViewMode("grid")}
@@ -287,12 +287,12 @@ const Shop = () => {
         Showing {visibleProducts.length} of {sorted.length} products
       </p>
 
-      {/* Products Grid */}
+      {/* Products Grid - minimal gaps on mobile */}
       {sorted.length > 0 ? (
         <>
           <div className={viewMode === "grid" 
-            ? "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-5" 
-            : "grid sm:grid-cols-2 lg:grid-cols-3 gap-4"
+            ? "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-3 md:gap-5" 
+            : "grid sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4"
           }>
             {visibleProducts.map((p, i) => (
               <ProductCard key={p.id} product={p} index={i} showBadge={i === 0 ? "hot" : i === 1 ? "new" : null} discount={i === 0 ? 15 : 0} />
@@ -300,23 +300,23 @@ const Shop = () => {
           </div>
           
           {hasMore && (
-            <div className="flex justify-center mt-10">
+            <div className="flex justify-center mt-6 sm:mt-10">
               <Button 
                 onClick={loadMore} 
                 variant="outline" 
-                size="lg"
-                className="px-8 border-orange-500 text-orange-500 hover:bg-orange-50"
+                size="sm"
+                className="px-6 sm:px-8 border-orange-500 text-orange-500 hover:bg-orange-50 text-sm"
               >
-                View More Products
-                <ChevronRight className="ml-2 h-4 w-4" />
+                Load More
+                <ChevronRight className="ml-1.5 sm:ml-2 h-3.5 sm:h-4 w-3.5 sm:w-4" />
               </Button>
             </div>
           )}
         </>
       ) : (
-        <div className="text-center py-20 space-y-4">
-          <p className="text-muted-foreground text-lg">No products found</p>
-          <button onClick={clearFilters} className="px-4 py-2 bg-orange-500 text-white rounded-full text-sm font-medium">
+        <div className="text-center py-12 sm:py-20 space-y-3 sm:space-y-4">
+          <p className="text-muted-foreground text-base sm:text-lg">No products found</p>
+          <button onClick={clearFilters} className="px-4 sm:px-6 py-2 sm:py-2.5 bg-orange-500 text-white rounded-full text-sm font-medium">
             Clear filters
           </button>
         </div>

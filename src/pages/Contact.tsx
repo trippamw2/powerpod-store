@@ -3,14 +3,14 @@ import { buildWhatsAppLink, defaultMessage } from "@/lib/whatsapp";
 import { MessageCircle, Phone, Mail, MapPin } from "lucide-react";
 
 const Contact = () => (
-  <div className="container py-12 sm:py-20">
-    <div className="max-w-2xl space-y-3 mb-12">
+  <div className="container py-6 sm:py-12 md:py-20">
+    <div className="max-w-2xl space-y-2 sm:space-y-3 mb-8 sm:mb-12">
       <p className="text-sm font-semibold text-gradient uppercase tracking-widest">Contact</p>
-      <h1 className="font-display font-bold text-4xl sm:text-6xl tracking-tight">Let's <span className="text-gradient">talk.</span></h1>
-      <p className="text-muted-foreground text-lg">The fastest way to reach us is WhatsApp. We reply quickly and ship faster.</p>
+      <h1 className="font-display font-bold text-2xl sm:text-4xl lg:text-6xl tracking-tight">Let's <span className="text-gradient">talk.</span></h1>
+      <p className="text-muted-foreground text-sm sm:text-base sm:text-lg">The fastest way to reach us is WhatsApp. We reply quickly and ship faster.</p>
     </div>
 
-    <div className="grid lg:grid-cols-2 gap-6">
+    <div className="grid sm:grid-cols-2 gap-4 sm:gap-6">
       <div className="rounded-3xl p-8 bg-gradient-brand text-white space-y-5 shadow-glow">
         <MessageCircle className="h-10 w-10" />
         <div>

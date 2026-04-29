@@ -102,13 +102,13 @@ export const Navbar = () => {
 
   return (
     <header className="sticky top-0 z-40 bg-white border-b border-gray-200">
-      {/* Promo Banner */}
-      <div className="hidden md:block bg-orange-500 text-white text-center py-1.5 text-sm">
+      {/* Promo Banner - hidden on mobile */}
+      <div className="hidden md:block bg-orange-500 text-white text-center py-1.5 text-xs sm:text-sm">
         {promoText}
       </div>
 
-      <nav className="container flex h-16 items-center justify-between gap-4">
-        <Logo className="h-12 md:h-14" />
+      <nav className="container flex h-14 sm:h-16 items-center justify-between gap-2 sm:gap-4 px-2 sm:px-4">
+        <Logo className="h-9 sm:h-10 md:h-12" />
 
         <div className="hidden lg:flex items-center gap-1">
           {links.map((l) => (
@@ -136,7 +136,7 @@ export const Navbar = () => {
           </button>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 sm:gap-2">
           {/* Search */}
           <div ref={searchRef} className="relative">
             {searchOpen ? (
@@ -145,8 +145,8 @@ export const Navbar = () => {
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search products..."
-                  className="w-40 md:w-64 px-4 py-2 rounded-full border border-gray-200 focus:outline-none focus:border-orange-500 text-sm"
+                  placeholder="Search..."
+                  className="w-32 sm:w-40 md:w-64 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full border border-gray-200 focus:outline-none focus:border-orange-500 text-sm"
                   autoFocus
                 />
                 <button type="button" onClick={() => setSearchOpen(false)} className="absolute right-3">
@@ -156,32 +156,32 @@ export const Navbar = () => {
             ) : (
               <button
                 onClick={() => setSearchOpen(true)}
-                className="p-2.5 rounded-full hover:bg-gray-100"
+                className="p-2 sm:p-2.5 rounded-full hover:bg-gray-100"
                 aria-label="Search"
               >
-                <Search className="h-5 w-5 text-gray-700" />
+                <Search className="h-4 sm:h-5 w-4 sm:w-5 text-gray-700" />
               </button>
             )}
           </div>
 
           {/* Cart */}
           <CartDrawer>
-            <button className="relative p-2.5 rounded-full hover:bg-gray-100" aria-label="Open cart">
-              <ShoppingBag className="h-5 w-5 text-gray-700" />
+            <button className="relative p-2 sm:p-2.5 rounded-full hover:bg-gray-100" aria-label="Open cart">
+              <ShoppingBag className="h-4 sm:h-5 w-4 sm:w-5 text-gray-700" />
               {count > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 h-5 min-w-5 px-1 rounded-full bg-orange-500 text-white text-[10px] font-bold flex items-center justify-center">
+                <span className="absolute -top-0.5 -right-0.5 h-4 sm:h-5 min-w-4 sm:min-w-5 px-0.5 sm:px-1 rounded-full bg-orange-500 text-white text-[9px] sm:text-[10px] font-bold flex items-center justify-center">
                   {count}
                 </span>
               )}
             </button>
           </CartDrawer>
 
-          {/* User Menu */}
+          {/* User Menu - icon only on mobile */}
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="p-2.5 rounded-full hover:bg-gray-100" aria-label="Account">
-                  <User className="h-5 w-5 text-gray-700" />
+                <button className="p-2 sm:p-2.5 rounded-full hover:bg-gray-100" aria-label="Account">
+                  <User className="h-4 sm:h-5 w-4 sm:w-5 text-gray-700" />
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
@@ -194,7 +194,7 @@ export const Navbar = () => {
             <Link to="/auth" className="hidden sm:inline-flex px-4 py-2 rounded-full text-sm font-medium hover:bg-gray-50 text-gray-700">Sign in</Link>
           )}
 
-          {/* Mobile Menu */}
+          {/* Mobile Menu Toggle */}
           <button
             className="lg:hidden p-2 rounded-full hover:bg-gray-100"
             onClick={() => setOpen((o) => !o)}

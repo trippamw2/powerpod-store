@@ -72,56 +72,56 @@ const Home = () => {
         </div>
       </div>
 
-      <section className="container pt-4">
+      <section className="container pt-3 sm:pt-4">
         <PromotionSlider page="home" />
       </section>
 
       <section className="relative overflow-hidden">
-        <div className="container relative grid lg:grid-cols-2 gap-8 items-center py-10 lg:py-16">
+        <div className="container relative grid lg:grid-cols-2 gap-6 sm:gap-8 items-center py-6 sm:py-10 lg:py-16">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="space-y-5"
+            className="space-y-4 sm:space-y-5"
           >
-            {/* Countdown Timer */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-red-50 rounded-full">
-              <Clock className="h-4 w-4 text-red-500" />
-              <span className="text-sm font-medium text-red-600">Ends at midnight</span>
-              <div className="flex gap-1">
+            {/* Countdown Timer - compact on mobile */}
+            <div className="inline-flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-1.5 sm:py-2 bg-red-50 rounded-full">
+              <Clock className="h-3 sm:h-4 w-3 sm:w-4 text-red-500" />
+              <span className="text-xs sm:text-sm font-medium text-red-600 hidden sm:inline">Ends at midnight</span>
+              <div className="flex gap-0.5 sm:gap-1">
                 {Object.entries(countdown).map(([unit, value]) => (
-                  <span key={unit} className="px-2 py-1 bg-red-500 text-white text-sm font-bold rounded">
+                  <span key={unit} className="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-red-500 text-white text-xs sm:text-sm font-bold rounded">
                     {String(value).padStart(2, "0")}
                   </span>
                 ))}
               </div>
             </div>
 
-            <h1 className="font-display font-extrabold text-4xl sm:text-5xl lg:text-6xl leading-tight">
+            <h1 className="font-display font-extrabold text-2xl sm:text-4xl lg:text-6xl leading-tight">
               Keep the<br />
               <span className="text-gradient">Vibe Alive.</span>
             </h1>
-            <p className="text-muted-foreground text-base sm:text-lg max-w-md">
-              Power and sound for your everyday. From campus to the party, never miss a moment.
+            <p className="text-muted-foreground text-sm sm:text-base max-w-md">
+              Power and sound for your everyday.
             </p>
-            <div className="flex flex-col sm:flex-row gap-3">
-              <Button asChild variant="hero" size="lg">
-                <Link to="/shop">Shop Now <ArrowRight className="h-4 w-4" /></Link>
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+              <Button asChild variant="hero" size="sm" className="text-sm">
+                <Link to="/shop">Shop Now <ArrowRight className="h-3.5 sm:h-4 w-3.5 sm:w-4" /></Link>
               </Button>
-              <Button asChild size="lg" className="bg-gray-900 hover:bg-gray-800">
-                <Link to="/contact">Contact Us</Link>
+              <Button asChild size="sm" className="bg-gray-900 hover:bg-gray-800 text-sm">
+                <Link to="/contact">Contact</Link>
               </Button>
             </div>
             
-            {/* Social Proof */}
-            <div className="flex items-center gap-4 pt-2">
-              <div className="flex -space-x-2">
+            {/* Social Proof - minimal on mobile */}
+            <div className="flex items-center gap-2 sm:gap-4 pt-1 sm:pt-2">
+              <div className="flex -space-x-1.5 sm:-space-x-2">
                 {[1,2,3,4].map((i) => (
-                  <div key={i} className="w-8 h-8 rounded-full bg-gray-200 border-2 border-white" />
+                  <div key={i} className="w-6 sm:w-8 h-6 sm:h-8 rounded-full bg-gray-200 border-2 border-white" />
                 ))}
               </div>
-              <div className="text-sm">
-                <span className="font-semibold">2,500+</span> happy customers
+              <div className="text-xs sm:text-sm">
+                <span className="font-semibold">2,500+</span> customers
               </div>
             </div>
           </motion.div>

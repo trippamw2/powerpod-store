@@ -1,5 +1,3 @@
-import { formatMWK } from "@/data/products";
-
 const PAYCHANGU_PUBLIC_KEY = import.meta.env.VITE_PAYCHANGU_PUBLIC_KEY;
 const PAYCHANGU_SECRET_KEY = import.meta.env.VITE_PAYCHANGU_SECRET_KEY;
 
@@ -65,30 +63,6 @@ export const createPayChanguPayment = async (params: PayChanguPaymentParams): Pr
     console.error("PayChangu error:", error);
     throw error;
   }
-};
-
-export const formatPayChanguAmount = (amount: number): string => {
-  return amount.toString();
-};
-
-export const getPayChanguPaymentLink = async (orderId: string, amount: number, customerName: string, customerEmail: string): Promise<string> => {
-  const baseUrl = window.location.origin;
-  
-  const params: PayChanguPaymentParams = {
-    amount: amount,
-    currency: "MWK",
-    email: customerEmail,
-    firstName: customerName.split(" ")[0] || customerName,
-    lastName: customerName.split(" ").slice(1).join(" ") || "",
-    txRef: `PP-${orderId.slice(0, 8).toUpperCase()}`,
-    callbackUrl: `${baseUrl}/api/payment/callback?orderId=${orderId}`,
-    returnUrl: `${baseUrl}/orders/${orderId}?payment=complete`,
-    title: "PowerPod Order Payment",
-    description: `Order #${orderId.slice(0, 8).toUpperCase()}`,
-  };
-
-  const payment = await createPayChanguPayment(params);
-  return payment.link;
 };
 
 export const PAYCHANGU_CONFIG = {

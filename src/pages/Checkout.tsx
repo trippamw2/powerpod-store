@@ -108,7 +108,7 @@ const Checkout = () => {
     try {
       // Create order
       const { data: order, error } = await supabase.from("orders").insert({
-        customer_id: user?.id,
+        user_id: user?.id,
         customer_name: formData.name,
         customer_phone: formData.phone,
         customer_location: formData.location,
@@ -149,33 +149,43 @@ const Checkout = () => {
 
       // Payment flow
       if (paymentMethod === "offline") {
+        const whatsAppMessage = `Hello PowerPod! I want to pay for my order #${orderId.slice(0, 8).toUpperCase()} (${formatMWK(total)}). Please send payment details.`;
+        const whatsAppLink = `https://wa.me/265884400000?text=${encodeURIComponent(whatsAppMessage)}`;
         clear();
+        window.open(whatsAppLink, "_blank");
         navigate(`/orders/${orderId}?payment=pending`);
-        toast({ title: "Order placed!", description: "Complete payment via bank transfer" });
+        toast({ title: "Order placed!", description: "Check WhatsApp for payment details" });
         return;
       }
 
       // PayChangu
-      const { createPayChanguPayment } = await import("@/lib/paychangu");
-      const payment = await createPayChanguPayment({
-        amount: total,
-        currency: "MWK",
-        email: `${formData.phone.replace(/[^0-9]/g, "")}@powerpod.mw`,
-        firstName: formData.name.split(" ")[0],
-        lastName: formData.name.split(" ").slice(1).join(" ") || "",
-        txRef: `PP-${orderId.slice(0, 8).toUpperCase()}`,
-        callbackUrl: `${window.location.origin}/api/payment/callback?orderId=${orderId}`,
-        returnUrl: `${window.location.origin}/orders/${orderId}?payment=complete`,
-        title: "PowerPod Order",
-        description: `Order #${orderId.slice(0, 8).toUpperCase()}`,
-      });
+      try {
+        const { createPayChanguPayment } = await import("@/lib/paychangu");
+        const payment = await createPayChanguPayment({
+          amount: total,
+          currency: "MWK",
+          email: `${formData.phone.replace(/[^0-9]/g, "")}@powerpod.mw`,
+          firstName: formData.name.split(" ")[0],
+          lastName: formData.name.split(" ").slice(1).join(" ") || "",
+          txRef: `PP-${orderId.slice(0, 8).toUpperCase()}`,
+          callbackUrl: `${window.location.origin}/api/payment/callback?orderId=${orderId}`,
+          returnUrl: `${window.location.origin}/orders/${orderId}?payment=complete`,
+          title: "PowerPod Order",
+          description: `Order #${orderId.slice(0, 8).toUpperCase()}`,
+        });
 
-      if (payment.link) {
-        window.location.replace(payment.link);
-      } else {
+        if (payment.link) {
+          window.location.replace(payment.link);
+        } else {
+          toast({ title: "Order placed! We'll contact you for payment." });
+          clear();
+          navigate(`/orders/${orderId}`);
+        }
+      } catch (payError: any) {
+        console.error("PayChangu error:", payError);
+        toast({ title: "Payment issue", description: "We'll call you for payment details." });
         clear();
-        navigate(`/orders/${orderId}`);
-        toast({ title: "Order placed!" });
+        navigate(`/orders/${orderId}?payment=pending`);
       }
     } catch (err: any) {
       toast({ title: "Error", description: err.message, variant: "destructive" });
@@ -276,41 +286,49 @@ const Checkout = () => {
         {/* Payment */}
         <div className="bg-gray-50 rounded-xl p-4 sm:p-5">
           <h2 className="font-semibold mb-3 flex items-center gap-2">
-            <CreditCard className="h-4 w-4 text-green-500" /> Payment
+            <CreditCard className="h-4 w-4 text-green-500" /> Payment Method
           </h2>
           <div className="space-y-3">
             <button
               type="button"
               onClick={() => setPaymentMethod("paychangu")}
-              className={`w-full py-3 px-4 rounded-lg border flex items-center gap-3 ${
+              className={`w-full py-4 px-4 rounded-xl border-2 flex items-center gap-3 transition-all ${
                 paymentMethod === "paychangu"
-                  ? "border-orange-500 bg-orange-50"
-                  : "bg-white border-gray-200"
+                  ? "border-orange-500 bg-orange-50 shadow-sm"
+                  : "bg-white border-gray-200 hover:border-gray-300"
               }`}
             >
-              <div className="h-10 w-10 rounded-lg bg-green-500 flex items-center justify-center">
-                <CreditCard className="h-5 w-5 text-white" />
+              <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center shadow-sm">
+                <CreditCard className="h-6 w-6 text-white" />
               </div>
-              <div className="text-left">
-                <p className="font-medium">Pay Online</p>
-                <p className="text-xs text-gray-500">Airtel Money, TNM Mpamba, Visa</p>
+              <div className="text-left flex-1">
+                <p className="font-semibold">Pay Online</p>
+                <p className="text-xs text-gray-500">Airtel Money • TNM Mpamba • Cards</p>
+              </div>
+              <div className={`h-5 w-5 rounded-full border-2 ${paymentMethod === "paychangu" ? "bg-orange-500 border-orange-500" : "border-gray-300"}`}>
+                {paymentMethod === "paychangu" && <Check className="h-4 w-4 text-white" />}
               </div>
             </button>
             <button
               type="button"
               onClick={() => setPaymentMethod("offline")}
-              className={`w-full py-3 px-4 rounded-lg border flex items-center gap-3 ${
+              className={`w-full py-4 px-4 rounded-xl border-2 flex items-center gap-3 transition-all ${
                 paymentMethod === "offline"
-                  ? "border-orange-500 bg-orange-50"
-                  : "bg-white border-gray-200"
+                  ? "border-orange-500 bg-orange-50 shadow-sm"
+                  : "bg-white border-gray-200 hover:border-gray-300"
               }`}
             >
-              <div className="h-10 w-10 rounded-lg bg-blue-500 flex items-center justify-center">
-                <CreditCard className="h-5 w-5 text-white" />
+              <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-sm">
+                <svg viewBox="0 0 24 24" className="h-6 w-6 text-white" fill="currentColor">
+                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.198-.347.223-.644.075-.297-.15-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.149-.15.347-.347.52-.521.151-.174.198-.298.297-.496.149-.198.074-.347-.05-.486-.124-.149-.297-.347-.446-.521-.149-.174-.297-.297-.495-.297h-.45c.262 0 .521-.074.643.371.149.372.52 1.22.567 1.387.074.15.223.174.446.074.223-.074.52-.148.767-.297.272-.174.442-.273.589-.347.272-.149.521-.124.714.124.173.223.52.595.698.795.173.174.347.223.496.149.173-.074.348-.124.595-.372.272-.272.395-.52.52-.795.074-.174.074-.348.025-.521-.074-.173-.149-.297-.272-.397h-.396c.223 0 .521.025.768.372zM2.58 2.205c.521-.644.944-.396 1.598-.099.654.297 1.095.694 1.318 1.006.223.312.124.669-.074 1.006-.173.312-.521 1.006-.595 1.083-.074.074-.223.124-.372.025-.149-.099-.521-.347-1.006-.669-.471-.321-1.006-.595-1.44-.669-.421-.074-.919-.025-1.318.223-.421.272-.595.595-.669.743-.074.149-.025.223.124.347.149.124.347.347.521.521.173.173.347.223.496.347.173.124.272.223.371.372.124.149.149.272.049.446-.074.173-.347.595-.595.92-.248.322-.471.546-.595.645-.124.099-.272.074-.371-.025-.099-.099-.521-.595-.768-1.006-.248-.421-.347-.595-.496-.744-.149-.149-.272-.272-.372-.297-.099-.025-.198-.025-.297.025-.099.049-.272.124-.495.297z"/>
+                </svg>
               </div>
-              <div className="text-left">
-                <p className="font-medium">Bank Transfer</p>
-                <p className="text-xs text-gray-500">Pay via offline bank transfer</p>
+              <div className="text-left flex-1">
+                <p className="font-semibold">WhatsApp Payment</p>
+                <p className="text-xs text-gray-500">We'll send details on WhatsApp</p>
+              </div>
+              <div className={`h-5 w-5 rounded-full border-2 ${paymentMethod === "offline" ? "bg-orange-500 border-orange-500" : "border-gray-300"}`}>
+                {paymentMethod === "offline" && <Check className="h-4 w-4 text-white" />}
               </div>
             </button>
           </div>

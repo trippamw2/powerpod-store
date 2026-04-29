@@ -185,46 +185,45 @@ const Loyalty = () => {
 
       {/* Referral Program */}
       <h2 className="font-display font-bold text-lg sm:text-xl mb-3 sm:mb-4 flex items-center gap-2">
-        <Users className="h-5 w-5 text-orange-500" /> Refer Friends
+        <Users className="h-5 w-5 text-orange-500" /> Refer Friends & Earn
       </h2>
-      <div className="rounded-xl border-2 border-orange-100 bg-orange-50/50 p-4 sm:p-6 mb-6">
-        <div className="flex flex-col sm:flex-row gap-4">
+      <div className="rounded-2xl border-2 border-orange-200 bg-gradient-to-br from-orange-50 to-white p-4 sm:p-6 mb-6">
+        <div className="flex flex-col sm:flex-row gap-4 sm:items-start">
           <div className="flex-1">
-            <p className="text-sm text-muted-foreground mb-2">Share your code and earn rewards!</p>
+            <p className="text-sm text-muted-foreground mb-3">Share your code and earn 500 points for each friend who signs up!</p>
             {referralCode ? (
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <div className="flex items-center gap-2">
-                  <code className="flex-1 bg-white border border-gray-200 rounded-lg px-4 py-3 font-mono text-lg font-bold text-orange-600">
+                  <code className="flex-1 bg-white border-2 border-orange-300 rounded-xl px-4 py-4 font-mono text-xl font-bold text-orange-600 text-center">
                     {referralCode.code}
                   </code>
-                  <Button size="icon" variant="outline" onClick={copyCode} className="h-12 w-12">
-                    {copied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
+                  <Button size="icon" variant="outline" onClick={copyCode} className="h-14 w-14 border-orange-200 hover:bg-orange-50">
+                    {copied ? <Check className="h-5 w-5 text-green-500" /> : <Copy className="h-5 w-5" />}
                   </Button>
                 </div>
                 <div className="flex gap-2">
-                  <Button onClick={shareReferral} variant="hero" size="sm" className="flex-1">
-                    <Share2 className="h-4 w-4 mr-2" /> Share
+                  <Button onClick={shareReferral} variant="hero" className="flex-1 text-base py-3">
+                    <Share2 className="h-5 w-5 mr-2" /> Share Link
                   </Button>
                 </div>
+                <p className="text-xs text-center text-muted-foreground">
+                  Your friend gets K200 off • You earn 500 pts
+                </p>
               </div>
             ) : (
-              <div className="animate-pulse bg-gray-200 rounded-lg h-12 w-32" />
+              <div className="animate-pulse bg-gray-200 rounded-xl h-20" />
             )}
           </div>
-          <div className="sm:w-32 flex flex-row sm:flex-col gap-3">
-            <div className="flex-1 bg-white rounded-lg p-3 text-center">
-              <p className="text-2xl font-bold text-orange-600">{stats.totalReferrals}</p>
-              <p className="text-xs text-muted-foreground">Referrals</p>
+          <div className="flex sm:flex-col gap-3">
+            <div className="bg-white rounded-xl p-4 text-center min-w-[80px]">
+              <p className="text-3xl font-bold text-orange-600">{stats.totalReferrals}</p>
+              <p className="text-xs font-medium text-muted-foreground">Friends</p>
             </div>
-            <div className="flex-1 bg-white rounded-lg p-3 text-center">
-              <p className="text-2xl font-bold text-green-600">{stats.totalEarned}</p>
-              <p className="text-xs text-muted-foreground">Earned</p>
+            <div className="bg-white rounded-xl p-4 text-center min-w-[80px]">
+              <p className="text-3xl font-bold text-green-600">{stats.totalEarned}</p>
+              <p className="text-xs font-medium text-muted-foreground">Points</p>
             </div>
           </div>
-        </div>
-        <div className="mt-4 text-xs text-muted-foreground bg-white rounded-lg p-3">
-          <p><strong>Give K200</strong> to your friend • <strong>Earn K500</strong> for yourself</p>
-          <p className="mt-1">Your friend gets K200 off their first order!</p>
         </div>
       </div>
 

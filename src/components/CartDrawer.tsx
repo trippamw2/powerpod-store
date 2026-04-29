@@ -34,9 +34,9 @@ export const CartDrawer = ({ children }: { children: React.ReactNode }) => {
           </div>
         ) : (
           <>
-            <div className="flex-1 overflow-y-auto -mx-6 px-6 py-4 space-y-3">
+            <div className="flex-1 overflow-y-auto -mx-4 sm:-mx-6 px-4 sm:px-6 py-4 space-y-3">
               {items.map((i) => (
-                <div key={i.productKey} className="flex gap-3 p-2 bg-secondary/10 rounded-lg">
+                <div key={i.productKey} className="flex gap-3 p-3 bg-secondary/10 rounded-xl">
                   <div className="h-16 w-16 rounded-lg overflow-hidden shrink-0">
                     <img src={i.image} alt={i.name} className="h-full w-full object-cover" />
                   </div>
@@ -45,29 +45,30 @@ export const CartDrawer = ({ children }: { children: React.ReactNode }) => {
                       <p className="text-sm font-medium leading-tight">{i.name}</p>
                       <button
                         onClick={() => remove(i.productKey)}
-                        className="text-muted-foreground hover:text-destructive"
+                        className="p-1.5 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors"
+                        aria-label="Remove item"
                       >
-                        <Trash2 className="h-3 w-3" />
+                        <Trash2 className="h-4 w-4" />
                       </button>
                     </div>
                     <p className="text-xs text-muted-foreground">{formatMWK(i.price)}</p>
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1">
                         <button
                           onClick={() => setQuantity(i.productKey, i.quantity - 1)}
-                          className="p-1 rounded bg-secondary/50 hover:bg-secondary"
+                          className="h-8 w-8 rounded-lg bg-secondary/50 hover:bg-secondary flex items-center justify-center"
                         >
                           <Minus className="h-3 w-3" />
                         </button>
-                        <span className="w-6 text-center text-xs font-semibold">{i.quantity}</span>
+                        <span className="w-8 text-center text-sm font-semibold">{i.quantity}</span>
                         <button
                           onClick={() => setQuantity(i.productKey, i.quantity + 1)}
-                          className="p-1 rounded bg-secondary/50 hover:bg-secondary"
+                          className="h-8 w-8 rounded-lg bg-secondary/50 hover:bg-secondary flex items-center justify-center"
                         >
                           <Plus className="h-3 w-3" />
                         </button>
                       </div>
-                      <p className="text-sm font-semibold">{formatMWK(i.price * i.quantity)}</p>
+                      <p className="text-sm font-bold">{formatMWK(i.price * i.quantity)}</p>
                     </div>
                   </div>
                 </div>

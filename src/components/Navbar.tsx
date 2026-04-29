@@ -26,18 +26,19 @@ const links = [
   { to: "/contact", label: "Contact" },
 ];
 
+// Categories available in Shop page via filters
 const categories = [
   { 
     id: "power", 
     label: "Power", 
     icon: Zap,
     items: [
-      { label: "Power Banks", to: "/shop?cat=power-banks", count: 12 },
-      { label: "Fast Chargers", to: "/shop?cat=power-wired", count: 8 },
-      { label: "Wireless Chargers", to: "/shop?cat=power-wireless", count: 5 },
-      { label: "Adapters", to: "/shop?cat=power-adapters", count: 4 },
-      { label: "Car Chargers", to: "/shop?cat=car-chargers", count: 3 },
-      { label: "Cables", to: "/shop?cat=cables", count: 15 },
+      { label: "Power Banks", to: "/shop?cat=power-banks" },
+      { label: "Fast Chargers", to: "/shop?cat=power-wired" },
+      { label: "Wireless Chargers", to: "/shop?cat=power-wireless" },
+      { label: "Adapters", to: "/shop?cat=power-adapters" },
+      { label: "Car Chargers", to: "/shop?cat=car-chargers" },
+      { label: "Cables", to: "/shop?cat=cables" },
     ]
   },
   { 
@@ -45,10 +46,10 @@ const categories = [
     label: "Audio", 
     icon: Headphones,
     items: [
-      { label: "Earbuds", to: "/shop?cat=earbuds", count: 10 },
-      { label: "Headphones", to: "/shop?cat=headphones", count: 6 },
-      { label: "Speakers", to: "/shop?cat=speakers", count: 4 },
-      { label: "Headsets", to: "/shop?cat=headsets", count: 3 },
+      { label: "Earbuds", to: "/shop?cat=earbuds" },
+      { label: "Headphones", to: "/shop?cat=headphones" },
+      { label: "Speakers", to: "/shop?cat=speakers" },
+      { label: "Headsets", to: "/shop?cat=headsets" },
     ]
   },
 ];
@@ -127,14 +128,6 @@ export const Navbar = () => {
               {l.label}
             </NavLink>
           ))}
-          
-          {/* Mega Menu Trigger */}
-          <button
-            onClick={() => setMegaMenuOpen(!megaMenuOpen)}
-            className="px-4 py-2 rounded-full text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50 flex items-center gap-1"
-          >
-            Categories <ChevronDown className={cn("h-4 w-4 transition-transform", megaMenuOpen && "rotate-180")} />
-          </button>
         </div>
 
         <div className="flex items-center gap-1 sm:gap-2">

@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Promotion } from "@/data/promotions";
 import { cn } from "@/lib/utils";
@@ -38,7 +37,6 @@ export const PromotionSlider = ({ page, className }: PromotionSliderProps) => {
   }, [page]);
 
   const next = () => setCurrent(c => (c + 1) % promotions.length);
-  const prev = () => setCurrent(c => (c - 1 + promotions.length) % promotions.length);
 
   useEffect(() => {
     if (promotions.length <= 1) return;
@@ -51,13 +49,10 @@ export const PromotionSlider = ({ page, className }: PromotionSliderProps) => {
   const promotion = promotions[current];
 
   return (
-    <div className={cn("relative rounded-xl overflow-hidden h-48 sm:h-56 md:h-64 lg:h-72", className)}>
+    <div className={cn("relative rounded-xl overflow-hidden h-40 sm:h-48 md:h-56 lg:h-64", className)}>
       <Link
         to={promotion.link}
-        className={cn(
-          "block relative h-full overflow-hidden",
-          !promotion.image && "bg-gradient-to-r"
-        )}
+        className="block relative h-full"
       >
         {promotion.image ? (
           <div className="absolute inset-0">
@@ -66,60 +61,44 @@ export const PromotionSlider = ({ page, className }: PromotionSliderProps) => {
               alt={promotion.title}
               className="w-full h-full object-cover"
             />
-            <div className="absolute inset-0 bg-black/40" />
+            <div className="absolute inset-0 bg-black/30" />
           </div>
         ) : (
           <div className={cn("absolute inset-0 bg-gradient-to-r", promotion.background_color)} />
         )}
         <div className="relative h-full flex items-center px-6 sm:px-10">
           <div className="max-w-xl">
-            <p className={cn("text-sm sm:text-base font-medium opacity-90", promotion.text_color)}>
+            <p className={cn("text-xs sm:text-sm font-medium opacity-90", promotion.text_color)}>
               {promotion.subtitle}
             </p>
-            <h2 className={cn("font-display font-bold text-xl sm:text-2xl md:text-3xl", promotion.text_color)}>
+            <h2 className={cn("font-display font-bold text-lg sm:text-2xl md:text-3xl mt-1", promotion.text_color)}>
               {promotion.title}
             </h2>
-            <Link
-              to={promotion.link}
-              className={cn(
-                "inline-flex items-center gap-1 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full font-medium text-xs sm:text-sm mt-1 sm:mt-2 cursor-pointer",
-                promotion.text_color,
-                "bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors"
-              )}
-            >
+            <span className={cn(
+              "inline-block px-3 py-1.5 rounded-full text-xs font-medium mt-2",
+              promotion.text_color,
+              "bg-white/20 backdrop-blur-sm"
+            )}>
               {promotion.link_text}
-            </Link>
+            </span>
           </div>
         </div>
       </Link>
 
       {promotions.length > 1 && (
-        <>
-          <button
-            onClick={prev}
-            className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/90 hover:bg-white flex items-center justify-center shadow transition-colors"
-          >
-            <ChevronLeft className="h-4 w-4 text-gray-700" />
-          </button>
-          <button
-            onClick={next}
-            className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/90 hover:bg-white flex items-center justify-center shadow transition-colors"
-          >
-            <ChevronRight className="h-4 w-4 text-gray-700" />
-          </button>
-          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5">
-            {promotions.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => setCurrent(i)}
-                className={cn(
-                  "w-2 h-2 rounded-full transition-all",
-                  i === current ? "bg-white w-4" : "bg-white/50"
-                )}
-              />
-            ))}
-          </div>
-        </>
+        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2">
+          {promotions.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setCurrent(i)}
+              className={cn(
+                "h-2 rounded-full transition-all cursor-pointer",
+                i === current ? "bg-white w-5" : "bg-white/50 w-2 hover:bg-white/75"
+              )}
+              aria-label={`Go to slide ${i + 1}`}
+            />
+          ))}
+        </div>
       )}
     </div>
   );

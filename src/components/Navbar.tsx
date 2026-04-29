@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { NavLink, Link, useNavigate } from "react-router-dom";
-import { Menu, X, Search, ShoppingBag, User, LogOut, Package, Zap, Headphones, BatteryCharging, Cable, Speaker, ChevronDown } from "lucide-react";
+import { Menu, X, Search, ShoppingBag, User, LogOut, Package, Zap, Headphones, BatteryCharging, Cable, Speaker, ChevronDown, GitCompare } from "lucide-react";
 import { Logo } from "./Logo";
 import { cn } from "@/lib/utils";
 import { useCart } from "@/contexts/CartContext";
@@ -180,6 +180,7 @@ export const Navbar = () => {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
                 <DropdownMenuItem asChild><Link to="/orders"><Package className="h-4 w-4 mr-2" />My orders</Link></DropdownMenuItem>
+                <DropdownMenuItem asChild><Link to="/compare"><GitCompare className="h-4 w-4 mr-2" />Compare</Link></DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => signOut()}><LogOut className="h-4 w-4 mr-2" />Sign out</DropdownMenuItem>
               </DropdownMenuContent>

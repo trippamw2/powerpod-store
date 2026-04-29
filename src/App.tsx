@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { CartProvider } from "@/contexts/CartContext";
+import { CompareProvider } from "@/contexts/CompareContext";
 import { Layout } from "./components/Layout";
 import { AdminLayout } from "./components/AdminLayout";
 import { ScrollToTop } from "./components/ScrollToTop";
@@ -13,6 +14,7 @@ import Home from "./pages/Home";
 import Shop from "./pages/Shop";
 import ProductDetail from "./pages/ProductDetail";
 import Combos from "./pages/Combos";
+import Compare from "./pages/Compare";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import Auth from "./pages/Auth";
@@ -70,8 +72,9 @@ const App = () => (
       <ReferralLoader />
       <AuthProvider>
         <CartProvider>
-          <Toaster />
-          <Sonner />
+          <CompareProvider>
+            <Toaster />
+            <Sonner />
             <BrowserRouter>
                 <ScrollToTop />
                 <Routes>
@@ -79,6 +82,7 @@ const App = () => (
                   <Route path="/" element={<Home />} />
                   <Route path="/shop" element={<Shop />} />
                   <Route path="/product/:id" element={<ProductDetail />} />
+                  <Route path="/compare" element={<Compare />} />
                   <Route path="/combos" element={<Combos />} />
                   <Route path="/about" element={<About />} />
                   <Route path="/contact" element={<Contact />} />
@@ -114,8 +118,9 @@ const App = () => (
                 </Route>
               </Routes>
             </BrowserRouter>
-        </CartProvider>
-      </AuthProvider>
+        </CompareProvider>
+          </CartProvider>
+        </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );

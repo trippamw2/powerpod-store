@@ -3,7 +3,8 @@ import { Link } from "react-router-dom";
 import { Product, formatMWK } from "@/data/products";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
-import { ShoppingBag, Plus, Heart, Star, Check, Zap } from "lucide-react";
+import { useCompare } from "@/contexts/CompareContext";
+import { ShoppingBag, Plus, Heart, Star, Check, Zap, GitCompare } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "@/hooks/use-toast";
 
@@ -14,6 +15,7 @@ interface ProductCardProps {
 
 export const ProductCard = ({ product, index = 0 }: ProductCardProps) => {
   const { add } = useCart();
+  const { addToCompare, isInCompare } = useCompare();
   const [selectedType, setSelectedType] = useState(product.types[0]?.id || "");
   const [isWishlisted, setIsWishlisted] = useState(false);
   
@@ -102,6 +104,27 @@ export const ProductCard = ({ product, index = 0 }: ProductCardProps) => {
             <Heart
               className={`h-3.5 w-3.5 transition-colors ${
                 isWishlisted ? "fill-red-500 text-red-500" : "text-gray-400"
+              }`}
+            />
+          </button>
+          
+          {/* Compare Button */}
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              if (isInCompare(product.id)) {
+                toast({ title: "Removed from compare" });
+              } else {
+                toast({ title: "Added to compare" });
+              }
+              addToCompare(product);
+            }}
+            className="absolute top-8 right-2 p-1.5 rounded-full bg-white/90 backdrop-blur-sm shadow hover:bg-white hover:scale-105 transition-all duration-150"
+          >
+            <GitCompare
+              className={`h-3.5 w-3.5 transition-colors ${
+                isInCompare(product.id) ? "fill-orange-500 text-orange-500" : "text-gray-400"
               }`}
             />
           </button>

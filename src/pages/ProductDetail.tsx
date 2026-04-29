@@ -423,14 +423,14 @@ const ProductDetail = () => {
           </div>
 
           {/* Mobile Sticky CTA */}
-          <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-border p-3 sm:p-4 flex items-center gap-3 z-50 sm:hidden">
+          <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-border px-2 py-2 sm:px-4 flex items-center gap-2 sm:gap-3 z-50 sm:hidden max-w-full">
             <div className="flex items-center rounded-full border border-border bg-card shrink-0">
-              <button onClick={() => setQty((q) => Math.max(1, q - 1))} className="p-2" aria-label="Decrease"><Minus className="h-4 w-4" /></button>
-              <span className="w-8 text-center font-semibold text-sm">{qty}</span>
-              <button onClick={() => setQty((q) => q + 1)} className="p-2" aria-label="Increase"><Plus className="h-4 w-4" /></button>
+              <button onClick={() => setQty((q) => Math.max(1, q - 1))} className="p-1.5 sm:p-2" aria-label="Decrease"><Minus className="h-3.5 sm:h-4 w-3.5 sm:w-4" /></button>
+              <span className="w-6 sm:w-8 text-center font-semibold text-xs sm:text-sm">{qty}</span>
+              <button onClick={() => setQty((q) => q + 1)} className="p-1.5 sm:p-2" aria-label="Increase"><Plus className="h-3.5 sm:h-4 w-3.5 sm:w-4" /></button>
             </div>
-            <Button onClick={handleAdd} variant="hero" className="flex-1 py-2.5 text-sm">
-              <ShoppingBag className="h-4 w-4" /> Add to cart ({formatMWK(product.price * qty)})
+            <Button onClick={handleAdd} variant="hero" className="flex-1 py-2 text-xs sm:text-sm whitespace-nowrap">
+              <ShoppingBag className="h-3.5 sm:h-4 w-3.5 sm:w-4" /> Add
             </Button>
           </div>
         </div>

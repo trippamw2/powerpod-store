@@ -7,26 +7,26 @@ export const WhatsAppFab = () => {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <div className="fixed bottom-5 right-5 z-50">
+    <div className="fixed bottom-16 sm:bottom-5 right-4 sm:right-5 z-50">
       <AnimatePresence>
         {expanded && (
           <motion.div
             initial={{ opacity: 0, y: 20, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.9 }}
-            className="absolute bottom-16 right-0 w-72 sm:w-80 bg-white rounded-2xl shadow-2xl border border-border p-4"
+            className="absolute bottom-12 sm:bottom-16 right-0 w-64 sm:w-72 bg-white rounded-xl sm:rounded-2xl shadow-2xl border border-border p-3 sm:p-4 max-w-[85vw]"
           >
-            <div className="flex items-center gap-3 mb-3">
-              <div className="h-10 w-10 rounded-full bg-green-500 flex items-center justify-center">
-                <MessageCircle className="h-5 w-5 text-white" />
+            <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+              <div className="h-8 sm:h-10 w-8 sm:w-10 rounded-full bg-green-500 flex items-center justify-center">
+                <MessageCircle className="h-4 sm:h-5 w-4 sm:w-5 text-white" />
               </div>
               <div>
-                <p className="font-semibold text-gray-900">PowerPod Support</p>
-                <p className="text-xs text-green-600">Typically replies instantly</p>
+                <p className="font-semibold text-gray-900 text-sm sm:text-base">PowerPod Support</p>
+                <p className="text-xs text-green-600">Replies quickly</p>
               </div>
             </div>
-            <p className="text-sm text-gray-600 mb-3">
-              Hi! Need help with your order? Chat with us on WhatsApp for quick support!
+            <p className="text-xs sm:text-sm text-gray-600 mb-2 sm:mb-3">
+              Need help with your order?
             </p>
             <a
               href={buildWhatsAppLink(defaultMessage)}

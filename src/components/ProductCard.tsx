@@ -72,14 +72,14 @@ export const ProductCard = ({ product, index = 0 }: ProductCardProps) => {
     >
       <Link
         to={`/product/${product.id}`}
-        className="group block rounded-2xl bg-white border border-gray-100 overflow-hidden hover:border-orange-200 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200"
+        className="group block rounded-xl sm:rounded-2xl bg-white border border-gray-100 overflow-hidden hover:border-orange-200 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 max-w-full"
       >
         <div className="relative aspect-[4/3] overflow-hidden bg-gray-50">
           <img
             src={product.image}
             alt={product.name}
             loading="lazy"
-            className="h-full w-full object-contain p-4 transition-transform duration-300 group-hover:scale-105"
+            className="h-full w-full object-contain p-2 sm:p-4 transition-transform duration-300 group-hover:scale-105"
           />
           
           {/* Badges - based on admin flags */}

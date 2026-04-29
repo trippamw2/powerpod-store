@@ -183,15 +183,15 @@ const Shop = () => {
             exit={{ opacity: 0, height: 0 }}
             className="overflow-hidden"
           >
-            <div className="bg-gray-50 rounded-2xl p-6 mb-6 space-y-4">
+            <div className="bg-gray-50 rounded-xl sm:rounded-2xl p-3 sm:p-6 mb-4 sm:mb-6 space-y-3 sm:space-y-4">
               <div>
-                <h3 className="font-medium mb-3">Brand</h3>
-                <div className="flex flex-wrap gap-2">
+                <h3 className="font-medium mb-2 sm:mb-3 text-sm sm:text-base">Brand</h3>
+                <div className="flex flex-wrap gap-1.5 sm:gap-2">
                   {BRANDS.slice(0, 10).map((brand) => (
                     <button
                       key={brand.id}
                       onClick={() => toggleBrand(brand.id)}
-                      className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                      className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium transition-colors ${
                         selectedBrands.includes(brand.id)
                           ? "bg-orange-500 text-white"
                           : "bg-white border border-gray-200 text-gray-600 hover:border-orange-300"
@@ -204,29 +204,29 @@ const Shop = () => {
               </div>
               
               <div>
-                <h3 className="font-medium mb-3">Price Range (MWK)</h3>
-                <div className="flex items-center gap-3">
+                <h3 className="font-medium mb-2 sm:mb-3 text-sm sm:text-base">Price (MWK)</h3>
+                <div className="flex items-center gap-2 sm:gap-3">
                   <input
                     type="number"
                     value={priceMin}
                     onChange={(e) => setPriceMin(Number(e.target.value))}
                     placeholder="Min"
-                    className="w-24 px-3 py-2 border border-gray-200 rounded-lg text-sm"
+                    className="w-16 sm:w-24 px-2 sm:px-3 py-1.5 sm:py-2 border border-gray-200 rounded-lg text-xs sm:text-sm"
                   />
-                  <span className="text-gray-400">to</span>
+                  <span className="text-gray-400 text-xs sm:text-sm">-</span>
                   <input
                     type="number"
                     value={priceMax}
                     onChange={(e) => setPriceMax(Number(e.target.value))}
                     placeholder="Max"
-                    className="w-24 px-3 py-2 border border-gray-200 rounded-lg text-sm"
+                    className="w-16 sm:w-24 px-2 sm:px-3 py-1.5 sm:py-2 border border-gray-200 rounded-lg text-xs sm:text-sm"
                   />
                 </div>
-                <div className="flex gap-2 mt-2">
-                  <button onClick={() => { setPriceMin(0); setPriceMax(10000); }} className="px-2 py-1 text-xs bg-gray-100 rounded hover:bg-gray-200">Under 10K</button>
-                  <button onClick={() => { setPriceMin(10000); setPriceMax(25000); }} className="px-2 py-1 text-xs bg-gray-100 rounded hover:bg-gray-200">10K - 25K</button>
-                  <button onClick={() => { setPriceMin(25000); setPriceMax(50000); }} className="px-2 py-1 text-xs bg-gray-100 rounded hover:bg-gray-200">25K - 50K</button>
-                  <button onClick={() => { setPriceMin(50000); setPriceMax(1000000); }} className="px-2 py-1 text-xs bg-gray-100 rounded hover:bg-gray-200">50K+</button>
+                <div className="flex flex-wrap gap-1.5 sm:gap-2 mt-2">
+                  <button onClick={() => { setPriceMin(0); setPriceMax(10000); }} className="px-1.5 sm:px-2 py-0.5 sm:py-1 text-xs bg-gray-100 rounded hover:bg-gray-200">10K</button>
+                  <button onClick={() => { setPriceMin(10000); setPriceMax(25000); }} className="px-1.5 sm:px-2 py-0.5 sm:py-1 text-xs bg-gray-100 rounded hover:bg-gray-200">25K</button>
+                  <button onClick={() => { setPriceMin(25000); setPriceMax(50000); }} className="px-1.5 sm:px-2 py-0.5 sm:py-1 text-xs bg-gray-100 rounded hover:bg-gray-200">50K</button>
+                  <button onClick={() => { setPriceMin(50000); setPriceMax(1000000); }} className="px-1.5 sm:px-2 py-0.5 sm:py-1 text-xs bg-gray-100 rounded hover:bg-gray-200">50K+</button>
                 </div>
               </div>
             </div>

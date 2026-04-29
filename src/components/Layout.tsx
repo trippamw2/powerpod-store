@@ -4,9 +4,9 @@ import { Footer } from "./Footer";
 import { WhatsAppFab } from "./WhatsAppFab";
 
 export const Layout = () => (
-  <div className="min-h-screen flex flex-col">
+  <div className="min-h-screen flex flex-col overflow-x-hidden">
     <Navbar />
-    <main className="flex-1">
+    <main className="flex-1 w-full">
       <Outlet />
     </main>
     <Footer />

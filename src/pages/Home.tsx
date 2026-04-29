@@ -10,6 +10,7 @@ import { formatMWK } from "@/data/products";
 import { useCart } from "@/contexts/CartContext";
 import { useProducts } from "@/hooks/useProducts";
 import { Headphones, Heart, ArrowRight, ShieldCheck, Truck, ShoppingBag, Clock, Zap, Loader2 } from "lucide-react";
+import hero from "@/assets/hero-lifestyle.jpg";
 
 const Home = () => {
   const { add } = useCart();

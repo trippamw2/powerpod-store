@@ -10,14 +10,16 @@ import { toast } from "@/hooks/use-toast";
 import { formatMWK } from "@/data/products";
 import { useDeliverySettings } from "@/hooks/useDeliverySettings";
 import { useLoyalty } from "@/hooks/useLoyalty";
-import { ArrowLeft, Check, Loader2, Truck, CreditCard, MapPin, Tag, Zap, Gift } from "lucide-react";
+import { useReferral } from "@/hooks/useReferral";
+import { ArrowLeft, Check, Loader2, Truck, CreditCard, MapPin, Tag, Zap, Gift, MessageCircle } from "lucide-react";
 
 const Checkout = () => {
   const { user } = useAuth();
   const { items, subtotal, clear } = useCart();
   const navigate = useNavigate();
   const { settings, loading: settingsLoading } = useDeliverySettings();
-  const { loyalty, program, getRewardValue, redeemPoints } = useLoyalty(user?.id, user?.email);
+  const { loyalty, program, getRewardValue, redeemPoints, earnPoints } = useLoyalty(user?.id, user?.email);
+  const { stats: referralStats } = useReferral();
 
   const [formData, setFormData] = useState({
     name: user?.user_metadata?.full_name || user?.email?.split("@")[0] || "",
@@ -141,20 +143,41 @@ const Checkout = () => {
           .eq("code", promoApplied.code);
       }
 
-      // Use loyalty points
+      // Use loyalty points - deduct redeemed points
       if (usePoints && loyalty && program) {
         const pointsToRedeem = Math.min(loyalty.available_points, program.points_to_redeem);
-        // Points will be deducted by the redeemPoints function
+        await supabase
+          .from("customer_loyalty")
+          .update({
+            available_points: loyalty.available_points - pointsToRedeem,
+            redeemed_points: (loyalty.redeemed_points || 0) + pointsToRedeem,
+          })
+          .eq("user_id", user?.id);
+      }
+
+      // Award loyalty points for purchase (1 point per 1000 MWK)
+      if (user?.id && subtotal >= 1000) {
+        const pointsToEarn = Math.floor(subtotal / 1000);
+        try {
+          await earnPoints(orderId, subtotal);
+        } catch (e) {
+          console.error("Failed to award points:", e);
+        }
       }
 
       // Payment flow
       if (paymentMethod === "offline") {
-        const whatsAppMessage = `Hello PowerPod! I want to pay for my order #${orderId.slice(0, 8).toUpperCase()} (${formatMWK(total)}). Please send payment details.`;
+        const bankDetails = `Bank: Standard Bank\nAccount: 9100000380567\nPowerPod Store\nReference: PP${orderId.slice(0, 8).toUpperCase()}`;
+        const whatsAppMessage = `Hello PowerPod! I want to pay for my order #${orderId.slice(0, 8).toUpperCase()} (${formatMWK(total)}).\n\n${bankDetails}\n\nMy Name: ${formData.name}\nMy Phone: ${formData.phone}\nDelivery: ${formData.location}`;
         const whatsAppLink = `https://wa.me/265884400000?text=${encodeURIComponent(whatsAppMessage)}`;
         clear();
         window.open(whatsAppLink, "_blank");
         navigate(`/orders/${orderId}?payment=pending`);
-        toast({ title: "Order placed!", description: "Check WhatsApp for payment details" });
+        toast({ 
+          title: "Order placed!", 
+          description: "Check WhatsApp for bank details",
+          duration: 8000 
+        });
         return;
       }
 

@@ -15,6 +15,50 @@ import {
   buildWhatsAppLink 
 } from "@/lib/ai-messages";
 
+// Auto-reward referrer when order is delivered
+const rewardReferrer = async (userId: string) => {
+  try {
+    // Find referral transaction for this user
+    const { data: referral } = await supabase
+      .from("referral_transactions")
+      .select("*")
+      .eq("referee_id", userId)
+      .eq("status", "pending")
+      .single();
+    
+    if (!referral) return;
+    
+    // Update referral status
+    await supabase
+      .from("referral_transactions")
+      .update({ status: "completed", order_id: referral.order_id })
+      .eq("id", referral.id);
+    
+    // Award points to referrer
+    const { data: referrerLoyalty } = await supabase
+      .from("customer_loyalty")
+      .select("*")
+      .eq("user_id", referral.referrer_id)
+      .single();
+    
+    const newPoints = (referrerLoyalty?.available_points || 0) + (referral.referrer_reward || 500);
+    await supabase
+      .from("customer_loyalty")
+      .update({ available_points: newPoints })
+      .eq("user_id", referral.referrer_id);
+    
+    // Record transaction
+    await supabase.from("loyalty_transactions").insert({
+      user_id: referral.referrer_id,
+      points: referral.referrer_reward || 500,
+      type: "referral_bonus",
+      description: "Referral bonus - friend made first order",
+    });
+  } catch (e) {
+    console.error("Referral reward error:", e);
+  }
+};
+
 interface Order {
   id: string;
   user_id: string | null;
@@ -148,6 +192,11 @@ const AdminOrders = () => {
       const orderItems = items?.map(i => ({ name: i.product_name, quantity: i.quantity, price: i.unit_price_mwk })) || [];
       
       sendWhatsAppNotification(order, newStatus);
+      
+      // Auto-reward referrer when order is delivered
+      if (newStatus === "delivered" && order.user_id) {
+        await rewardReferrer(order.user_id);
+      }
       
       // Send email notification based on status
       try {

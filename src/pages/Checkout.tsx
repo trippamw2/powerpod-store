@@ -144,7 +144,7 @@ const Checkout = () => {
         total_mwk: total,
         payment_method: paymentMethod,
         delivery_method: deliveryMethod,
-        status: paymentMethod === "offline" ? "pending_payment" : "new",
+        status: "new",
       }).select().single();
 
       if (error) throw error;

@@ -34,17 +34,14 @@ export const AdminLayout = () => {
 
   // Simple admin check - allow logged in users (RLS complex)
   useEffect(() => {
-    const checkAdmin = async () => {
-      if (!user) {
-        setCheckingRole(false);
-        return;
-      }
-      // Allow any logged-in user to access admin for now
+    if (authLoading) return;
+    
+    if (user) {
+      // Allow any logged-in user to access admin
       setIsAdmin(true);
-      setCheckingRole(false);
-    };
-    checkAdmin();
-  }, [user]);
+    }
+    setCheckingRole(false);
+  }, [user, authLoading]);
 
   useEffect(() => {
     if (!authLoading && !user) {

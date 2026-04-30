@@ -54,6 +54,8 @@ const ProductDetail = () => {
   }, [product]);
 
   // Early returns AFTER effects
+  console.log("Rendering ProductDetail, id:", id, "loading:", loading, "product:", product?.name);
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">

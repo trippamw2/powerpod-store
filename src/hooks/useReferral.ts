@@ -36,26 +36,23 @@ export const useReferral = () => {
   const loadReferralCode = async () => {
     if (!user) return;
     
-    try {
-      const { data: code } = await supabase
+try {
+      const shortCode = user.id.slice(0, 8).toUpperCase();
+      const code = `PP${shortCode}`;
+      
+      // Try insert first, if dup then upsert
+      const { data: newCode, error: insertErr } = await supabase
         .from("user_referral_codes")
-        .select("*")
-        .eq("user_id", user.id)
+        .upsert({ user_id: user.id, code }, { onConflict: "user_id" })
+        .select()
         .maybeSingle();
       
-      if (code) {
-        setReferralCode(code as any);
-        loadStats(code.code);
-      } else {
-        const { data: newCode } = await supabase.rpc("create_user_referral_code", { user_id: user.id });
-        if (newCode) {
-          const { data: fresh } = await supabase
-            .from("user_referral_codes")
-            .select("*")
-            .eq("user_id", user.id)
-            .maybeSingle();
-          if (fresh) setReferralCode(fresh as any);
-        }
+      if (newCode) {
+        setReferralCode(newCode as any);
+        loadStats(code);
+      } else if (insertErr) {
+        // Fallback: just use local code
+        setReferralCode({ id: "", user_id: user.id, code, rewards_points: 0, rewards_redeemed: 0, max_referrals: 5, created_at: "" } as any);
       }
     } catch (e) {
       const shortCode = user.id.slice(0, 8).toUpperCase();

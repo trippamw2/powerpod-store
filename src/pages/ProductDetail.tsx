@@ -3,6 +3,7 @@ import { Link, useParams, useNavigate } from "react-router-dom";
 import { formatMWK } from "@/data/products";
 import { useCart } from "@/contexts/CartContext";
 import { useProducts } from "@/hooks/useProducts";
+import { useCompare } from "@/contexts/CompareContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,9 +19,27 @@ const ProductDetail = () => {
   const { products, loading, getProduct } = useProducts();
   const product = getProduct(id || "");
   const { add } = useCart();
+  const { isInCompare, addToCompare, removeFromCompare } = useCompare();
   const [qty, setQty] = useState(1);
   const [selectedType, setSelectedType] = useState("");
   const [selectedImage, setSelectedImage] = useState(0);
+  const [wishlistItems, setWishlistItems] = useState<string[]>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("powerpod_wishlist");
+      return saved ? JSON.parse(saved) : [];
+    }
+    return [];
+  });
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [reviews, setReviews] = useState<{rating: number; review_text: string; customer_name: string; created_at: string}[]>([]);
+  const [reviewsLoading, setReviewsLoading] = useState(true);
+  const [userRating, setUserRating] = useState(0);
+  const [userRatingHover, setUserRatingHover] = useState(0);
+  const [userName, setUserName] = useState("");
+  const [userReview, setUserReview] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  const isWishlisted = wishlistItems.includes(id);
 
   // Loading state
   if (loading) {
@@ -41,23 +60,6 @@ const ProductDetail = () => {
       </div>
     );
   }
-  const [wishlistItems, setWishlistItems] = useState<string[]>(() => {
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("powerpod_wishlist");
-      return saved ? JSON.parse(saved) : [];
-    }
-    return [];
-  });
-  const isWishlisted = wishlistItems.includes(id);
-  const [showShareModal, setShowShareModal] = useState(false);
-  const [reviews, setReviews] = useState<{rating: number; review_text: string; customer_name: string; created_at: string}[]>([]);
-  const [reviewsLoading, setReviewsLoading] = useState(true);
-  const [userRating, setUserRating] = useState(0);
-  const [userRatingHover, setUserRatingHover] = useState(0);
-  const [userName, setUserName] = useState("");
-  const [userReview, setUserReview] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-  const [compareList, setCompareList] = useState<string[]>([]);
   
   const galleryImages = product?.gallery_images?.length > 0 
     ? [product?.image, ...product.gallery_images]
@@ -358,20 +360,20 @@ const ProductDetail = () => {
           <div className="flex items-center gap-3">
             <button
               onClick={() => {
-                setCompareList(prev => 
-                  prev.includes(product.id) 
-                    ? prev.filter(id => id !== product.id)
-                    : [...prev, product.id]
-                );
+                if (isInCompare(product.id)) {
+                  removeFromCompare(product.id);
+                } else {
+                  addToCompare(product);
+                }
               }}
               className={`flex items-center gap-2 px-4 py-2 rounded-full border transition-all ${
-                compareList.includes(product.id)
+                isInCompare(product.id)
                   ? "bg-orange-50 border-orange-500 text-orange-600"
                   : "border-border text-gray-500 hover:border-gray-300"
               }`}
             >
               <GitCompare className="h-4 w-4" />
-              <span className="text-sm">{compareList.includes(product.id) ? "Added to Compare" : "Compare"}</span>
+              <span className="text-sm">{isInCompare(product.id) ? "Added to Compare" : "Compare"}</span>
             </button>
             <button
               onClick={handleWishlist}

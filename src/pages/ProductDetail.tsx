@@ -39,9 +39,21 @@ const ProductDetail = () => {
   const [userReview, setUserReview] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
+  // Derived values before returns (not hooks)
   const isWishlisted = wishlistItems.includes(id);
+  const galleryImages = product?.gallery_images?.length > 0 
+    ? [product?.image, ...product.gallery_images]
+    : [product?.image];
+  const selectedImageSrc = galleryImages?.[selectedImage] || product?.image || "";
 
-  // Loading state
+  // Effects must come BEFORE all returns
+  useEffect(() => {
+    if (product?.types?.length > 0) {
+      setSelectedType(product.types[0].id);
+    }
+  }, [product]);
+
+  // Early returns AFTER effects
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -60,17 +72,6 @@ const ProductDetail = () => {
       </div>
     );
   }
-  
-  const galleryImages = product?.gallery_images?.length > 0 
-    ? [product?.image, ...product.gallery_images]
-    : [product?.image];
-  const selectedImageSrc = galleryImages?.[selectedImage] || product?.image || "";
-
-  useEffect(() => {
-    if (product?.types?.length > 0) {
-      setSelectedType(product.types[0].id);
-    }
-  }, [product]);
 
   const fetchReviews = useCallback(async () => {
     if (!id) return;

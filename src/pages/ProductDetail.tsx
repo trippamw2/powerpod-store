@@ -299,12 +299,6 @@ const ProductDetail = () => {
         {/* Product Info */}
         <div className="space-y-6">
           <div className="space-y-3">
-            {/* Social Proof - Viewers */}
-            <div className="flex items-center gap-2 text-sm text-gray-500">
-              <Eye className="h-4 w-4" />
-              <span>{viewingCount} people viewing this</span>
-            </div>
-            
             {product.brand && (
               <span className="text-sm font-semibold text-orange-600 bg-orange-50 px-3 py-1 rounded-full inline-block">
                 {product.brand}

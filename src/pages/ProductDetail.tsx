@@ -19,8 +19,28 @@ const ProductDetail = () => {
   const product = getProduct(id || "");
   const { add } = useCart();
   const [qty, setQty] = useState(1);
-  const [selectedType, setSelectedType] = useState(product?.types[0]?.id || "");
+  const [selectedType, setSelectedType] = useState("");
   const [selectedImage, setSelectedImage] = useState(0);
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin h-10 w-10 border-4 border-orange-500 border-t-transparent rounded-full" />
+      </div>
+    );
+  }
+
+  if (!product) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-500">Product not found</p>
+          <Link to="/shop" className="text-orange-500 hover:underline">Back to shop</Link>
+        </div>
+      </div>
+    );
+  }
   const [wishlistItems, setWishlistItems] = useState<string[]>(() => {
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem("powerpod_wishlist");
@@ -39,10 +59,10 @@ const ProductDetail = () => {
   const [submitting, setSubmitting] = useState(false);
   const [compareList, setCompareList] = useState<string[]>([]);
   
-  const galleryImages = product.gallery_images && product.gallery_images.length > 0 
-    ? [product.image, ...product.gallery_images]
-    : [product.image];
-  const selectedImageSrc = galleryImages[selectedImage] || product.image;
+  const galleryImages = product?.gallery_images?.length > 0 
+    ? [product?.image, ...product.gallery_images]
+    : [product?.image];
+  const selectedImageSrc = galleryImages?.[selectedImage] || product?.image || "";
 
   useEffect(() => {
     if (product?.types?.length > 0) {

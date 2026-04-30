@@ -39,42 +39,16 @@ const ProductDetail = () => {
   const [userReview, setUserReview] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  // Derived values before returns (not hooks)
+  // ====== ALL HOOKS DEFINED BEFORE EARLY RETURNS ======
+  
+  // Derived values
   const isWishlisted = wishlistItems.includes(id);
   const galleryImages = product?.gallery_images?.length > 0 
     ? [product?.image, ...product.gallery_images]
     : [product?.image];
   const selectedImageSrc = galleryImages?.[selectedImage] || product?.image || "";
 
-  // Effects must come BEFORE all returns
-  useEffect(() => {
-    if (product?.types?.length > 0) {
-      setSelectedType(product.types[0].id);
-    }
-  }, [product]);
-
-  // Early returns AFTER effects
-  console.log("Rendering ProductDetail, id:", id, "loading:", loading, "product:", product?.name);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin h-10 w-10 border-4 border-orange-500 border-t-transparent rounded-full" />
-      </div>
-    );
-  }
-
-  if (!product) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-gray-500">Product not found</p>
-          <Link to="/shop" className="text-orange-500 hover:underline">Back to shop</Link>
-        </div>
-      </div>
-    );
-  }
-
+  // useCallback MUST be before returns
   const fetchReviews = useCallback(async () => {
     if (!id) return;
     setReviewsLoading(true);
@@ -97,9 +71,39 @@ const ProductDetail = () => {
     }
   }, [id]);
 
+  // useEffect for types
+  useEffect(() => {
+    if (product?.types?.length > 0) {
+      setSelectedType(product.types[0].id);
+    }
+  }, [product]);
+
+  // useEffect for fetchReviews MUST be before returns
   useEffect(() => {
     fetchReviews();
   }, [id]);
+
+  // ====== EARLY RETURNS AFTER ALL HOOKS ======
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin h-10 w-10 border-4 border-orange-500 border-t-transparent rounded-full" />
+      </div>
+    );
+  }
+
+  if (!product) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-500">Product not found</p>
+          <Link to="/shop" className="text-orange-500 hover:underline">Back to shop</Link>
+        </div>
+      </div>
+    );
+  }
+
+  console.log("Rendering ProductDetail, id:", id, "loading:", loading, "product:", product?.name);
 
   const avgRating = reviews.length > 0
     ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length

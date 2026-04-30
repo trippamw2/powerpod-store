@@ -32,24 +32,30 @@ export function useProducts() {
       setError(null);
 
       // Fetch active products from database
-      const { data: dbProducts, error: productsError } = await supabase
+      const { data: productsArray, error: fetchError } = await supabase
         .from("products")
         .select("*")
         .or("is_active.eq.true,is_active.is.null");
 
-      if (productsError) {
-        console.error("Fetch products error:", productsError);
-        throw productsError;
+      if (fetchError) {
+        console.error("Products fetch error:", fetchError);
+        setError("Failed to load products");
+        setProducts([]);
+        setLoading(false);
+        return;
+      }
+
+      if (!productsArray || productsArray.length === 0) {
+        console.warn("⚠️ No products found in database");
+        setProducts([]);
+        setLoading(false);
+        return;
       }
 
       // Fetch inventory for stock levels
-      const { data: inventory, error: inventoryError } = await supabase
+      const { data: inventory } = await supabase
         .from("inventory")
         .select("product_id, quantity, reserved_quantity");
-
-      if (inventoryError) {
-        console.error("Fetch inventory error:", inventoryError);
-      }
 
       // Build inventory map
       const inventoryMap = new Map<string, InventoryRecord>();
@@ -58,55 +64,36 @@ export function useProducts() {
       });
 
       // Map database products to frontend format
-const { data: productsArray, error: fetchError } = await supabase
-          .from("products")
-          .select("*")
-          .or("is_active.eq.true,is_active.is.null");
+      const mappedProducts: Product[] = productsArray.map((p: any) => ({
+        id: p.id,
+        name: p.name,
+        benefit: p.description || p.benefit || "",
+        price: p.price,
+        category: (p.category || "all") as any,
+        image: p.image || "",
+        brand: p.brand || "Generic",
+        types: [],
+        stock: p.stock_quantity || 10,
+        is_featured: p.is_featured || false,
+        is_best_seller: p.is_best_seller || false,
+        is_on_sale: p.is_on_sale || false,
+        discount_percent: p.discount_percent || 0,
+        gallery_images: p.gallery_images || [],
+        specs: p.specs || {},
+        reward_points: p.reward_points || Math.round(p.price / 100),
+        rating: p.rating || 0,
+      }));
 
-        if (fetchError) {
-          console.error("Products fetch error:", fetchError);
-          setError("Failed to load products");
-          setProducts([]);
-          return;
-        }
-
-        if (!productsArray || productsArray.length === 0) {
-          console.warn("⚠️ No products found in database");
-          setProducts([]);
-          return;
-        }
-
-        // Map database products to frontend format
-        const mappedProducts: Product[] = productsArray.map((p: any) => ({
-          id: p.id,
-          name: p.name,
-          benefit: p.description || p.benefit || "",
-          price: p.price,
-          category: (p.category || "all") as any,
-          image: p.image || "",
-          brand: p.brand || "Generic",
-          types: [],
-          stock: p.stock_quantity || 10,
-          is_featured: p.is_featured || false,
-          is_best_seller: p.is_best_seller || false,
-          is_on_sale: p.is_on_sale || false,
-          discount_percent: p.discount_percent || 0,
-          gallery_images: p.gallery_images || [],
-          specs: p.specs || {},
-          reward_points: p.reward_points || Math.round(p.price / 100),
-          rating: p.rating || 0,
-        }));
-
-        console.log("✅ Products loaded from DB:", mappedProducts.length);
-        setProducts(mappedProducts);
-      } catch (err) {
-        console.error("❌ Products fetch error:", err);
-        setError("Failed to load products");
-        setProducts([]);
-      } finally {
-        setLoading(false);
-      }
-    }, []);
+      console.log("✅ Products loaded from DB:", mappedProducts.length);
+      setProducts(mappedProducts);
+    } catch (err) {
+      console.error("❌ Products fetch error:", err);
+      setError("Failed to load products");
+      setProducts([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     fetchProducts();

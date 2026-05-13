@@ -111,7 +111,7 @@ const AdminSettings = () => {
               <Textarea
                 value={settings.promo_banner_text}
                 onChange={e => setSettings(s => ({ ...s, promo_banner_text: e.target.value }))}
-                placeholder="🔥 Free delivery on orders over MWK 50,000 • New deals added daily!"
+                placeholder="Free delivery on orders over MWK 50,000. New deals added daily."
                 className="min-h-[100px]"
               />
               <p className="text-xs text-muted-foreground">

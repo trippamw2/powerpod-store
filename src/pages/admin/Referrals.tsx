@@ -194,7 +194,7 @@ export default function AdminReferrals() {
                           {ref.order_id.slice(0, 8)}
                         </a>
                       ) : (
-                        <span className="text-muted-foreground">—</span>
+                        <span className="text-muted-foreground">-</span>
                       )}
                     </td>
                     <td className="p-3">

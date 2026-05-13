@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { formatMWK, kits } from "@/data/products";
+import { formatMWK, kits, getItemImage } from "@/data/products";
 import { useProducts } from "@/hooks/useProducts";
 import { useCart } from "@/contexts/CartContext";
 import { Truck, MessageCircle, ShieldCheck, Heart, BookOpen, Briefcase, Headphones, Luggage, ArrowRight, CheckCircle, Zap, Loader2 } from "lucide-react";
@@ -40,14 +40,9 @@ const Home = () => {
             </h1>
 
             <p className="text-muted-foreground text-sm sm:text-base lg:text-lg max-w-lg">
-              Dead battery before an important call? Earbuds dying on the bus? Charger cable that 
-              gave up after a week? We put together the exact charger, cable and power bank you need.
-              All tested. All reliable. One box, delivered to your door.
+              Dead battery before a call? Earbuds dying on the bus? We picked the charger, power bank, 
+              cable and audio gear your phone needs. Tested. Reliable. One box.
             </p>
-
-            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-orange-50 text-orange-700 text-xs font-medium border border-orange-200">
-              <span className="font-semibold">The PowerPod System.</span> Tested kits. 30 day guarantee. Free delivery over MK 50,000.
-            </div>
 
             <div className="flex flex-col sm:flex-row gap-3">
               <Button asChild variant="hero" size="lg" className="text-sm sm:text-base">
@@ -104,15 +99,15 @@ const Home = () => {
         <div className="text-center mb-8 sm:mb-10">
           <p className="text-sm font-semibold text-gradient uppercase tracking-widest">Choose Your Lifestyle</p>
           <h2 className="font-display font-bold text-2xl sm:text-3xl mt-1">Shop by Lifestyle</h2>
-          <p className="text-muted-foreground text-sm mt-2 max-w-md mx-auto">Not just products. A complete experience built for how you live.</p>
+          <p className="text-muted-foreground text-sm mt-2 max-w-md mx-auto">Kits built for how you live. Power and sound for your phone.</p>
         </div>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           {[
-            { icon: BookOpen, title: "Student Essentials Kit", tag: "student", desc: "Power your studies. Stay charged all day.", color: "from-blue-500 to-cyan-500" },
-            { icon: Briefcase, title: "Work & Office Kit", tag: "work", desc: "Professional setup. Productivity meets power.", color: "from-purple-500 to-indigo-500" },
-            { icon: Luggage, title: "Travel Power Kit", tag: "travel", desc: "Never run low. Adventure ready.", color: "from-green-500 to-teal-500" },
-            { icon: Headphones, title: "Audio Lifestyle Kit", tag: "audio", desc: "Your soundtrack. Anywhere.", color: "from-orange-500 to-red-500" },
+            { icon: BookOpen, title: "Student Essentials Kit", tag: "student", desc: "Charger and cable. Stay powered through class.", color: "from-blue-500 to-cyan-500" },
+            { icon: Briefcase, title: "Work & Office Kit", tag: "work", desc: "Power bank, earbuds and cable. For calls and music.", color: "from-purple-500 to-indigo-500" },
+            { icon: Luggage, title: "Travel Power Kit", tag: "travel", desc: "Power bank and cable. Never run low.", color: "from-green-500 to-teal-500" },
+            { icon: Headphones, title: "Audio Lifestyle Kit", tag: "audio", desc: "Headphones, speaker and charger. Your sound setup.", color: "from-orange-500 to-red-500" },
           ].map((item, i) => (
             <motion.div
               key={item.tag}
@@ -135,19 +130,19 @@ const Home = () => {
         </div>
       </section>
 
-      {/* WHY OUR KITS */}
+      {/* WHY KITS */}
       <section className="bg-gradient-to-b from-orange-50/50 to-white py-12 sm:py-16">
         <div className="container">
           <div className="text-center mb-8 sm:mb-10">
-            <p className="text-sm font-semibold text-gradient uppercase tracking-widest">Why PowerPod Kits</p>
-            <h2 className="font-display font-bold text-2xl sm:text-3xl mt-1">Smarter Than Buying Separate</h2>
+            <p className="text-sm font-semibold text-gradient uppercase tracking-widest">Why Kits</p>
+            <h2 className="font-display font-bold text-2xl sm:text-3xl mt-1">Better Than Buying Separate</h2>
           </div>
 
           <div className="grid sm:grid-cols-3 gap-6 sm:gap-8">
             {[
-              { icon: CheckCircle, title: "No Guesswork", desc: "We picked the right parts for your life. No research needed." },
-              { icon: Zap, title: "Save 15-30%", desc: "Kits cost less than buying everything separate. Better deal." },
-              { icon: Heart, title: "30-Day Guarantee", desc: "Not happy? Send it back. No questions asked. That's how sure we are." },
+              { icon: CheckCircle, title: "No Guesswork", desc: "We picked the right parts for your phone. No research needed." },
+              { icon: Zap, title: "Save 15-30%", desc: "Kits cost less than separate. Better deal." },
+              { icon: Heart, title: "30 Day Guarantee", desc: "Not happy? Send it back. No questions asked." },
             ].map((item) => (
               <motion.div
                 key={item.title}
@@ -207,19 +202,25 @@ const Home = () => {
                 <div className="p-5 sm:p-6">
                   <h3 className="font-display font-bold text-xl text-gray-900">{kit.name}</h3>
                   <p className="text-sm font-medium text-orange-600 mt-1">{kit.hook}</p>
-                  <p className="text-xs text-muted-foreground mt-2 line-clamp-2">{kit.description}</p>
+                  <p className="text-xs text-muted-foreground mt-2">{kit.description}</p>
 
-                  <ul className="mt-4 space-y-1.5">
-                    {kit.items.slice(0, 3).map((item) => (
-                      <li key={item} className="flex items-start gap-2 text-xs text-gray-600">
-                        <CheckCircle className="h-3.5 w-3.5 text-green-500 mt-0.5 shrink-0" />
-                        {item}
-                      </li>
+                  {/* Product images */}
+                  <div className="flex -space-x-2 mt-4">
+                    {kit.items.slice(0, 4).map((item) => (
+                      <img
+                        key={item}
+                        src={getItemImage(item)}
+                        alt={item}
+                        className="h-10 w-10 rounded-lg border-2 border-white object-cover shadow-sm"
+                        title={item}
+                      />
                     ))}
-                    {kit.items.length > 3 && (
-                      <li className="text-xs text-gray-400">+{kit.items.length - 3} more items</li>
+                    {kit.items.length > 4 && (
+                      <div className="h-10 w-10 rounded-lg border-2 border-white bg-gray-100 flex items-center justify-center text-[10px] text-gray-500 font-medium shadow-sm">
+                        +{kit.items.length - 4}
+                      </div>
                     )}
-                  </ul>
+                  </div>
 
                   <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
                     <div>
@@ -241,19 +242,19 @@ const Home = () => {
         </div>
       </section>
 
-      {/* THE POWERPOD METHOD (How It Works) */}
+      {/* HOW IT WORKS */}
       <section className="bg-gradient-to-b from-white to-orange-50/50 py-12 sm:py-16">
         <div className="container">
           <div className="text-center mb-8 sm:mb-10">
-            <p className="text-sm font-semibold text-gradient uppercase tracking-widest">The PowerPod Method</p>
-            <h2 className="font-display font-bold text-2xl sm:text-3xl mt-1">Three Steps to Never Running Out</h2>
+            <p className="text-sm font-semibold text-gradient uppercase tracking-widest">How It Works</p>
+            <h2 className="font-display font-bold text-2xl sm:text-3xl mt-1">Three Steps</h2>
           </div>
 
           <div className="grid sm:grid-cols-3 gap-8 sm:gap-12 max-w-3xl mx-auto">
             {[
-              { step: "01", title: "Pick Your Kit", desc: "Choose the kit that fits your life. Student, work, travel or audio." },
+              { step: "01", title: "Pick Your Kit", desc: "Student, work, travel or audio. Pick the one that fits." },
               { step: "02", title: "Order", desc: "Checkout online or order in 30 seconds on WhatsApp." },
-              { step: "03", title: "Delivered & Guaranteed", desc: "Fast delivery across Malawi. Love it or send it back within 30 days." },
+              { step: "03", title: "Delivered", desc: "Fast delivery across Malawi. Love it or send it back within 30 days." },
             ].map((item) => (
               <motion.div
                 key={item.step}
@@ -281,7 +282,7 @@ const Home = () => {
           
           <h2 className="font-display font-bold text-2xl sm:text-3xl md:text-4xl relative">Love Your Kit or Send It Back</h2>
           <p className="text-white/80 text-sm sm:text-base mt-2 max-w-lg mx-auto relative">
-            30 day guarantee. No questions asked. Join over 2,500 customers in Malawi who've upgraded.
+            30 day guarantee. Join 2,500+ customers in Malawi.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center mt-6 relative">
             <Button asChild size="lg" className="bg-white text-foreground hover:bg-white/90">

@@ -2,9 +2,9 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { formatMWK, kits } from "@/data/products";
+import { formatMWK, kits, getItemImage } from "@/data/products";
 import { useCart } from "@/contexts/CartContext";
-import { CheckCircle, ArrowRight, MessageCircle, Zap, ShoppingBag, BookOpen, Briefcase, Headphones, Luggage } from "lucide-react";
+import { ArrowRight, MessageCircle, Zap, ShoppingBag, BookOpen, Briefcase, Headphones, Luggage } from "lucide-react";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
 
 const lifestyleIcons: Record<string, typeof BookOpen> = {
@@ -38,14 +38,13 @@ const Combos = () => {
       {/* HEADER */}
       <section className="bg-gradient-to-b from-orange-50/50 to-white py-10 sm:py-14">
         <div className="container text-center">
-          <span className="inline-flex px-3 py-1 rounded-full bg-orange-100 text-orange-600 text-xs font-semibold mb-3">The PowerPod System. Malawi</span>
+          <span className="inline-flex px-3 py-1 rounded-full bg-orange-100 text-orange-600 text-xs font-semibold mb-3">Tech Kits. Malawi.</span>
           <h1 className="font-display font-bold text-3xl sm:text-4xl lg:text-5xl">Never Run Out of Battery Again</h1>
           <p className="text-muted-foreground text-sm sm:text-base mt-2 max-w-lg mx-auto">
-            No more dead phones. No more broken cables. No more bad sound. 
-            We picked everything you need. Charger, cable, power bank, earbuds. So you don't have to.
-            Better price than buying separate. One box. 30 day guarantee.
+            Dead phone? Broken cable? Bad sound? We picked charger, power bank, cable and audio for you. 
+            Better price than separate. 30 day guarantee.
           </p>
-          <p className="text-xs text-orange-600 font-medium mt-3">Selling fast. Order now for quick dispatch.</p>
+          <p className="text-xs text-orange-600 font-medium mt-3">Selling fast. Order now.</p>
         </div>
       </section>
 
@@ -99,14 +98,18 @@ const Combos = () => {
                   <div className="md:col-span-3 p-6 sm:p-8 flex flex-col justify-between">
                     <div>
                       <h3 className="font-semibold text-sm text-gray-500 mb-3 uppercase tracking-wider">What's Inside</h3>
-                      <ul className="space-y-2.5">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                         {kit.items.map((item) => (
-                          <li key={item} className="flex items-start gap-2.5 text-sm text-gray-700">
-                            <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 shrink-0" />
-                            {item}
-                          </li>
+                          <div key={item} className="flex flex-col items-center text-center gap-1.5 p-2 rounded-lg bg-gray-50 border border-gray-100">
+                            <img
+                              src={getItemImage(item)}
+                              alt={item}
+                              className="h-14 w-14 rounded-lg object-cover"
+                            />
+                            <span className="text-[10px] text-gray-600 leading-tight">{item}</span>
+                          </div>
                         ))}
-                      </ul>
+                      </div>
                     </div>
 
                     <div className="mt-6 pt-6 border-t border-gray-100">
@@ -142,7 +145,7 @@ const Combos = () => {
           <div className="text-center mb-6 sm:mb-8">
             <p className="text-sm font-semibold text-orange-600 uppercase tracking-widest">Need Just One Thing?</p>
             <h2 className="font-display font-bold text-2xl sm:text-3xl mt-1">Shop Individual Items</h2>
-            <p className="text-muted-foreground text-sm mt-1">Or grab a kit above and save more</p>
+            <p className="text-muted-foreground text-sm mt-1">Or grab a kit above and save</p>
           </div>
 
           <div className="flex flex-wrap justify-center gap-3">
@@ -172,7 +175,7 @@ const Combos = () => {
         <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-gray-900 to-gray-800 p-8 sm:p-12 text-center text-white">
           <h2 className="font-display font-bold text-2xl sm:text-3xl">Not Sure Which Kit?</h2>
           <p className="text-white/70 text-sm sm:text-base mt-2 max-w-md mx-auto">
-            Chat with us on WhatsApp. We'll help you pick the right one. Not happy after 30 days? Send it back, no questions asked.
+            Chat with us on WhatsApp. We will help you pick the right one. 30 day guarantee.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center mt-6">
             <a href={buildWhatsAppLink("Hi PowerPod! I need help choosing the right tech kit.")} target="_blank" rel="noopener noreferrer">

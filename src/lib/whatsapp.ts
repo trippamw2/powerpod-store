@@ -10,24 +10,24 @@ export const buildWhatsAppLink = (message: string) => {
 export const defaultMessage = "Hi PowerPod, I want to order.";
 
 export const productMessage = (name: string, price: number, imageUrl?: string) => {
-  const imagePart = imageUrl ? `\n📷 View: ${imageUrl}` : "";
-  return `Hi PowerPod 👋
+  const imagePart = imageUrl ? `\nView product: ${imageUrl}` : "";
+  return `Hi PowerPod.
 
-I'd like to order:
-• ${name} — MK ${price.toLocaleString("en-US")}
+I would like to order:
+${name} — MK ${price.toLocaleString("en-US")}
 ${imagePart}
 
-Please share next steps. Thanks!`;
+Please share next steps. Thanks.`;
 };
 
 export const comboMessage = (name: string, price: number, imageUrl?: string) => {
-  const imagePart = imageUrl ? `\n📷 View: ${imageUrl}` : "";
-  return `Hi PowerPod 👋
+  const imagePart = imageUrl ? `\nView: ${imageUrl}` : "";
+  return `Hi PowerPod.
 
-I'd like to order the *${name}* bundle — MK ${price.toLocaleString("en-US")}.
+I would like to order the ${name} bundle — MK ${price.toLocaleString("en-US")}.
 ${imagePart}
 
-Please share next steps. Thanks!`;
+Please share next steps. Thanks.`;
 };
 
 export interface CartItem {
@@ -54,40 +54,40 @@ export const buildOrderMessage = (
   storeUrl?: string
 ) => {
   const itemsTxt = items
-    .map((i) => `• ${i.quantity} × ${i.name} — MK ${(i.price * i.quantity).toLocaleString("en-US")}`)
+    .map((i) => `${i.quantity} x ${i.name} - MK ${(i.price * i.quantity).toLocaleString("en-US")}`)
     .join("\n");
 
-  return `📦 *NEW ORDER - PowerPod* ⚡
+  return `*NEW ORDER - PowerPod*
 
-━━━━━━━━━━━━━━━━━━━━━━━━
+================================
 
-*📋 ORDER #${orderId ? orderId.slice(0, 8).toUpperCase() : "PENDING"}*
+*ORDER #${orderId ? orderId.slice(0, 8).toUpperCase() : "PENDING"}*
 
-━━━━━━━━━━━━━━━━━━━━━━━━
+================================
 
-*👤 CUSTOMER DETAILS*
-━━━━━━━━━━━━━━━━━━━━━━━━
-👤 Name: ${customer.name}
-📞 Phone: ${customer.phone}
-📍 Location: ${customer.location}
-🚚 Delivery: ${customer.deliveryMethod}
-${customer.notes ? `📝 Notes: ${customer.notes}` : ""}
+*CUSTOMER DETAILS*
+================================
+Name: ${customer.name}
+Phone: ${customer.phone}
+Location: ${customer.location}
+Delivery: ${customer.deliveryMethod}
+${customer.notes ? `Notes: ${customer.notes}` : ""}
 
-━━━━━━━━━━━━━━━━━━━━━━━━
+================================
 
-*🛒 ORDER ITEMS*
-━━━━━━━━━━━━━━━━━━━━━━━━
+*ORDER ITEMS*
+================================
 ${itemsTxt}
 
-━━━━━━━━━━━━━━━━━━━━━━━━
+================================
 
-*💰 PAYMENT SUMMARY*
-━━━━━━━━━━━━━━━━━━━━━━━━
+*PAYMENT SUMMARY*
+================================
 Subtotal: MK ${total.toLocaleString("en-US")}
-Delivery: FREE 🚚
-━━━━━━━━━━━━━━━━━━━━━━━━
+Delivery: FREE
+================================
 *TOTAL: MK ${total.toLocaleString("en-US")}*
-━━━━━━━━━━━━━━━━━━━━━━━━
+================================
 
-Please confirm order and send payment link. Thank you! 🙏`;
+Please confirm order and send payment link. Thank you.`;
 };

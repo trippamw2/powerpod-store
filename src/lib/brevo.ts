@@ -50,7 +50,7 @@ const wrapEmail = (content: string, title: string) => `
                 <tr>
                   <td align="center">
                     <!-- Logo icon -->
-                    <div style="display: inline-block; width: 64px; height: 64px; background: rgba(255,255,255,0.9); border-radius: 20px; line-height: 64px; font-size: 28px; margin-bottom: 16px;">⚡</div>
+                    <div style="display: inline-block; width: 64px; height: 64px; background: rgba(255,255,255,0.9); border-radius: 20px; line-height: 64px; font-size: 24px; font-weight: 800; color: #FF6B00; margin-bottom: 16px;">P</div>
                     <!-- Brand name -->
                     <h1 style="color: #ffffff; margin: 0; font-size: 32px; font-weight: 800; letter-spacing: 3px; text-shadow: 0 2px 20px rgba(0,0,0,0.2);">${BRAND.name}</h1>
                     <!-- Tagline -->
@@ -229,9 +229,9 @@ export const sendOrderConfirmationEmail = async (order: OrderEmailParams) => {
 
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-      <h2 style="color: #FF6B00;">🛒 Order Confirmed!</h2>
+      <h2 style="color: #FF6B00;">Order Confirmed</h2>
       <p>Hi ${order.toName},</p>
-      <p>Your PowerPod order is in! Here's the summary:</p>
+      <p>Your PowerPod order is in. Here is the summary:</p>
       
       <table style="width: 100%; border-collapse: collapse;">
         ${itemsHtml}
@@ -242,21 +242,21 @@ export const sendOrderConfirmationEmail = async (order: OrderEmailParams) => {
       </table>
       
       <div style="background: #f8f9fa; padding: 16px; margin: 16px 0; border-radius: 8px;">
-        <p style="margin: 4px 0;"><strong>📍 Delivery:</strong> ${order.location}</p>
-        <p style="margin: 4px 0;"><strong>🚚 Method:</strong> ${order.deliveryMethod}</p>
-        ${order.eta ? `<p style="margin: 4px 0;"><strong>📦 ETA:</strong> ${order.eta}</p>` : ""}
+        <p style="margin: 4px 0;"><strong>Delivery:</strong> ${order.location}</p>
+        <p style="margin: 4px 0;"><strong>Method:</strong> ${order.deliveryMethod}</p>
+        ${order.eta ? `<p style="margin: 4px 0;"><strong>ETA:</strong> ${order.eta}</p>` : ""}
       </div>
       
       <p>Order #${order.orderId.slice(0, 8).toUpperCase()}</p>
-      <p style="color: #6b7280; font-size: 14px;">We'll WhatsApp you with updates!</p>
-      <p style="margin-top: 24px;">Thanks, PowerPod Team 🙏</p>
+      <p style="color: #6b7280; font-size: 14px;">We will WhatsApp you with updates.</p>
+      <p style="margin-top: 24px;">Thanks, PowerPod Team</p>
     </div>
   `;
 
   return sendBrevoEmail({
     to: order.to,
     toName: order.toName,
-    subject: `Order Confirmed! 🎉 #${order.orderId.slice(0, 8).toUpperCase()}`,
+    subject: `Order Confirmed. #${order.orderId.slice(0, 8).toUpperCase()}`,
     htmlContent: html,
   });
 };
@@ -267,9 +267,9 @@ export const sendOrderConfirmationEmail = async (order: OrderEmailParams) => {
 export const sendPaymentReceivedEmail = async (order: OrderEmailParams) => {
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-      <h2 style="color: #22c55e;">✅ Payment Confirmed!</h2>
+      <h2 style="color: #22c55e;">Payment Confirmed</h2>
       <p>Hi ${order.toName},</p>
-      <p>Thanks for paying! Your order is being prepared.</p>
+      <p>Thanks for paying. Your order is being prepared.</p>
       
       <div style="background: #f8f9fa; padding: 16px; margin: 16px 0; border-radius: 8px;">
         <p style="margin: 4px 0;"><strong>Order #:</strong> ${order.orderId.slice(0, 8).toUpperCase()}</p>
@@ -277,15 +277,15 @@ export const sendPaymentReceivedEmail = async (order: OrderEmailParams) => {
         <p style="margin: 4px 0;"><strong>Delivery:</strong> ${order.location}</p>
       </div>
       
-      <p>We'll let you know when it's dispatched! 🚚</p>
-      <p style="margin-top: 24px;">Thanks, PowerPod Team 🙏</p>
+      <p>We will let you know when it is dispatched.</p>
+      <p style="margin-top: 24px;">Thanks, PowerPod Team</p>
     </div>
   `;
 
   return sendBrevoEmail({
     to: order.to,
     toName: order.toName,
-    subject: `Payment Received! ✅ #${order.orderId.slice(0, 8).toUpperCase()}`,
+    subject: `Payment Received. #${order.orderId.slice(0, 8).toUpperCase()}`,
     htmlContent: html,
   });
 };
@@ -300,22 +300,22 @@ export const sendDispatchedEmail = async (order: OrderEmailParams) => {
 
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-      <h2 style="color: #3b82f6;">🚚 On The Way!</h2>
+      <h2 style="color: #3b82f6;">On The Way</h2>
       <p>Hi ${order.toName},</p>
-      <p>Your PowerPod order is out for delivery!</p>
+      <p>Your PowerPod order is out for delivery.</p>
       
       <ul>${itemsHtml}</ul>
       
       <p>Est. delivery: ${order.eta || "later today"}</p>
       <p style="margin-top: 16px;">Track: <a href="https://powerpod-store.vercel.app/track/${order.orderId}" style="color: #FF6B00;">powerpod-store.vercel.app/track/${order.orderId.slice(0, 8)}</a></p>
-      <p style="margin-top: 24px;">Thanks, PowerPod Team 🙏</p>
+      <p style="margin-top: 24px;">Thanks, PowerPod Team</p>
     </div>
   `;
 
   return sendBrevoEmail({
     to: order.to,
     toName: order.toName,
-    subject: `Order On The Way! 🚚 #${order.orderId.slice(0, 8).toUpperCase()}`,
+    subject: `Order On The Way. #${order.orderId.slice(0, 8).toUpperCase()}`,
     htmlContent: html,
   });
 };
@@ -330,22 +330,22 @@ export const sendDeliveredEmail = async (order: OrderEmailParams) => {
 
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-      <h2 style="color: #22c55e;">🎉 Delivered!</h2>
+      <h2 style="color: #22c55e;">Delivered</h2>
       <p>Hi ${order.toName},</p>
-      <p>You got it! 🙌</p>
+      <p>Your order has arrived.</p>
       
       <ul>${itemsHtml}</ul>
       
-      <p style="margin: 16px 0;">Hope you love your PowerPod gear!</p>
+      <p style="margin: 16px 0;">Hope you love your PowerPod gear.</p>
       <p>Please leave a review: <a href="https://powerpod-store.vercel.app/reviews" style="color: #FF6B00;">powerpod-store.vercel.app/reviews</a></p>
-      <p style="margin-top: 24px;">Thanks for choosing PowerPod! 🙏⭐</p>
+      <p style="margin-top: 24px;">Thanks for choosing PowerPod.</p>
     </div>
   `;
 
   return sendBrevoEmail({
     to: order.to,
     toName: order.toName,
-    subject: `Order Delivered! 🎉 #${order.orderId.slice(0, 8).toUpperCase()}`,
+    subject: `Order Delivered. #${order.orderId.slice(0, 8).toUpperCase()}`,
     htmlContent: html,
   });
 };
@@ -378,7 +378,7 @@ export const sendAdminNotificationEmail = async (order: OrderEmailParams) => {
 
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-      <h2 style="color: #FF6B00;">🛒 New Order Received!</h2>
+      <h2 style="color: #FF6B00;">New Order Received</h2>
       
       <table style="width: 100%; border-collapse: collapse;">
         ${itemsHtml}
@@ -389,10 +389,10 @@ export const sendAdminNotificationEmail = async (order: OrderEmailParams) => {
       </table>
       
       <div style="background: #f8f9fa; padding: 16px; margin: 16px 0; border-radius: 8px;">
-        <p style="margin: 4px 0;"><strong>👤 Customer:</strong> ${order.toName}</p>
-        <p style="margin: 4px 0;"><strong>📱 Phone:</strong> ${order.to}</p>
-        <p style="margin: 4px 0;"><strong>📍 Location:</strong> ${order.location}</p>
-        <p style="margin: 4px 0;"><strong>🚚 Delivery:</strong> ${order.deliveryMethod}</p>
+        <p style="margin: 4px 0;"><strong>Customer:</strong> ${order.toName}</p>
+        <p style="margin: 4px 0;"><strong>Phone:</strong> ${order.to}</p>
+        <p style="margin: 4px 0;"><strong>Location:</strong> ${order.location}</p>
+        <p style="margin: 4px 0;"><strong>Delivery:</strong> ${order.deliveryMethod}</p>
       </div>
       
       <p>Order #${order.orderId.slice(0, 8).toUpperCase()}</p>
@@ -405,7 +405,7 @@ export const sendAdminNotificationEmail = async (order: OrderEmailParams) => {
   return sendBrevoEmail({
     to: ADMIN_EMAIL,
     toName: "PowerPod Admin",
-    subject: `🛒 NEW ORDER #${order.orderId.slice(0, 8).toUpperCase()} - MK ${order.total.toLocaleString()}`,
+    subject: `NEW ORDER #${order.orderId.slice(0, 8).toUpperCase()} - MK ${order.total.toLocaleString()}`,
     htmlContent: html,
   });
 };

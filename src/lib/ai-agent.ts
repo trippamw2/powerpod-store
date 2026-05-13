@@ -120,8 +120,8 @@ Please confirm payment to secure your items!`;
   }
 
   private generateCustom(data: any, customMessage: string, tone: string): string {
-    const emojis = { friendly: '👋', professional: '📢', excited: '🔥' };
-    return `${emojis[tone as keyof typeof emojis] || '👋'} ${customMessage}`;
+    const prefix = tone === 'friendly' ? '' : '';
+    return `${prefix}${customMessage}`;
   }
 }
 

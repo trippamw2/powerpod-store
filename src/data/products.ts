@@ -66,9 +66,9 @@ export const categoryGroups = {
 
 export const categories: { id: Category; label: string; parent?: string }[] = [
   { id: "all", label: "All Products" },
-  { id: "power-wired", label: "Wired Chargers", parent: "Power" },
-  { id: "power-wireless", label: "Wireless Chargers", parent: "Power" },
-  { id: "power-adapters", label: "Adapters", parent: "Power" },
+  { id: "power-wired", label: "Wall Chargers", parent: "Power" },
+  { id: "power-wireless", label: "Wireless Pads", parent: "Power" },
+  { id: "power-adapters", label: "Docks & Hubs", parent: "Power" },
   { id: "power-banks", label: "Power Banks", parent: "Power" },
   { id: "car-chargers", label: "Car Chargers", parent: "Power" },
   { id: "cables", label: "Cables", parent: "Power" },
@@ -125,6 +125,22 @@ export const products: Product[] = [
   { id: "p3-earbuds", name: "PowerPods Pro", benefit: "ANC. Premium sound. Touch controls.", price: 55000, category: "earbuds", image: earbuds, brand: "Huawei", types: [{ id: "t1", name: "Black" }] },
 ];
 
+export interface Kit {
+  id: string;
+  name: string;
+  hook: string;
+  lifestyle: "student" | "work" | "travel" | "audio" | "premium";
+  tagline: string;
+  description: string;
+  price: number;
+  saving: number;
+  items: string[];
+  image: string;
+  vibe: string;
+  badge?: string;
+  stock?: number;
+}
+
 export interface Combo {
   id: string;
   name: string;
@@ -136,12 +152,70 @@ export interface Combo {
   vibe: string;
 }
 
-export const combos: Combo[] = [
-  { id: "c1", name: "Starter Pack", tagline: "Keep going all day.", description: "The basics to stay charged and connected.", price: 18000, saving: 4000, items: ["USB-C Fast Charger 25W", "Braided USB-C Cable 1m"], vibe: "Start right." },
-  { id: "c2", name: "Daily Vibe", tagline: "Your everyday setup.", description: "Power and sound for your daily grind.", price: 58000, saving: 9000, items: ["Power Bank 10000mAh", "PowerPods Wireless", "Braided USB-C Cable 1m"], vibe: "Stay wired." },
-  { id: "c3", name: "Weekend Ready", tagline: "For the sessions.", description: "Sound sorted for party and study.", price: 95000, saving: 15000, items: ["Studio Headphones", "Vibe Speaker", "USB-C Fast Charger 25W"], vibe: "Loud and ready." },
-  { id: "c4", name: "Full Setup", tagline: "Everything covered.", description: "The complete package for your vibe.", price: 165000, saving: 28000, items: ["Studio Headphones", "PowerPods Wireless", "Vibe Speaker", "Power Bank 20000mAh", "USB-C Fast Charger 25W", "Braided USB-C Cable 2m"], vibe: "All in." },
+export const kits: Kit[] = [
+  {
+    id: "k1",
+    name: "Essential Kit",
+    hook: "Never run out of battery during class again.",
+    lifestyle: "student",
+    tagline: "The student's daily power companion.",
+    description: "Everything you need to keep your devices alive through lectures, libraries, and late-night study sessions.",
+    price: 18000,
+    saving: 4000,
+    items: ["USB-C Fast Charger 25W", "Braided USB-C Cable 1m"],
+    image: charger,
+    vibe: "Never run out of power.",
+    badge: "Best for Students",
+    stock: 18,
+  },
+  {
+    id: "k2",
+    name: "Daily Power Kit",
+    hook: "Never get caught with a dead phone again.",
+    lifestyle: "work",
+    tagline: "Power and sound for your workday.",
+    description: "Stay powered through meetings, calls, and commutes. Your professional edge.",
+    price: 58000,
+    saving: 9000,
+    items: ["Power Bank 10000mAh", "PowerPods Wireless", "Braided USB-C Cable 1m"],
+    image: powerbank,
+    vibe: "Professional. Powered. Ready.",
+    badge: "Most Popular",
+    stock: 4,
+  },
+  {
+    id: "k3",
+    name: "Audio Lifestyle Kit",
+    hook: "Sound so good you forget you're wearing them.",
+    lifestyle: "audio",
+    tagline: "Your personal soundtrack, anywhere.",
+    description: "Immerse yourself in premium audio. From deep bass to crystal-clear calls.",
+    price: 95000,
+    saving: 15000,
+    items: ["Studio Headphones", "Vibe Speaker", "USB-C Fast Charger 25W"],
+    image: headphones,
+    vibe: "Listen louder. Live better.",
+    badge: "Best Value",
+    stock: 8,
+  },
+  {
+    id: "k4",
+    name: "Premium Studio Kit",
+    hook: "Everything. Covered.",
+    lifestyle: "premium",
+    tagline: "Everything covered. Nothing missing.",
+    description: "The complete PowerPod ecosystem. Premium sound, limitless power, and total connectivity.",
+    price: 165000,
+    saving: 28000,
+    items: ["Studio Headphones", "PowerPods Wireless", "Vibe Speaker", "Power Bank 20000mAh", "USB-C Fast Charger 25W", "Braided USB-C Cable 2m"],
+    image: headphones,
+    vibe: "The full lifestyle upgrade.",
+    badge: "Premium",
+    stock: 2,
+  },
 ];
+
+export const combos: Kit[] = kits;
 
 const itemImageMap: Record<string, string> = {
   "PowerPods Wireless": earbuds, "PowerPods Basic": earbuds, "PowerPods Pro": earbuds,

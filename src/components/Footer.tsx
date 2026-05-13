@@ -130,9 +130,10 @@ export const Footer = () => {
           <div className="md:col-span-2 space-y-4">
             <Logo className="h-12" />
             <p className="text-gray-500 max-w-sm">
-              Power and sound for your everyday. Stay charged. Stay connected.
+              PowerPod helps students and young pros in Malawi stay charged and sound great. 
+              Kits picked for your life. Delivered to your door.
             </p>
-            <p className="text-sm text-orange-600 font-semibold">Keep the vibe alive</p>
+            <p className="text-sm text-orange-600 font-semibold">Upgrade your everyday.</p>
             
             {/* Social */}
             <div className="flex gap-4 pt-2">
@@ -166,12 +167,11 @@ export const Footer = () => {
           <div>
             <h4 className="font-display font-semibold mb-3">Shop</h4>
             <ul className="space-y-2 text-sm text-gray-500">
+              <li><Link to="/combos" className="hover:text-orange-500 transition-colors">Tech Kits</Link></li>
               <li><Link to="/shop" className="hover:text-orange-500 transition-colors">All Products</Link></li>
               <li><Link to="/shop?cat=power-banks" className="hover:text-orange-500 transition-colors">Power Banks</Link></li>
               <li><Link to="/shop?cat=earbuds" className="hover:text-orange-500 transition-colors">Earbuds</Link></li>
               <li><Link to="/shop?cat=headphones" className="hover:text-orange-500 transition-colors">Headphones</Link></li>
-              <li><Link to="/shop?cat=chargers" className="hover:text-orange-500 transition-colors">Chargers</Link></li>
-              <li><Link to="/combos" className="hover:text-orange-500 transition-colors">Bundles</Link></li>
             </ul>
           </div>
 
@@ -199,7 +199,7 @@ export const Footer = () => {
 
         <div className="border-t border-gray-100 mt-12">
           <div className="container py-6 flex flex-col md:flex-row gap-3 items-center justify-between text-xs text-gray-400">
-            <p>© {new Date().getFullYear()} PowerPod. Keep the vibe alive.</p>
+            <p>© {new Date().getFullYear()} PowerPod. Upgrade your everyday.</p>
             <p className="uppercase tracking-wider">Malawi 🇲🇼</p>
           </div>
         </div>

@@ -115,22 +115,18 @@ const Combos = () => {
                     <p className="text-sm font-medium text-orange-600 mt-0.5">{kit.hook}</p>
                     <p className="text-xs text-muted-foreground mt-2 leading-relaxed">{kit.description}</p>
 
-                    {/* Product thumbnails */}
-                    <div className="flex -space-x-2 mt-4">
-                      {kitProducts.slice(0, 5).map((product) => (
-                        <img
-                          key={product.id}
-                          src={product.image}
-                          alt={product.name}
-                          className="h-9 w-9 rounded-lg border-2 border-white object-cover shadow-sm"
-                          title={product.name}
-                        />
-                      ))}
-                      {kitProducts.length > 5 && (
-                        <div className="h-9 w-9 rounded-lg border-2 border-white bg-gray-100 flex items-center justify-center text-[10px] text-gray-500 font-medium shadow-sm">
-                          +{kitProducts.length - 5}
-                        </div>
-                      )}
+                    {/* What's Inside */}
+                    <div className="mt-4 space-y-1.5">
+                      <p className="text-[10px] font-medium text-gray-400 uppercase tracking-wider">What's Inside</p>
+                      <div className="grid grid-cols-2 gap-x-3 gap-y-1.5">
+                        {kitProducts.slice(0, 6).map((product) => (
+                          <div key={product.id} className="flex items-center gap-1.5 text-[11px]">
+                            <img src={product.image} alt={product.name} className="h-5 w-5 rounded object-cover shrink-0" />
+                            <span className="text-gray-600 truncate">{product.name}</span>
+                            <span className="text-gray-400 line-through ml-auto shrink-0">{formatMWK(product.price)}</span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
 
                     {/* Pricing */}

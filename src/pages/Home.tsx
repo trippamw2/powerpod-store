@@ -205,22 +205,17 @@ const Home = () => {
                     <p className="text-sm font-medium text-orange-600 mt-1">{kit.hook}</p>
                     <p className="text-xs text-muted-foreground mt-2">{kit.description}</p>
 
-                    {/* Product images */}
-                    <div className="flex -space-x-2 mt-4">
-                      {getKitProducts(kit).slice(0, 4).map((product) => (
-                        <img
-                          key={product.id}
-                          src={product.image}
-                          alt={product.name}
-                          className="h-10 w-10 rounded-lg border-2 border-white object-cover shadow-sm"
-                          title={product.name}
-                        />
-                      ))}
-                      {getKitProducts(kit).length > 4 && (
-                        <div className="h-10 w-10 rounded-lg border-2 border-white bg-gray-100 flex items-center justify-center text-[10px] text-gray-500 font-medium shadow-sm">
-                          +{getKitProducts(kit).length - 4}
-                        </div>
-                      )}
+                    {/* What's Inside */}
+                    <div className="mt-3 space-y-1">
+                      <p className="text-[10px] font-medium text-gray-400 uppercase tracking-wider">Includes</p>
+                      <div className="grid grid-cols-2 gap-x-3 gap-y-1">
+                        {getKitProducts(kit).slice(0, 6).map((product) => (
+                          <div key={product.id} className="flex items-center gap-1.5 text-[11px]">
+                            <img src={product.image} alt={product.name} className="h-4 w-4 rounded object-cover shrink-0" />
+                            <span className="text-gray-500 truncate">{product.name}</span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
 
                     <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">

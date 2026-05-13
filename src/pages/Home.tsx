@@ -192,28 +192,39 @@ const Home = () => {
                   to={`/kits/${kit.id}`}
                   className="group relative block rounded-xl sm:rounded-2xl bg-white border border-gray-100 hover:border-orange-200 hover:shadow-lg transition-all duration-200 overflow-hidden"
                 >
-                  {kit.badge && (
-                    <span className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-orange-500 text-white text-[10px] font-semibold uppercase tracking-wider z-10">
-                      {kit.badge}
-                    </span>
-                  )}
-                  {kit.stock !== undefined && kit.stock <= 5 && (
-                    <span className="absolute top-3 left-3 px-2 py-0.5 rounded-full border border-orange-300 bg-white text-orange-600 text-[10px] font-medium z-10">
-                      Only {kit.stock} left
-                    </span>
-                  )}
+                  {/* Hero Image */}
+                  <div className="relative bg-gray-50 border-b border-gray-100">
+                    {kit.badge && (
+                      <span className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-orange-500 text-white text-[10px] font-semibold z-10">
+                        {kit.badge}
+                      </span>
+                    )}
+                    {kit.stock !== undefined && kit.stock <= 5 && (
+                      <span className="absolute top-3 left-3 px-2 py-0.5 rounded-full border border-orange-300 bg-white text-orange-600 text-[10px] font-medium z-10">
+                        Only {kit.stock} left
+                      </span>
+                    )}
+                    <div className="w-full aspect-[4/3] max-h-[280px] flex items-center justify-center p-4 sm:p-5">
+                      <img
+                        src={kit.image}
+                        alt={kit.name}
+                        className="w-full h-full object-contain"
+                      />
+                    </div>
+                  </div>
+
                   <div className="p-5 sm:p-6">
-                    <h3 className="font-display font-bold text-xl text-gray-900">{kit.name}</h3>
+                    <h3 className="font-display font-bold text-lg sm:text-xl text-gray-900">{kit.name}</h3>
                     <p className="text-sm font-medium text-orange-600 mt-1">{kit.hook}</p>
                     <p className="text-xs text-muted-foreground mt-2">{kit.description}</p>
 
                     {/* What's Inside */}
-                    <div className="mt-3 space-y-1">
+                    <div className="mt-3 space-y-1.5">
                       <p className="text-[10px] font-medium text-gray-400 uppercase tracking-wider">Includes</p>
-                      <div className="grid grid-cols-2 gap-x-3 gap-y-1.5">
-                        {getKitProducts(kit).slice(0, 6).map((product) => (
-                          <div key={product.id} className="flex items-center gap-1.5 text-[11px]">
-                            <img src={product.image} alt={product.name} className="h-6 w-6 sm:h-8 sm:w-8 rounded-lg object-cover shrink-0 border border-gray-100" />
+                      <div className="space-y-1">
+                        {getKitProducts(kit).slice(0, 4).map((product) => (
+                          <div key={product.id} className="flex items-center gap-2 text-[11px]">
+                            <img src={product.image} alt={product.name} className="h-8 w-8 sm:h-9 sm:w-9 rounded-lg object-cover shrink-0 border border-gray-100" />
                             <span className="text-gray-500 truncate">{product.name}</span>
                           </div>
                         ))}

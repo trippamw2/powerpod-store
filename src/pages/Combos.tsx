@@ -89,25 +89,34 @@ const Combos = () => {
                   to={`/kits/${kit.id}`}
                   className="group relative block rounded-2xl bg-white border border-gray-100 hover:border-orange-200 hover:shadow-lg transition-all duration-200 overflow-hidden h-full"
                 >
-                  {/* Badges */}
-                  {kit.badge && (
-                    <span className="absolute top-4 right-4 px-3 py-1 rounded-full bg-orange-500 text-white text-xs font-semibold z-10">
-                      {kit.badge}
-                    </span>
-                  )}
-                  {kit.stock !== undefined && kit.stock <= 5 && (
-                    <span className="absolute top-4 left-4 px-2.5 py-1 rounded-full border border-orange-300 bg-white text-orange-600 text-[10px] font-medium z-10">
-                      Only {kit.stock} left
-                    </span>
-                  )}
+                  {/* Hero Image */}
+                  <div className="relative bg-gray-50 border-b border-gray-100">
+                    {kit.badge && (
+                      <span className="absolute top-3 right-3 px-3 py-1 rounded-full bg-orange-500 text-white text-xs font-semibold z-10">
+                        {kit.badge}
+                      </span>
+                    )}
+                    {kit.stock !== undefined && kit.stock <= 5 && (
+                      <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full border border-orange-300 bg-white text-orange-600 text-[10px] font-medium z-10">
+                        Only {kit.stock} left
+                      </span>
+                    )}
+                    <div className="w-full aspect-[4/3] max-h-[320px] flex items-center justify-center p-4 sm:p-6">
+                      <img
+                        src={kit.image}
+                        alt={kit.name}
+                        className="w-full h-full object-contain"
+                      />
+                    </div>
+                  </div>
 
                   <div className="p-5 sm:p-6">
-                    {/* Lifestyle icon + label */}
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className={`h-10 w-10 rounded-xl ${color} flex items-center justify-center`}>
-                        <Icon className="h-5 w-5 text-white" />
+                    {/* Lifestyle label */}
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className={`h-6 w-6 rounded-md ${color} flex items-center justify-center`}>
+                        <Icon className="h-3.5 w-3.5 text-white" />
                       </div>
-                      <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
                         {lifestyleLabels[kit.lifestyle] || kit.lifestyle}
                       </span>
                     </div>
@@ -119,12 +128,12 @@ const Combos = () => {
                     {/* What's Inside */}
                     <div className="mt-4 space-y-2">
                       <p className="text-[10px] font-medium text-gray-400 uppercase tracking-wider">What's Inside</p>
-                      <div className="grid grid-cols-2 gap-2">
-                        {kitProducts.slice(0, 6).map((product) => (
-                          <div key={product.id} className="flex items-center gap-2 text-[11px]">
-                            <img src={product.image} alt={product.name} className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg object-cover shrink-0 border border-gray-100" />
-                            <span className="text-gray-600 truncate">{product.name}</span>
-                            <span className="text-gray-400 line-through ml-auto shrink-0">{formatMWK(product.price)}</span>
+                      <div className="space-y-1.5">
+                        {kitProducts.slice(0, 4).map((product) => (
+                          <div key={product.id} className="flex items-center gap-3 text-[12px]">
+                            <img src={product.image} alt={product.name} className="h-10 w-10 sm:h-12 sm:w-12 rounded-xl object-cover shrink-0 border border-gray-100" />
+                            <span className="text-gray-600 truncate font-medium">{product.name}</span>
+                            <span className="text-gray-400 line-through ml-auto shrink-0 text-[11px]">{formatMWK(product.price)}</span>
                           </div>
                         ))}
                       </div>

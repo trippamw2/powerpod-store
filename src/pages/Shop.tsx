@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { categories, Category, BRANDS } from "@/data/products";
+import { Link } from "react-router-dom";
+import { categories, Category, BRANDS, kits, formatMWK, getItemImage } from "@/data/products";
 import { useProducts } from "@/hooks/useProducts";
 import { ProductCard } from "@/components/ProductCard";
 import { PromotionSlider } from "@/components/PromotionSlider";
-import { Search, X, Grid3X3, List, SlidersHorizontal, ChevronDown, ArrowUpDown, Loader2, ChevronRight } from "lucide-react";
+import { Search, X, Grid3X3, List, SlidersHorizontal, ArrowUpDown, Loader2, ChevronRight, Package, ArrowRight, Zap, Users, Briefcase, Headphones, Luggage } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
@@ -102,9 +103,26 @@ const Shop = () => {
         <PromotionSlider page="shop" />
       </div>
 
-      <div className="max-w-2xl space-y-2 sm:space-y-3 mb-4 sm:mb-8">
-        <h1 className="font-display font-bold text-2xl sm:text-3xl lg:text-4xl tracking-tight">Shop</h1>
-        <p className="text-gray-500 text-sm sm:text-base">Power and sound for your everyday.</p>
+      <div className="max-w-3xl space-y-2 sm:space-y-3 mb-4 sm:mb-8">
+        <h1 className="font-display font-bold text-2xl sm:text-3xl lg:text-4xl tracking-tight">Individual Items</h1>
+        <p className="text-gray-500 text-sm sm:text-base">Single items to add to your kit, or build your setup one piece at a time.</p>
+      </div>
+
+      {/* Kit CTA Banner */}
+      <div className="bg-gradient-to-r from-orange-500 to-orange-600 rounded-2xl p-6 sm:p-8 mb-6 sm:mb-10 text-white">
+        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+          <div className="space-y-2">
+            <h2 className="font-display font-bold text-xl sm:text-2xl">Get a Kit and Save</h2>
+            <p className="text-white/80 text-sm sm:text-base max-w-lg">
+              A kit costs less than buying these same items separate. And it comes in one box.
+            </p>
+          </div>
+          <Link to="/combos">
+            <Button className="bg-white text-orange-600 hover:bg-orange-50 px-6 py-3 h-auto rounded-full font-semibold text-sm sm:text-base gap-2">
+              See Kits <ArrowRight className="h-4 w-4" />
+            </Button>
+          </Link>
+        </div>
       </div>
 
       {/* Search & Sort Bar */}

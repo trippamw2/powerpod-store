@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
-import { formatMWK } from "@/data/products";
+import { formatMWK, kits, getItemImage, Kit } from "@/data/products";
 import { useCart } from "@/contexts/CartContext";
 import { useProducts } from "@/hooks/useProducts";
 import { useCompare } from "@/contexts/CompareContext";
@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, Minus, Plus, ShoppingBag, Check, Truck, ShieldCheck, Star, Heart, Share2, ChevronDown, ChevronUp, Loader2, MessageCircle, Facebook, Instagram, Link2, Zap, GitCompare, Eye } from "lucide-react";
+import { ArrowLeft, Minus, Plus, ShoppingBag, Check, Truck, ShieldCheck, Star, Heart, Share2, ChevronDown, ChevronUp, Loader2, MessageCircle, Facebook, Instagram, Link2, Zap, GitCompare, Eye, ArrowRight, Package } from "lucide-react";
 import { ProductCard } from "@/components/ProductCard";
 import { toast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
@@ -181,7 +181,6 @@ const ProductDetail = () => {
   };
 
   const handleWishlist = () => {
-    setIsWishlisted(!isWishlisted);
     const newWishlist = isWishlisted
       ? wishlistItems.filter(id => id !== product.id)
       : [...wishlistItems, product.id];
@@ -224,9 +223,9 @@ const ProductDetail = () => {
   ];
 
   const faqs = [
-    { q: "Is this product genuine?", a: "Yes, all our products are 100% genuine and sourced from authorized distributors." },
-    { q: "Do you offer warranty?", a: "Yes, all electronics come with at least 6 months manufacturer warranty." },
-    { q: "How long is delivery?", a: "Delivery takes 1-3 business days within Blantyre, 3-5 days for other districts." },
+    { q: "Is this the real thing?", a: "Yes. Every product is 100% real. We buy from trusted sellers." },
+    { q: "What if it breaks?", a: "All our electronics come with a 6-month warranty. If it stops working, we replace it." },
+    { q: "How fast will it get here?", a: "Blantyre: 1-3 days. Other areas: 3-5 days." },
   ];
 
   return (
@@ -362,6 +361,54 @@ const ProductDetail = () => {
               <span className="text-sm font-medium text-amber-700">Earn {product.reward_points} points with this purchase</span>
             </div>
           )}
+
+          {/* Kit Upsell: find kits containing this product */}
+          {(() => {
+            const matchingKits = kits.filter(k =>
+              k.items.some(i =>
+                product.name.toLowerCase().includes(i.toLowerCase()) ||
+                i.toLowerCase().includes(product.name.toLowerCase()) ||
+                k.items.some(item => product.name.split(" ").some(word => item.toLowerCase().includes(word.toLowerCase())))
+              )
+            ).slice(0, 2);
+            
+            if (matchingKits.length === 0) return null;
+            
+            return (
+              <div className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl border border-orange-200 p-4 sm:p-5 space-y-3">
+                <div className="flex items-center gap-2">
+                  <Package className="h-5 w-5 text-orange-500" />
+                  <p className="font-semibold text-orange-800 text-sm">Also in these Kits</p>
+                </div>
+                <div className="grid gap-2">
+                  {matchingKits.map(kit => (
+                    <Link
+                      key={kit.id}
+                      to="/combos"
+                      className="flex items-center justify-between bg-white rounded-lg p-3 border border-orange-100 hover:border-orange-300 transition-all group"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-lg bg-orange-100 flex items-center justify-center text-orange-600 font-bold text-xs">
+                          {kit.name.split(" ").map(w => w[0]).join("").slice(0, 2)}
+                        </div>
+                        <div>
+                          <p className="font-medium text-sm text-gray-900 group-hover:text-orange-600 transition-colors">{kit.name}</p>
+                          <p className="text-xs text-gray-500">Save {formatMWK(kit.saving)} • {kit.items.length} items</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-sm text-orange-600">{formatMWK(kit.price)}</span>
+                        <ArrowRight className="h-4 w-4 text-orange-400 group-hover:translate-x-1 transition-transform" />
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+                <p className="text-xs text-gray-500 text-center">
+                  🎯 Better value. One delivery. Everything you need.
+                </p>
+              </div>
+            );
+          })()}
 
           {/* Compare & Wishlist */}
           <div className="flex items-center gap-3">

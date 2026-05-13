@@ -210,10 +210,10 @@ const Home = () => {
                     {/* What's Inside */}
                     <div className="mt-3 space-y-1">
                       <p className="text-[10px] font-medium text-gray-400 uppercase tracking-wider">Includes</p>
-                      <div className="grid grid-cols-2 gap-x-3 gap-y-1">
+                      <div className="grid grid-cols-2 gap-x-3 gap-y-1.5">
                         {getKitProducts(kit).slice(0, 6).map((product) => (
                           <div key={product.id} className="flex items-center gap-1.5 text-[11px]">
-                            <img src={product.image} alt={product.name} className="h-4 w-4 rounded object-cover shrink-0" />
+                            <img src={product.image} alt={product.name} className="h-6 w-6 sm:h-8 sm:w-8 rounded-lg object-cover shrink-0 border border-gray-100" />
                             <span className="text-gray-500 truncate">{product.name}</span>
                           </div>
                         ))}

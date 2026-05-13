@@ -127,16 +127,16 @@ const KitDetail = () => {
           >
             <div className="bg-white rounded-2xl border border-gray-100 p-6 sm:p-8">
               <h2 className="font-display font-bold text-xl sm:text-2xl mb-6">What's Inside</h2>
-              <div className="space-y-4">
+              <div className="space-y-5">
                 {kitProducts.map((product) => (
-                    <div key={product.id} className="flex items-center gap-4 p-3 sm:p-4 rounded-xl bg-gray-50 border border-gray-100">
-                      <img src={product.image} alt={product.name} className="h-16 w-16 sm:h-20 sm:w-20 rounded-xl object-cover border border-gray-200" />
-                      <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-sm sm:text-base text-gray-900 truncate">{product.name}</p>
-                        <p className="text-xs text-muted-foreground mt-0.5">{product.benefit}</p>
+                    <div key={product.id} className="flex flex-row-reverse sm:flex-row-reverse items-stretch gap-4 sm:gap-6 p-4 sm:p-5 rounded-2xl bg-gray-50 border border-gray-100">
+                      <div className="shrink-0">
+                        <img src={product.image} alt={product.name} className="h-36 w-36 sm:h-44 sm:w-44 lg:h-52 lg:w-52 rounded-2xl object-cover border border-gray-200" />
                       </div>
-                      <div className="text-right shrink-0">
-                        <p className="font-medium text-sm text-gray-500">{formatMWK(product.price)}</p>
+                      <div className="flex-1 min-w-0 flex flex-col justify-center">
+                        <p className="font-bold text-base sm:text-lg lg:text-xl text-gray-900">{product.name}</p>
+                        <p className="text-sm text-muted-foreground mt-1.5 leading-relaxed">{product.benefit}</p>
+                        <p className="font-bold text-xl sm:text-2xl text-gray-900 mt-3">{formatMWK(product.price)}</p>
                       </div>
                     </div>
                   ))}

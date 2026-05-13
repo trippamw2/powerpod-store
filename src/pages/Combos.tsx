@@ -117,12 +117,12 @@ const Combos = () => {
                     <p className="text-xs text-muted-foreground mt-2 leading-relaxed">{kit.description}</p>
 
                     {/* What's Inside */}
-                    <div className="mt-4 space-y-1.5">
+                    <div className="mt-4 space-y-2">
                       <p className="text-[10px] font-medium text-gray-400 uppercase tracking-wider">What's Inside</p>
-                      <div className="grid grid-cols-2 gap-x-3 gap-y-1.5">
+                      <div className="grid grid-cols-2 gap-2">
                         {kitProducts.slice(0, 6).map((product) => (
-                          <div key={product.id} className="flex items-center gap-1.5 text-[11px]">
-                            <img src={product.image} alt={product.name} className="h-5 w-5 rounded object-cover shrink-0" />
+                          <div key={product.id} className="flex items-center gap-2 text-[11px]">
+                            <img src={product.image} alt={product.name} className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg object-cover shrink-0 border border-gray-100" />
                             <span className="text-gray-600 truncate">{product.name}</span>
                             <span className="text-gray-400 line-through ml-auto shrink-0">{formatMWK(product.price)}</span>
                           </div>

@@ -2,7 +2,8 @@ import { useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { formatMWK, kits, getKitPrice, getKitProducts, getKitSeparateTotal, getKitRealSaving, getKitDiscountPercent, getKitItemNames } from "@/data/products";
+import { formatMWK, getKitPrice, getKitProducts, getKitSeparateTotal, getKitRealSaving, getKitDiscountPercent } from "@/data/products";
+import { useCombos } from "@/hooks/useCombos";
 import { useCart } from "@/contexts/CartContext";
 import { ArrowLeft, ShoppingBag, MessageCircle, Check, Truck, ShieldCheck, Package } from "lucide-react";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
@@ -11,7 +12,8 @@ const KitDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { add } = useCart();
-  const kit = kits.find((k) => k.id === id);
+  const combos = useCombos();
+  const kit = combos.find((k) => k.id === id);
   const [adding, setAdding] = useState(false);
 
   if (!kit) {
@@ -30,8 +32,8 @@ const KitDetail = () => {
   const separateTotal = getKitSeparateTotal(kit);
   const realSaving = getKitRealSaving(kit);
   const discountPercent = getKitDiscountPercent(kit);
-  const itemNames = getKitItemNames(kit);
-  const otherKits = kits.filter((k) => k.id !== kit.id).slice(0, 3);
+  const itemNames = kitProducts.map(p => p.name);
+  const otherKits = combos.filter((k) => k.id !== kit.id).slice(0, 3);
 
   const handleAdd = () => {
     setAdding(true);
@@ -166,7 +168,11 @@ const KitDetail = () => {
           <div className="container">
             <h2 className="font-display font-bold text-xl sm:text-2xl mb-6">Other Kits You Might Like</h2>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-              {otherKits.map((other, i) => (
+              {otherKits.map((other, i) => {
+                const otherProducts = getKitProducts(other);
+                const otherPrice = getKitPrice(other);
+                const otherSaving = getKitRealSaving(other);
+                return (
                 <motion.div
                   key={other.id}
                   initial={{ opacity: 0, y: 20 }}
@@ -188,19 +194,19 @@ const KitDetail = () => {
                       <p className="text-sm text-orange-600 font-medium mt-0.5">{other.hook}</p>
                       <p className="text-xs text-muted-foreground mt-2">{other.description}</p>
                       <div className="flex -space-x-2 mt-3">
-                        {other.items.slice(0, 4).map((item) => (
-                          <img key={item} src={getItemImage(item)} alt={item} className="h-8 w-8 rounded-lg border-2 border-white object-cover shadow-sm" title={item} />
+                        {otherProducts.slice(0, 4).map((p) => (
+                          <img key={p.id} src={p.image} alt={p.name} className="h-8 w-8 rounded-lg border-2 border-white object-cover shadow-sm" title={p.name} />
                         ))}
-                        {other.items.length > 4 && (
+                        {otherProducts.length > 4 && (
                           <div className="h-8 w-8 rounded-lg border-2 border-white bg-gray-100 flex items-center justify-center text-[10px] text-gray-500 font-medium shadow-sm">
-                            +{other.items.length - 4}
+                            +{otherProducts.length - 4}
                           </div>
                         )}
                       </div>
                       <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
                         <div>
-                          <p className="font-bold text-base text-gray-900">{formatMWK(other.price)}</p>
-                          <p className="text-xs text-green-600 font-medium">Save {formatMWK(other.saving)}</p>
+                          <p className="font-bold text-base text-gray-900">{formatMWK(otherPrice)}</p>
+                          <p className="text-xs text-green-600 font-medium">Save {formatMWK(otherSaving)}</p>
                         </div>
                         <span className="text-xs font-semibold text-orange-600 opacity-0 group-hover:opacity-100 transition-opacity">
                           View Kit
@@ -209,7 +215,8 @@ const KitDetail = () => {
                     </div>
                   </Link>
                 </motion.div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </section>

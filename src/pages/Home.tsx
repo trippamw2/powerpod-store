@@ -1,13 +1,15 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { formatMWK, kits, getKitPrice, getKitRealSaving, getKitProducts } from "@/data/products";
+import { formatMWK, getKitPrice, getKitRealSaving, getKitProducts } from "@/data/products";
+import { useCombos } from "@/hooks/useCombos";
 import { useProducts } from "@/hooks/useProducts";
 import { Truck, MessageCircle, ShieldCheck, Heart, BookOpen, Briefcase, Headphones, Luggage, ArrowRight, CheckCircle, Zap, Loader2 } from "lucide-react";
 import hero from "@/assets/hero-lifestyle.jpg";
 
 const Home = () => {
   const { loading } = useProducts();
+  const combos = useCombos();
 
   return (
     <div>
@@ -178,7 +180,7 @@ const Home = () => {
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
           ) : (
-            kits.slice(0, 3).map((kit, i) => (
+            combos.slice(0, 3).map((kit, i) => (
               <motion.div
                 key={kit.id}
                 initial={{ opacity: 0, y: 20 }}

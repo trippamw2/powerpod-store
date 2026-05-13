@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
-import { formatMWK, kits, getItemImage, Kit, getKitPrice, getKitRealSaving } from "@/data/products";
+import { formatMWK, getItemImage, Kit, getKitPrice, getKitRealSaving, getKitProducts } from "@/data/products";
+import { useCombos } from "@/hooks/useCombos";
 import { useCart } from "@/contexts/CartContext";
 import { useProducts } from "@/hooks/useProducts";
 import { useCompare } from "@/contexts/CompareContext";
@@ -33,6 +34,7 @@ const ProductDetail = () => {
   const [showShareModal, setShowShareModal] = useState(false);
   const [reviews, setReviews] = useState<{rating: number; review_text: string; customer_name: string; created_at: string}[]>([]);
   const [reviewsLoading, setReviewsLoading] = useState(true);
+  const combos = useCombos();
   const [userRating, setUserRating] = useState(0);
   const [userRatingHover, setUserRatingHover] = useState(0);
   const [userName, setUserName] = useState("");
@@ -364,7 +366,7 @@ const ProductDetail = () => {
 
           {/* Kit Upsell: find kits containing this product */}
           {(() => {
-            const matchingKits = kits.filter(k =>
+            const matchingKits = combos.filter(k =>
               k.productIds.some(pid => pid === product.id)
             ).slice(0, 2);
             

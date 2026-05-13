@@ -1,8 +1,8 @@
-import { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { formatMWK, kits, getKitPrice, getKitSeparateTotal, getKitRealSaving, getKitDiscountPercent, getKitProducts } from "@/data/products";
+import { formatMWK, getKitPrice, getKitSeparateTotal, getKitRealSaving, getKitDiscountPercent, getKitProducts } from "@/data/products";
+import { useCombos } from "@/hooks/useCombos";
 import { MessageCircle, ArrowRight, Zap, ShoppingBag, BookOpen, Briefcase, Headphones, Luggage } from "lucide-react";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
 
@@ -31,6 +31,7 @@ const lifestyleLabels: Record<string, string> = {
 };
 
 const Combos = () => {
+  const combos = useCombos();
   return (
     <div>
       {/* BANNER */}
@@ -67,7 +68,7 @@ const Combos = () => {
         </div>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-2 gap-4 sm:gap-6">
-          {kits.map((kit, i) => {
+          {combos.map((kit, i) => {
             const Icon = lifestyleIcons[kit.lifestyle] || BookOpen;
             const color = lifestyleColors[kit.lifestyle] || "bg-gradient-to-br from-orange-500 to-orange-600";
             const kitPrice = getKitPrice(kit);
@@ -165,12 +166,12 @@ const Combos = () => {
 
           <div className="flex flex-wrap justify-center gap-3 mt-6">
             {[
-              { label: "Chargers", cat: "power-wired" },
               { label: "Power Banks", cat: "power-banks" },
               { label: "Earbuds", cat: "earbuds" },
               { label: "Headphones", cat: "headphones" },
-              { label: "Cables", cat: "cables" },
+              { label: "Headsets", cat: "headsets" },
               { label: "Speakers", cat: "speakers" },
+              { label: "Car Chargers", cat: "car-chargers" },
             ].map((item) => (
               <Link key={item.cat} to={`/shop?cat=${item.cat}`} className="px-5 py-3 rounded-full bg-white border border-gray-200 text-sm font-medium text-gray-700 hover:border-orange-300 hover:text-orange-600 hover:shadow-sm transition-all">
                 {item.label}

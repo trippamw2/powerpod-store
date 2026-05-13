@@ -128,8 +128,8 @@ const OrderDetailPage = () => {
         {/* Payment Instructions */}
         {order.status === "new" && (
           <div className="rounded-2xl bg-orange-50 border border-orange-200 p-5 space-y-3">
-            <p className="font-display font-bold text-lg flex items-center gap-2">
-              💳 Make Payment
+            <p className="font-display font-bold text-lg">
+              Make Payment
             </p>
             <p className="text-sm text-muted-foreground">
               Pay <span className="font-bold text-orange-600">{formatMWK(order.total_mwk)}</span> via PayChangu:
@@ -149,8 +149,8 @@ const OrderDetailPage = () => {
 
         {order.status === "delivered" && (
           <div className="rounded-2xl bg-gradient-brand-soft border border-primary/30 p-5 space-y-3">
-            <p className="font-display font-bold text-lg">Stay Powered ⚡</p>
-            <p className="text-sm text-muted-foreground">Thanks for choosing PowerPod. Loved it? Send us a quick photo or feedback on WhatsApp — repeat customers get exclusive discounts.</p>
+            <p className="font-display font-bold text-lg">Stay Powered</p>
+            <p className="text-sm text-muted-foreground">Thanks for choosing PowerPod. Loved it? Send us a quick photo or feedback on WhatsApp. Repeat customers get exclusive discounts.</p>
             <Button asChild variant="whatsapp" size="sm">
               <a href={buildWhatsAppLink(`Hi PowerPod, I just received order #${order.id.slice(0,8).toUpperCase()}. Here's my feedback:`)} target="_blank" rel="noopener noreferrer">
                 <MessageCircle className="h-4 w-4" /> Share feedback
@@ -158,6 +158,22 @@ const OrderDetailPage = () => {
             </Button>
           </div>
         )}
+
+        {/* Post-purchase upsell */}
+        <div className="rounded-2xl border border-gray-200 bg-white p-5 space-y-3">
+          <p className="font-semibold text-sm">Complete your setup.</p>
+          <p className="text-xs text-gray-500">
+            Spare cable, power bank or a different kit. Every order benefits from our 30 day guarantee.
+          </p>
+          <div className="flex gap-2">
+            <Button asChild variant="outline" size="sm" className="text-xs">
+              <Link to="/combos">View Kits</Link>
+            </Button>
+            <Button asChild variant="outline" size="sm" className="text-xs">
+              <Link to="/shop">Shop Items</Link>
+            </Button>
+          </div>
+        </div>
 
         <Button asChild variant="outlineGlow" className="w-full">
           <a href={buildWhatsAppLink(`Hi PowerPod, I'm checking on order #${order.id.slice(0,8).toUpperCase()}.`)} target="_blank" rel="noopener noreferrer">

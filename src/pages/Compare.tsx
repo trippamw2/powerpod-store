@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { useCompare } from "@/contexts/CompareContext";
-import { formatMWK } from "@/data/products";
-import { X, ArrowLeft, Star, ShoppingBag } from "lucide-react";
+import { formatMWK, kits } from "@/data/products";
+import { X, ArrowLeft, Star, ShoppingBag, Package, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
 import { toast } from "@/hooks/use-toast";
@@ -24,12 +24,25 @@ const Compare = () => {
 
   if (compareList.length === 0) {
     return (
-      <div className="container py-12 text-center">
+      <div className="container py-12 text-center space-y-6">
         <h1 className="font-display font-bold text-2xl mb-4">Compare Products</h1>
         <p className="text-gray-500 mb-6">No products to compare yet.</p>
-        <Link to="/shop">
-          <Button>Browse Shop</Button>
-        </Link>
+        
+        {/* Kit Comparison CTA */}
+        <div className="max-w-md mx-auto bg-gradient-to-r from-orange-50 to-amber-50 rounded-2xl border border-orange-200 p-6">
+          <Package className="h-10 w-10 text-orange-500 mx-auto mb-3" />
+          <h3 className="font-display font-bold text-lg mb-2">Compare Tech Kits Instead</h3>
+          <p className="text-sm text-gray-500 mb-4">See which curated kit matches your lifestyle. Better value, one delivery.</p>
+          <Link to="/combos">
+            <Button className="bg-orange-500 hover:bg-orange-600 rounded-full">
+              View Kits <ArrowRight className="h-4 w-4 ml-1" />
+            </Button>
+          </Link>
+        </div>
+
+        <div className="text-sm text-gray-400 mt-4">
+          <Link to="/shop" className="text-orange-500 hover:underline">Browse individual components →</Link>
+        </div>
       </div>
     );
   }
@@ -41,11 +54,27 @@ const Compare = () => {
           <Link to="/shop" className="flex items-center gap-2 text-gray-500 hover:text-gray-900">
             <ArrowLeft className="h-4 w-4" /> Back
           </Link>
-          <h1 className="font-display font-bold text-2xl">Compare Products</h1>
+          <h1 className="font-display font-bold text-2xl">Compare Components</h1>
         </div>
         <Button variant="outline" onClick={clearCompare} className="text-red-500">
           Clear All
         </Button>
+      </div>
+
+      {/* Kit upsell banner */}
+      <div className="bg-gradient-to-r from-orange-500 to-orange-600 rounded-2xl p-4 sm:p-5 mb-6 flex items-center justify-between">
+        <div className="flex items-center gap-3 text-white">
+          <Package className="h-6 w-6" />
+          <div>
+            <p className="font-semibold text-sm">A Kit Costs Less</p>
+            <p className="text-white/70 text-xs">Kits from {formatMWK(kits[0]?.price || 0)}. One box, better price.</p>
+          </div>
+        </div>
+        <Link to="/combos">
+          <Button className="bg-white text-orange-600 hover:bg-orange-50 rounded-full text-sm px-4 py-2 h-auto">
+            See Kits <ArrowRight className="h-3 w-3 ml-1" />
+          </Button>
+        </Link>
       </div>
 
       <div className="overflow-x-auto">

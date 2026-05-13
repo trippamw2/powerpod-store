@@ -1,103 +1,66 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { ProductCard } from "@/components/ProductCard";
-import { PromotionSlider } from "@/components/PromotionSlider";
-import { Testimonials } from "@/components/Testimonials";
-import { PartnerBrands } from "@/components/PartnerBrands";
-import { formatMWK } from "@/data/products";
-import { useCart } from "@/contexts/CartContext";
+import { formatMWK, kits } from "@/data/products";
 import { useProducts } from "@/hooks/useProducts";
-import { Headphones, Heart, ArrowRight, ShieldCheck, Truck, ShoppingBag, Clock, Zap, Loader2 } from "lucide-react";
+import { useCart } from "@/contexts/CartContext";
+import { Truck, MessageCircle, ShieldCheck, Heart, BookOpen, Briefcase, Headphones, Luggage, ArrowRight, CheckCircle, Zap, Loader2 } from "lucide-react";
 import hero from "@/assets/hero-lifestyle.jpg";
 
 const Home = () => {
+  const { loading } = useProducts();
   const { add } = useCart();
-  const { products, loading } = useProducts();
-  const [countdown, setCountdown] = useState({ hours: 0, minutes: 0, seconds: 0 });
-
-  const featuredProducts = products.filter((p: any) => (p as any).is_featured || (p as any).is_best_seller).slice(0, 8);
-  const onSaleProducts = products.filter((p: any) => (p as any).is_on_sale).slice(0, 4);
-  
-  const comboProducts = products.slice(0, 3).map(p => ({
-    ...p,
-    types: [{ id: "default", name: "Default" }],
-  }));
-  const hasCombos = comboProducts.length >= 2;
-
-  useEffect(() => {
-    const target = new Date();
-    target.setHours(23, 59, 59, 999);
-    const interval = setInterval(() => {
-      const now = new Date();
-      const diff = target.getTime() - now.getTime();
-      if (diff <= 0) {
-        target.setDate(target.getDate() + 1);
-      }
-      setCountdown({
-        hours: Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
-        minutes: Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)),
-        seconds: Math.floor((diff % (1000 * 60)) / 1000),
-      });
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
 
   return (
     <div>
-      {/* Flash Sale Banner */}
-      <div className="bg-gradient-to-r from-red-500 to-orange-500 text-white py-2 overflow-hidden">
-        <div className="flex animate-marquee whitespace-nowrap">
-          {[...Array(4)].map((_, i) => (
-            <span key={i} className="mx-4 flex items-center gap-2">
-              <Zap className="h-4 w-4" />
-              ⚡ FLASH SALE: Up to 30% off • Free delivery over MWK 50,000 • Ends at midnight!
-            </span>
-          ))}
-        </div>
+      {/* FLASH SALE BAR */}
+      <div className="bg-gradient-to-r from-orange-500 to-orange-600 text-white py-2 text-center text-xs sm:text-sm font-medium">
+        <span className="inline-flex items-center gap-2">
+          Free delivery over MK 50,000 • 30 day guarantee • Limited stock selling fast
+        </span>
       </div>
 
-      <section className="container pt-3 sm:pt-4">
-        <PromotionSlider page="home" />
-      </section>
-
+      {/* HERO SECTION */}
       <section className="relative overflow-hidden">
-        <div className="container relative grid lg:grid-cols-2 gap-6 sm:gap-8 items-center py-6 sm:py-10 lg:py-16">
+        <div className="container relative grid lg:grid-cols-2 gap-6 sm:gap-8 items-center py-8 sm:py-12 lg:py-20">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="space-y-4 sm:space-y-5"
+            className="space-y-5 sm:space-y-6"
           >
-            {/* Countdown Timer - compact on mobile */}
-            <div className="inline-flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-1.5 sm:py-2 bg-red-50 rounded-full">
-              <Clock className="h-3 sm:h-4 w-3 sm:w-4 text-red-500" />
-              <span className="text-xs sm:text-sm font-medium text-red-600 hidden sm:inline">Ends at midnight</span>
-              <div className="flex gap-0.5 sm:gap-1">
-                {Object.entries(countdown).map(([unit, value]) => (
-                  <span key={unit} className="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-red-500 text-white text-xs sm:text-sm font-bold rounded">
-                    {String(value).padStart(2, "0")}
-                  </span>
-                ))}
-              </div>
+            <span className="inline-flex px-3 py-1 rounded-full bg-orange-100 text-orange-700 text-xs font-semibold tracking-wide">
+              Tech Kits for Malawi
+            </span>
+
+            <h1 className="font-display font-extrabold text-3xl sm:text-4xl lg:text-6xl leading-tight">
+              Your Phone Dies at the Worst Moment.
+              <br />
+              <span className="text-gradient">We Fixed That.</span>
+            </h1>
+
+            <p className="text-muted-foreground text-sm sm:text-base lg:text-lg max-w-lg">
+              Dead battery before an important call? Earbuds dying on the bus? Charger cable that 
+              gave up after a week? We put together the exact charger, cable and power bank you need.
+              All tested. All reliable. One box, delivered to your door.
+            </p>
+
+            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-orange-50 text-orange-700 text-xs font-medium border border-orange-200">
+              <span className="font-semibold">The PowerPod System.</span> Tested kits. 30 day guarantee. Free delivery over MK 50,000.
             </div>
 
-            <h1 className="font-display font-extrabold text-2xl sm:text-4xl lg:text-6xl leading-tight">
-              Keep the<br />
-              <span className="text-gradient">Vibe Alive.</span>
-            </h1>
-            <p className="text-muted-foreground text-sm sm:text-base max-w-md">
-              Power and sound for your everyday.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-              <Button asChild variant="hero" size="sm" className="text-sm">
-                <Link to="/shop">Shop</Link>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Button asChild variant="hero" size="lg" className="text-sm sm:text-base">
+                <Link to="/combos">Shop Tech Kits <ArrowRight className="h-4 w-4 ml-2" /></Link>
               </Button>
-              <Button asChild size="sm" className="bg-gray-900 hover:bg-gray-800 text-sm">
-                <Link to="/contact">Contact</Link>
+              <Button asChild size="lg" variant="outline" className="text-sm sm:text-base border-gray-300">
+                <Link to="/shop">Individual Items</Link>
               </Button>
             </div>
+
+            <p className="text-xs text-muted-foreground">
+              30 day guarantee. Not happy? Send it back. No questions asked.
+            </p>
           </motion.div>
 
           <motion.div
@@ -107,24 +70,25 @@ const Home = () => {
             className="relative"
           >
             <div className="absolute -inset-4 bg-gradient-brand opacity-20 blur-3xl rounded-full" />
-            <div className="relative rounded-2xl overflow-hidden border border-border/50">
-              <img src={hero} alt="PowerPod lifestyle" className="w-full aspect-[4/5] object-cover" />
+            <div className="relative rounded-2xl overflow-hidden border border-border/50 shadow-xl">
+              <img src={hero} alt="PowerPod tech lifestyle" className="w-full aspect-[4/5] sm:aspect-[3/4] object-cover" />
             </div>
           </motion.div>
         </div>
       </section>
 
+      {/* SOCIAL PROOF BAR */}
       <section className="border-y border-border/50 bg-card/30">
-        <div className="container py-6 grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="container py-5 grid grid-cols-2 md:grid-cols-4 gap-4">
           {[
-            { icon: Heart, title: "Stay Connected", sub: "Music. Calls." },
-            { icon: Headphones, title: "Your Sound", sub: "Deep bass." },
-            { icon: ShieldCheck, title: "Always Ready", sub: "Power lasts." },
-            { icon: Truck, title: "Fast Delivery", sub: "Malawi-wide." },
+            { icon: Truck, title: "Free Delivery", sub: "Over MK 50,000" },
+            { icon: MessageCircle, title: "WhatsApp Order", sub: "Quick & easy" },
+            { icon: ShieldCheck, title: "6-Month Warranty", sub: "On all kits" },
+            { icon: Heart, title: "2,500+ Happy", sub: "Customers in Malawi" },
           ].map((v) => (
-            <div key={v.title} className="flex items-center gap-2">
-              <div className="h-9 w-9 rounded-lg bg-gradient-brand flex items-center justify-center shrink-0">
-                <v.icon className="h-4 w-4 text-white" />
+            <div key={v.title} className="flex items-center gap-2.5">
+              <div className="h-10 w-10 rounded-lg bg-gradient-brand flex items-center justify-center shrink-0">
+                <v.icon className="h-5 w-5 text-white" />
               </div>
               <div>
                 <p className="font-semibold text-sm">{v.title}</p>
@@ -135,104 +99,198 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Trust Counters Section */}
-      <section className="container py-10">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+      {/* SHOP BY LIFESTYLE */}
+      <section className="container py-12 sm:py-16">
+        <div className="text-center mb-8 sm:mb-10">
+          <p className="text-sm font-semibold text-gradient uppercase tracking-widest">Choose Your Lifestyle</p>
+          <h2 className="font-display font-bold text-2xl sm:text-3xl mt-1">Shop by Lifestyle</h2>
+          <p className="text-muted-foreground text-sm mt-2 max-w-md mx-auto">Not just products. A complete experience built for how you live.</p>
+        </div>
+
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           {[
-            { value: "2,500+", label: "Happy Customers", icon: Heart },
-            { value: "50+", label: "Products", icon: Zap },
-            { value: "6", label: "Month Warranty", icon: ShieldCheck },
-            { value: "24hr", label: "Delivery", icon: Truck },
-          ].map((stat) => (
-            <div key={stat.label} className="p-4">
-              <stat.icon className="h-6 w-6 text-orange-500 mx-auto mb-2" />
-              <p className="text-2xl sm:text-3xl font-bold text-gray-900">{stat.value}</p>
-              <p className="text-sm text-muted-foreground">{stat.label}</p>
-            </div>
+            { icon: BookOpen, title: "Student Essentials Kit", tag: "student", desc: "Power your studies. Stay charged all day.", color: "from-blue-500 to-cyan-500" },
+            { icon: Briefcase, title: "Work & Office Kit", tag: "work", desc: "Professional setup. Productivity meets power.", color: "from-purple-500 to-indigo-500" },
+            { icon: Luggage, title: "Travel Power Kit", tag: "travel", desc: "Never run low. Adventure ready.", color: "from-green-500 to-teal-500" },
+            { icon: Headphones, title: "Audio Lifestyle Kit", tag: "audio", desc: "Your soundtrack. Anywhere.", color: "from-orange-500 to-red-500" },
+          ].map((item, i) => (
+            <motion.div
+              key={item.tag}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.1 }}
+              className="group relative rounded-xl sm:rounded-2xl p-5 sm:p-6 bg-white border border-gray-100 hover:border-orange-200 hover:shadow-lg transition-all duration-200"
+            >
+              <div className={`h-12 w-12 rounded-xl bg-gradient-to-br ${item.color} flex items-center justify-center mb-4`}>
+                <item.icon className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="font-display font-bold text-lg mb-1">{item.title}</h3>
+              <p className="text-sm text-muted-foreground mb-4">{item.desc}</p>
+              <Link to="/combos" className="inline-flex items-center gap-1 text-sm font-semibold text-orange-600 hover:text-orange-700 transition-colors">
+                View Kit <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+            </motion.div>
           ))}
         </div>
       </section>
 
-      <section className="container py-12">
-        <div className="mb-6">
-          <p className="text-sm font-semibold text-gradient uppercase tracking-widest">Power Packs</p>
-          <h2 className="font-display font-bold text-2xl sm:text-3xl">Bundles for you</h2>
-        </div>
+      {/* WHY OUR KITS */}
+      <section className="bg-gradient-to-b from-orange-50/50 to-white py-12 sm:py-16">
+        <div className="container">
+          <div className="text-center mb-8 sm:mb-10">
+            <p className="text-sm font-semibold text-gradient uppercase tracking-widest">Why PowerPod Kits</p>
+            <h2 className="font-display font-bold text-2xl sm:text-3xl mt-1">Smarter Than Buying Separate</h2>
+          </div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {loading ? (
-            <div className="col-span-4 flex justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            </div>
-          ) : (
-            hasCombos && comboProducts.slice(0, 4).map((c) => (
-            <motion.div
-              key={c.id}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="rounded-xl p-4 bg-card border border-border/60 hover:border-primary/50 transition-all"
-            >
-              <h3 className="font-display font-bold text-lg">{c.name}</h3>
-              <p className="text-xs text-muted-foreground mt-1">{c.tagline}</p>
-              <div className="flex items-center justify-between mt-3">
-                <p className="font-bold text-lg">{formatMWK(c.price)}</p>
-                <Button onClick={() => add({ productKey: c.id, name: c.name, price: c.price, image: c.image || "" }, 1)} variant="hero" size="sm">
-                  <ShoppingBag className="h-3 w-3" />
-                </Button>
-              </div>
-            </motion.div>
-          ))
-          )}
+          <div className="grid sm:grid-cols-3 gap-6 sm:gap-8">
+            {[
+              { icon: CheckCircle, title: "No Guesswork", desc: "We picked the right parts for your life. No research needed." },
+              { icon: Zap, title: "Save 15-30%", desc: "Kits cost less than buying everything separate. Better deal." },
+              { icon: Heart, title: "30-Day Guarantee", desc: "Not happy? Send it back. No questions asked. That's how sure we are." },
+            ].map((item) => (
+              <motion.div
+                key={item.title}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="text-center p-6"
+              >
+                <div className="h-14 w-14 rounded-full bg-gradient-brand flex items-center justify-center mx-auto mb-4">
+                  <item.icon className="h-7 w-7 text-white" />
+                </div>
+                <h3 className="font-display font-bold text-lg mb-2">{item.title}</h3>
+                <p className="text-sm text-muted-foreground">{item.desc}</p>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </section>
 
-      <section className="container py-12">
-        <div className="mb-6">
-          <p className="text-sm font-semibold text-gradient uppercase tracking-widest">Trending</p>
-          <h2 className="font-display font-bold text-2xl sm:text-3xl">Featured Products</h2>
+      {/* FEATURED KITS */}
+      <section className="container py-12 sm:py-16">
+        <div className="flex items-center justify-between mb-6 sm:mb-8">
+          <div>
+            <p className="text-sm font-semibold text-gradient uppercase tracking-widest">Featured Kits</p>
+            <h2 className="font-display font-bold text-2xl sm:text-3xl">Top Picks</h2>
+          </div>
+          <Button asChild variant="outline" size="sm">
+            <Link to="/combos">View All <ArrowRight className="h-3.5 w-3.5 ml-1" /></Link>
+          </Button>
         </div>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {loading ? (
             <div className="col-span-3 flex justify-center py-12">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
           ) : (
-            featuredProducts.slice(0, 3).map((p, i) => (
-              <ProductCard key={p.id} product={p} index={i} />
+            kits.slice(0, 3).map((kit, i) => (
+              <motion.div
+                key={kit.id}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+                className="group relative rounded-xl sm:rounded-2xl bg-white border border-gray-100 hover:border-orange-200 hover:shadow-lg transition-all duration-200 overflow-hidden"
+              >
+                {kit.badge && (
+                  <span className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-orange-500 text-white text-[10px] font-semibold uppercase tracking-wider z-10">
+                    {kit.badge}
+                  </span>
+                )}
+                {kit.stock !== undefined && kit.stock <= 5 && (
+                  <span className="absolute top-3 left-3 px-2 py-0.5 rounded-full border border-orange-300 bg-white text-orange-600 text-[10px] font-medium z-10">
+                    Only {kit.stock} left
+                  </span>
+                )}
+                <div className="p-5 sm:p-6">
+                  <h3 className="font-display font-bold text-xl text-gray-900">{kit.name}</h3>
+                  <p className="text-sm font-medium text-orange-600 mt-1">{kit.hook}</p>
+                  <p className="text-xs text-muted-foreground mt-2 line-clamp-2">{kit.description}</p>
+
+                  <ul className="mt-4 space-y-1.5">
+                    {kit.items.slice(0, 3).map((item) => (
+                      <li key={item} className="flex items-start gap-2 text-xs text-gray-600">
+                        <CheckCircle className="h-3.5 w-3.5 text-green-500 mt-0.5 shrink-0" />
+                        {item}
+                      </li>
+                    ))}
+                    {kit.items.length > 3 && (
+                      <li className="text-xs text-gray-400">+{kit.items.length - 3} more items</li>
+                    )}
+                  </ul>
+
+                  <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
+                    <div>
+                      <p className="font-bold text-lg text-gray-900">{formatMWK(kit.price)}</p>
+                      <p className="text-xs text-green-600 font-medium">Save {formatMWK(kit.saving)}</p>
+                    </div>
+                    <Button
+                      onClick={() => add({ productKey: kit.id, name: kit.name, price: kit.price, image: kit.image }, 1)}
+                      variant="hero"
+                      size="sm"
+                    >
+                      Add to Cart
+                    </Button>
+                  </div>
+                </div>
+              </motion.div>
             ))
           )}
         </div>
       </section>
 
-      {/* On Sale Products - Urgency */}
-      {onSaleProducts.length > 0 && (
-<section className="container py-10">
-        <div className="mb-6">
-          <p className="text-sm font-semibold text-red-500 uppercase tracking-widest flex items-center gap-2">
-            <Zap className="h-4 w-4" /> Limited Time
-          </p>
-          <h2 className="font-display font-bold text-2xl sm:text-3xl">On Sale Now</h2>
-        </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-            {onSaleProducts.slice(0, 4).map((p, i) => (
-              <ProductCard key={p.id} product={p} index={i} />
+      {/* THE POWERPOD METHOD (How It Works) */}
+      <section className="bg-gradient-to-b from-white to-orange-50/50 py-12 sm:py-16">
+        <div className="container">
+          <div className="text-center mb-8 sm:mb-10">
+            <p className="text-sm font-semibold text-gradient uppercase tracking-widest">The PowerPod Method</p>
+            <h2 className="font-display font-bold text-2xl sm:text-3xl mt-1">Three Steps to Never Running Out</h2>
+          </div>
+
+          <div className="grid sm:grid-cols-3 gap-8 sm:gap-12 max-w-3xl mx-auto">
+            {[
+              { step: "01", title: "Pick Your Kit", desc: "Choose the kit that fits your life. Student, work, travel or audio." },
+              { step: "02", title: "Order", desc: "Checkout online or order in 30 seconds on WhatsApp." },
+              { step: "03", title: "Delivered & Guaranteed", desc: "Fast delivery across Malawi. Love it or send it back within 30 days." },
+            ].map((item) => (
+              <motion.div
+                key={item.step}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="text-center"
+              >
+                <div className="h-16 w-16 rounded-full bg-gradient-brand flex items-center justify-center mx-auto mb-4 text-white font-bold text-xl">
+                  {item.step}
+                </div>
+                <h3 className="font-display font-bold text-lg mb-1">{item.title}</h3>
+                <p className="text-sm text-muted-foreground">{item.desc}</p>
+              </motion.div>
             ))}
           </div>
-        </section>
-      )}
+        </div>
+      </section>
 
-      <Testimonials />
-
-      <PartnerBrands />
-
-      <section className="container pb-12">
-        <div className="relative rounded-2xl overflow-hidden bg-gradient-brand p-8 md:p-12 text-center text-white">
-          <h2 className="font-display font-bold text-2xl sm:text-3xl">Ready to order?</h2>
-          <p className="text-white/80 text-sm mt-2">We deliver anywhere in Malawi.</p>
-          <Button asChild size="lg" className="mt-4 bg-white text-foreground hover:bg-white/90">
-            <Link to="/checkout">Proceed to Checkout</Link>
-          </Button>
+      {/* FINAL CTA */}
+      <section className="container pb-12 sm:pb-16">
+        <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-orange-500 to-orange-600 p-8 sm:p-12 md:p-16 text-center text-white">
+          <div className="absolute -top-20 -right-20 h-64 w-64 rounded-full bg-white/5" />
+          <div className="absolute -bottom-20 -left-20 h-48 w-48 rounded-full bg-white/5" />
+          
+          <h2 className="font-display font-bold text-2xl sm:text-3xl md:text-4xl relative">Love Your Kit or Send It Back</h2>
+          <p className="text-white/80 text-sm sm:text-base mt-2 max-w-lg mx-auto relative">
+            30 day guarantee. No questions asked. Join over 2,500 customers in Malawi who've upgraded.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center mt-6 relative">
+            <Button asChild size="lg" className="bg-white text-foreground hover:bg-white/90">
+              <Link to="/combos">Get Your Kit Now</Link>
+            </Button>
+            <Button asChild size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10">
+              <Link to="/shop">Shop Individual Items</Link>
+            </Button>
+          </div>
         </div>
       </section>
     </div>

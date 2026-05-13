@@ -160,7 +160,7 @@ export const kits: Kit[] = [
     lifestyle: "student",
     tagline: "Charger and cable for your phone.",
     description: "Fast charger and braided cable. Your phone stays up through lectures.",
-    price: 18000,
+    price: 14500,
     saving: 4000,
     items: ["USB-C Fast Charger 25W", "Braided USB-C Cable 1m"],
     image: charger,
@@ -175,8 +175,8 @@ export const kits: Kit[] = [
     lifestyle: "work",
     tagline: "Power and sound for your day.",
     description: "Power bank, wireless earbuds and a cable. For calls, music and meetings.",
-    price: 58000,
-    saving: 9000,
+    price: 49500,
+    saving: 14000,
     items: ["Power Bank 10000mAh", "PowerPods Wireless", "Braided USB-C Cable 1m"],
     image: powerbank,
     vibe: "Professional. Powered. Ready.",
@@ -190,8 +190,8 @@ export const kits: Kit[] = [
     lifestyle: "audio",
     tagline: "Headphones, speaker and charger.",
     description: "Studio headphones, a portable speaker and a fast charger. Your audio setup.",
-    price: 95000,
-    saving: 15000,
+    price: 79500,
+    saving: 22500,
     items: ["Studio Headphones", "Vibe Speaker", "USB-C Fast Charger 25W"],
     image: headphones,
     vibe: "Listen louder. Live better.",
@@ -205,8 +205,8 @@ export const kits: Kit[] = [
     lifestyle: "premium",
     tagline: "Full setup. No compromises.",
     description: "Studio headphones, earbuds, speaker, power bank, fast charger and cables. All you need.",
-    price: 165000,
-    saving: 28000,
+    price: 129500,
+    saving: 44000,
     items: ["Studio Headphones", "PowerPods Wireless", "Vibe Speaker", "Power Bank 20000mAh", "USB-C Fast Charger 25W", "Braided USB-C Cable 2m"],
     image: headphones,
     vibe: "The full lifestyle upgrade.",
@@ -231,6 +231,23 @@ const itemImageMap: Record<string, string> = {
 export const getItemImage = (name: string): string => itemImageMap[name] ?? cable;
 
 export const formatMWK = (n: number) => `MK ${n.toLocaleString("en-US")}`;
+
+export function getKitSeparateTotal(kit: Kit): number {
+  return kit.items.reduce((sum, item) => {
+    const product = products.find(p => p.name === item);
+    return sum + (product?.price || 0);
+  }, 0);
+}
+
+export function getKitRealSaving(kit: Kit): number {
+  return getKitSeparateTotal(kit) - kit.price;
+}
+
+export function getKitDiscountPercent(kit: Kit): number {
+  const total = getKitSeparateTotal(kit);
+  if (total === 0) return 0;
+  return Math.round((getKitRealSaving(kit) / total) * 100);
+}
 
 export const getRecommendations = (product: Product, allProducts: Product[], limit = 4): Product[] => {
   const price = product.price;

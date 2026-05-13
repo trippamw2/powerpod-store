@@ -14,6 +14,7 @@ import Home from "./pages/Home";
 import Shop from "./pages/Shop";
 import ProductDetail from "./pages/ProductDetail";
 import Combos from "./pages/Combos";
+import KitDetail from "./pages/KitDetail";
 import Compare from "./pages/Compare";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
@@ -84,6 +85,7 @@ const App = () => (
                   <Route path="/product/:id" element={<ProductDetail />} />
                   <Route path="/compare" element={<Compare />} />
                   <Route path="/combos" element={<Combos />} />
+                  <Route path="/kits/:id" element={<KitDetail />} />
                   <Route path="/about" element={<About />} />
                   <Route path="/contact" element={<Contact />} />
                   <Route path="/auth" element={<Auth />} />

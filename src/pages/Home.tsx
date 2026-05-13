@@ -3,13 +3,11 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { formatMWK, kits, getItemImage } from "@/data/products";
 import { useProducts } from "@/hooks/useProducts";
-import { useCart } from "@/contexts/CartContext";
 import { Truck, MessageCircle, ShieldCheck, Heart, BookOpen, Briefcase, Headphones, Luggage, ArrowRight, CheckCircle, Zap, Loader2 } from "lucide-react";
 import hero from "@/assets/hero-lifestyle.jpg";
 
 const Home = () => {
   const { loading } = useProducts();
-  const { add } = useCart();
 
   return (
     <div>
@@ -187,55 +185,55 @@ const Home = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
-                className="group relative rounded-xl sm:rounded-2xl bg-white border border-gray-100 hover:border-orange-200 hover:shadow-lg transition-all duration-200 overflow-hidden"
               >
-                {kit.badge && (
-                  <span className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-orange-500 text-white text-[10px] font-semibold uppercase tracking-wider z-10">
-                    {kit.badge}
-                  </span>
-                )}
-                {kit.stock !== undefined && kit.stock <= 5 && (
-                  <span className="absolute top-3 left-3 px-2 py-0.5 rounded-full border border-orange-300 bg-white text-orange-600 text-[10px] font-medium z-10">
-                    Only {kit.stock} left
-                  </span>
-                )}
-                <div className="p-5 sm:p-6">
-                  <h3 className="font-display font-bold text-xl text-gray-900">{kit.name}</h3>
-                  <p className="text-sm font-medium text-orange-600 mt-1">{kit.hook}</p>
-                  <p className="text-xs text-muted-foreground mt-2">{kit.description}</p>
+                <Link
+                  to={`/kits/${kit.id}`}
+                  className="group relative block rounded-xl sm:rounded-2xl bg-white border border-gray-100 hover:border-orange-200 hover:shadow-lg transition-all duration-200 overflow-hidden"
+                >
+                  {kit.badge && (
+                    <span className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-orange-500 text-white text-[10px] font-semibold uppercase tracking-wider z-10">
+                      {kit.badge}
+                    </span>
+                  )}
+                  {kit.stock !== undefined && kit.stock <= 5 && (
+                    <span className="absolute top-3 left-3 px-2 py-0.5 rounded-full border border-orange-300 bg-white text-orange-600 text-[10px] font-medium z-10">
+                      Only {kit.stock} left
+                    </span>
+                  )}
+                  <div className="p-5 sm:p-6">
+                    <h3 className="font-display font-bold text-xl text-gray-900">{kit.name}</h3>
+                    <p className="text-sm font-medium text-orange-600 mt-1">{kit.hook}</p>
+                    <p className="text-xs text-muted-foreground mt-2">{kit.description}</p>
 
-                  {/* Product images */}
-                  <div className="flex -space-x-2 mt-4">
-                    {kit.items.slice(0, 4).map((item) => (
-                      <img
-                        key={item}
-                        src={getItemImage(item)}
-                        alt={item}
-                        className="h-10 w-10 rounded-lg border-2 border-white object-cover shadow-sm"
-                        title={item}
-                      />
-                    ))}
-                    {kit.items.length > 4 && (
-                      <div className="h-10 w-10 rounded-lg border-2 border-white bg-gray-100 flex items-center justify-center text-[10px] text-gray-500 font-medium shadow-sm">
-                        +{kit.items.length - 4}
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
-                    <div>
-                      <p className="font-bold text-lg text-gray-900">{formatMWK(kit.price)}</p>
-                      <p className="text-xs text-green-600 font-medium">Save {formatMWK(kit.saving)}</p>
+                    {/* Product images */}
+                    <div className="flex -space-x-2 mt-4">
+                      {kit.items.slice(0, 4).map((item) => (
+                        <img
+                          key={item}
+                          src={getItemImage(item)}
+                          alt={item}
+                          className="h-10 w-10 rounded-lg border-2 border-white object-cover shadow-sm"
+                          title={item}
+                        />
+                      ))}
+                      {kit.items.length > 4 && (
+                        <div className="h-10 w-10 rounded-lg border-2 border-white bg-gray-100 flex items-center justify-center text-[10px] text-gray-500 font-medium shadow-sm">
+                          +{kit.items.length - 4}
+                        </div>
+                      )}
                     </div>
-                    <Button
-                      onClick={() => add({ productKey: kit.id, name: kit.name, price: kit.price, image: kit.image }, 1)}
-                      variant="hero"
-                      size="sm"
-                    >
-                      Add to Cart
-                    </Button>
+
+                    <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
+                      <div>
+                        <p className="font-bold text-lg text-gray-900">{formatMWK(kit.price)}</p>
+                        <p className="text-xs text-green-600 font-medium">Save {formatMWK(kit.saving)}</p>
+                      </div>
+                      <span className="text-xs font-semibold text-orange-600 opacity-0 group-hover:opacity-100 transition-opacity">
+                        View Details
+                      </span>
+                    </div>
                   </div>
-                </div>
+                </Link>
               </motion.div>
             ))
           )}

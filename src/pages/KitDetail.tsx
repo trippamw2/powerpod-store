@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { formatMWK, kits, products, getItemImage, getKitSeparateTotal, getKitRealSaving, getKitDiscountPercent } from "@/data/products";
+import { formatMWK, kits, getKitPrice, getKitProducts, getKitSeparateTotal, getKitRealSaving, getKitDiscountPercent, getKitItemNames } from "@/data/products";
 import { useCart } from "@/contexts/CartContext";
 import { ArrowLeft, ShoppingBag, MessageCircle, Check, Truck, ShieldCheck, Package } from "lucide-react";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
@@ -25,14 +25,17 @@ const KitDetail = () => {
     );
   }
 
+  const kitProducts = getKitProducts(kit);
+  const kitPrice = getKitPrice(kit);
   const separateTotal = getKitSeparateTotal(kit);
   const realSaving = getKitRealSaving(kit);
   const discountPercent = getKitDiscountPercent(kit);
+  const itemNames = getKitItemNames(kit);
   const otherKits = kits.filter((k) => k.id !== kit.id).slice(0, 3);
 
   const handleAdd = () => {
     setAdding(true);
-    add({ productKey: kit.id, name: kit.name, price: kit.price, image: kit.image }, 1);
+    add({ productKey: kit.id, name: kit.name, price: kitPrice, image: kit.image }, 1);
     setTimeout(() => setAdding(false), 1200);
   };
 
@@ -72,7 +75,7 @@ const KitDetail = () => {
             {/* Price block */}
             <div className="bg-gray-50 rounded-xl p-5 sm:p-6 space-y-3">
               <div className="flex items-baseline gap-3">
-                <span className="font-bold text-3xl sm:text-4xl text-gray-900">{formatMWK(kit.price)}</span>
+                <span className="font-bold text-3xl sm:text-4xl text-gray-900">{formatMWK(kitPrice)}</span>
                 <span className="text-sm line-through text-gray-400">{formatMWK(separateTotal)}</span>
               </div>
               <div className="flex flex-wrap gap-2">
@@ -92,7 +95,7 @@ const KitDetail = () => {
                   {adding ? "Added!" : <><ShoppingBag className="h-4 w-4 mr-2" /> Add to Cart</>}
                 </Button>
                 <a
-                  href={buildWhatsAppLink(`I want to order the ${kit.name} (${kit.items.join(", ")}). Total: ${formatMWK(kit.price)}`)}
+                  href={buildWhatsAppLink(`I want to order the ${kit.name} (${itemNames.join(", ")}). Total: ${formatMWK(kitPrice)}`)}
                   target="_blank" rel="noopener noreferrer"
                 >
                   <Button variant="outline" size="lg" className="text-sm w-full border-green-300 text-green-700 hover:bg-green-50">
@@ -123,25 +126,18 @@ const KitDetail = () => {
             <div className="bg-white rounded-2xl border border-gray-100 p-6 sm:p-8">
               <h2 className="font-display font-bold text-xl sm:text-2xl mb-6">What's Inside</h2>
               <div className="space-y-4">
-                {kit.items.map((item) => {
-                  const product = products.find((p) => p.name === item);
-                  return (
-                    <div key={item} className="flex items-center gap-4 p-3 sm:p-4 rounded-xl bg-gray-50 border border-gray-100">
-                      <img src={getItemImage(item)} alt={item} className="h-16 w-16 sm:h-20 sm:w-20 rounded-xl object-cover border border-gray-200" />
+                {kitProducts.map((product) => (
+                    <div key={product.id} className="flex items-center gap-4 p-3 sm:p-4 rounded-xl bg-gray-50 border border-gray-100">
+                      <img src={product.image} alt={product.name} className="h-16 w-16 sm:h-20 sm:w-20 rounded-xl object-cover border border-gray-200" />
                       <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-sm sm:text-base text-gray-900 truncate">{item}</p>
-                        {product && (
-                          <p className="text-xs text-muted-foreground mt-0.5">{product.benefit}</p>
-                        )}
+                        <p className="font-semibold text-sm sm:text-base text-gray-900 truncate">{product.name}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">{product.benefit}</p>
                       </div>
                       <div className="text-right shrink-0">
-                        {product && (
-                          <p className="font-medium text-sm text-gray-500">{formatMWK(product.price)}</p>
-                        )}
+                        <p className="font-medium text-sm text-gray-500">{formatMWK(product.price)}</p>
                       </div>
                     </div>
-                  );
-                })}
+                  ))}
               </div>
 
               {/* Price breakdown */}
@@ -156,7 +152,7 @@ const KitDetail = () => {
                 </div>
                 <div className="flex justify-between font-bold text-base border-t border-gray-200 pt-2">
                   <span>Kit price</span>
-                  <span className="text-orange-600">{formatMWK(kit.price)}</span>
+                  <span className="text-orange-600">{formatMWK(kitPrice)}</span>
                 </div>
               </div>
             </div>

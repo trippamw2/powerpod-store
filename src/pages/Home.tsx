@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { formatMWK, kits, getItemImage } from "@/data/products";
+import { formatMWK, kits, getKitPrice, getKitRealSaving, getKitProducts } from "@/data/products";
 import { useProducts } from "@/hooks/useProducts";
 import { Truck, MessageCircle, ShieldCheck, Heart, BookOpen, Briefcase, Headphones, Luggage, ArrowRight, CheckCircle, Zap, Loader2 } from "lucide-react";
 import hero from "@/assets/hero-lifestyle.jpg";
@@ -207,26 +207,26 @@ const Home = () => {
 
                     {/* Product images */}
                     <div className="flex -space-x-2 mt-4">
-                      {kit.items.slice(0, 4).map((item) => (
+                      {getKitProducts(kit).slice(0, 4).map((product) => (
                         <img
-                          key={item}
-                          src={getItemImage(item)}
-                          alt={item}
+                          key={product.id}
+                          src={product.image}
+                          alt={product.name}
                           className="h-10 w-10 rounded-lg border-2 border-white object-cover shadow-sm"
-                          title={item}
+                          title={product.name}
                         />
                       ))}
-                      {kit.items.length > 4 && (
+                      {getKitProducts(kit).length > 4 && (
                         <div className="h-10 w-10 rounded-lg border-2 border-white bg-gray-100 flex items-center justify-center text-[10px] text-gray-500 font-medium shadow-sm">
-                          +{kit.items.length - 4}
+                          +{getKitProducts(kit).length - 4}
                         </div>
                       )}
                     </div>
 
                     <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
                       <div>
-                        <p className="font-bold text-lg text-gray-900">{formatMWK(kit.price)}</p>
-                        <p className="text-xs text-green-600 font-medium">Save {formatMWK(kit.saving)}</p>
+                        <p className="font-bold text-lg text-gray-900">{formatMWK(getKitPrice(kit))}</p>
+                        <p className="text-xs text-green-600 font-medium">Save {formatMWK(getKitRealSaving(kit))}</p>
                       </div>
                       <span className="text-xs font-semibold text-orange-600 opacity-0 group-hover:opacity-100 transition-opacity">
                         View Details

@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { useCompare } from "@/contexts/CompareContext";
-import { formatMWK, kits } from "@/data/products";
+import { formatMWK, kits, getKitPrice } from "@/data/products";
 import { X, ArrowLeft, Star, ShoppingBag, Package, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
@@ -67,7 +67,7 @@ const Compare = () => {
           <Package className="h-6 w-6" />
           <div>
             <p className="font-semibold text-sm">A Kit Costs Less</p>
-            <p className="text-white/70 text-xs">Kits from {formatMWK(kits[0]?.price || 0)}. One box, better price.</p>
+            <p className="text-white/70 text-xs">Kits from {formatMWK(kits[0] ? getKitPrice(kits[0]) : 0)}. One box, better price.</p>
           </div>
         </div>
         <Link to="/combos">

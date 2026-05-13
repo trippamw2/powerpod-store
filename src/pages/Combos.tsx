@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { formatMWK, kits, getItemImage, getKitRealSaving, getKitDiscountPercent } from "@/data/products";
+import { formatMWK, kits, getKitPrice, getKitSeparateTotal, getKitRealSaving, getKitDiscountPercent, getKitProducts } from "@/data/products";
 import { MessageCircle, ArrowRight, Zap, ShoppingBag, BookOpen, Briefcase, Headphones, Luggage } from "lucide-react";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
 
@@ -70,8 +70,11 @@ const Combos = () => {
           {kits.map((kit, i) => {
             const Icon = lifestyleIcons[kit.lifestyle] || BookOpen;
             const color = lifestyleColors[kit.lifestyle] || "bg-gradient-to-br from-orange-500 to-orange-600";
-            const discount = getKitDiscountPercent(kit);
+            const kitPrice = getKitPrice(kit);
+            const separateTotal = getKitSeparateTotal(kit);
             const realSaving = getKitRealSaving(kit);
+            const discount = getKitDiscountPercent(kit);
+            const kitProducts = getKitProducts(kit);
 
             return (
               <motion.div
@@ -114,18 +117,18 @@ const Combos = () => {
 
                     {/* Product thumbnails */}
                     <div className="flex -space-x-2 mt-4">
-                      {kit.items.slice(0, 5).map((item) => (
+                      {kitProducts.slice(0, 5).map((product) => (
                         <img
-                          key={item}
-                          src={getItemImage(item)}
-                          alt={item}
+                          key={product.id}
+                          src={product.image}
+                          alt={product.name}
                           className="h-9 w-9 rounded-lg border-2 border-white object-cover shadow-sm"
-                          title={item}
+                          title={product.name}
                         />
                       ))}
-                      {kit.items.length > 5 && (
+                      {kitProducts.length > 5 && (
                         <div className="h-9 w-9 rounded-lg border-2 border-white bg-gray-100 flex items-center justify-center text-[10px] text-gray-500 font-medium shadow-sm">
-                          +{kit.items.length - 5}
+                          +{kitProducts.length - 5}
                         </div>
                       )}
                     </div>
@@ -134,9 +137,9 @@ const Combos = () => {
                     <div className="mt-5 pt-4 border-t border-gray-100 flex items-end justify-between">
                       <div>
                         <p className="text-xs text-muted-foreground mb-0.5">Kit price</p>
-                        <p className="font-bold text-2xl sm:text-3xl text-gray-900">{formatMWK(kit.price)}</p>
+                        <p className="font-bold text-2xl sm:text-3xl text-gray-900">{formatMWK(kitPrice)}</p>
                         <div className="flex items-center gap-2 mt-1">
-                          <span className="text-xs line-through text-gray-400">{formatMWK(kit.price + realSaving)}</span>
+                          <span className="text-xs line-through text-gray-400">{formatMWK(separateTotal)}</span>
                           <span className="text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded font-medium">
                             Save {formatMWK(realSaving)}
                           </span>

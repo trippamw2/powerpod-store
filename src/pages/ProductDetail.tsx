@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
-import { formatMWK, kits, getItemImage, Kit } from "@/data/products";
+import { formatMWK, kits, getItemImage, Kit, getKitPrice, getKitRealSaving } from "@/data/products";
 import { useCart } from "@/contexts/CartContext";
 import { useProducts } from "@/hooks/useProducts";
 import { useCompare } from "@/contexts/CompareContext";
@@ -365,11 +365,7 @@ const ProductDetail = () => {
           {/* Kit Upsell: find kits containing this product */}
           {(() => {
             const matchingKits = kits.filter(k =>
-              k.items.some(i =>
-                product.name.toLowerCase().includes(i.toLowerCase()) ||
-                i.toLowerCase().includes(product.name.toLowerCase()) ||
-                k.items.some(item => product.name.split(" ").some(word => item.toLowerCase().includes(word.toLowerCase())))
-              )
+              k.productIds.some(pid => pid === product.id)
             ).slice(0, 2);
             
             if (matchingKits.length === 0) return null;
@@ -393,11 +389,11 @@ const ProductDetail = () => {
                         </div>
                         <div>
                           <p className="font-medium text-sm text-gray-900 group-hover:text-orange-600 transition-colors">{kit.name}</p>
-                          <p className="text-xs text-gray-500">Save {formatMWK(kit.saving)} • {kit.items.length} items</p>
+                          <p className="text-xs text-gray-500">Save {formatMWK(getKitRealSaving(kit))} • {kit.productIds.length} items</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className="font-bold text-sm text-orange-600">{formatMWK(kit.price)}</span>
+                        <span className="font-bold text-sm text-orange-600">{formatMWK(getKitPrice(kit))}</span>
                         <ArrowRight className="h-4 w-4 text-orange-400 group-hover:translate-x-1 transition-transform" />
                       </div>
                     </Link>

@@ -1,5 +1,6 @@
 import { StrictMode, Suspense } from "react";
 import { createRoot } from "react-dom/client";
+import Sentry from "@/lib/sentry";
 import App from "./App.tsx";
 import "./index.css";
 
@@ -28,9 +29,11 @@ const LoadingSpinner = () => (
 const AppWrapper = () => {
   return (
     <StrictMode>
-      <Suspense fallback={<LoadingSpinner />}>
-        <App />
-      </Suspense>
+      <Sentry.ErrorBoundary fallback={<p>Something went wrong. Please refresh.</p>}>
+        <Suspense fallback={<LoadingSpinner />}>
+          <App />
+        </Suspense>
+      </Sentry.ErrorBoundary>
     </StrictMode>
   );
 };

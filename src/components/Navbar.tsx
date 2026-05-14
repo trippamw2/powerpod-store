@@ -1,13 +1,12 @@
 import { useState, useRef, useEffect } from "react";
 import { NavLink, Link, useNavigate } from "react-router-dom";
-import { Menu, X, Search, ShoppingBag, User, LogOut, Package, Zap, Headphones, ChevronDown, GitCompare, BookOpen, Briefcase, Luggage, ArrowRight } from "lucide-react";
+import { Menu, X, Search, ShoppingBag, User, LogOut, Package, GitCompare } from "lucide-react";
 import { Logo } from "./Logo";
 import { cn } from "@/lib/utils";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { CartDrawer } from "./CartDrawer";
 import { supabase } from "@/integrations/supabase/client";
-import { motion, AnimatePresence } from "framer-motion";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,7 +15,7 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 
-const DEFAULT_PROMO_TEXT = "Upgrade your tech life. Free delivery over MK 50,000. WhatsApp ordering available.";
+const DEFAULT_PROMO_TEXT = "Free delivery over MK 50,000. 30-day guarantee. WhatsApp ordering.";
 
 const links = [
   { to: "/", label: "Home" },
@@ -28,7 +27,6 @@ const links = [
 
 export const Navbar = () => {
   const [open, setOpen] = useState(false);
-  const [megaMenuOpen, setMegaMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [promoText, setPromoText] = useState(DEFAULT_PROMO_TEXT);
@@ -171,76 +169,6 @@ export const Navbar = () => {
           </button>
         </div>
       </nav>
-
-      {/* Mega Menu - Lifestyle Focused */}
-      <AnimatePresence>
-        {megaMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="hidden lg:block absolute left-0 right-0 bg-white border-b border-gray-200 shadow-xl"
-          >
-            <div className="container py-8">
-              <div className="grid grid-cols-4 gap-8">
-                <div>
-                  <h3 className="font-display font-semibold mb-4 text-sm uppercase tracking-wider text-gray-400">Shop by Lifestyle</h3>
-                  <ul className="space-y-3">
-                    <li>
-                      <Link to="/combos" onClick={() => setMegaMenuOpen(false)} className="flex items-center gap-3 text-sm text-gray-600 hover:text-orange-500 transition-colors">
-                        <div className="h-8 w-8 rounded-lg bg-blue-100 flex items-center justify-center"><BookOpen className="h-4 w-4 text-blue-600" /></div>
-                        <div><p className="font-medium">Student Kits</p><p className="text-xs text-gray-400">Power your studies</p></div>
-                      </Link>
-                    </li>
-                    <li>
-                      <Link to="/combos" onClick={() => setMegaMenuOpen(false)} className="flex items-center gap-3 text-sm text-gray-600 hover:text-orange-500 transition-colors">
-                        <div className="h-8 w-8 rounded-lg bg-purple-100 flex items-center justify-center"><Briefcase className="h-4 w-4 text-purple-600" /></div>
-                        <div><p className="font-medium">Work Kits</p><p className="text-xs text-gray-400">Productivity meets power</p></div>
-                      </Link>
-                    </li>
-                    <li>
-                      <Link to="/combos" onClick={() => setMegaMenuOpen(false)} className="flex items-center gap-3 text-sm text-gray-600 hover:text-orange-500 transition-colors">
-                        <div className="h-8 w-8 rounded-lg bg-green-100 flex items-center justify-center"><Luggage className="h-4 w-4 text-green-600" /></div>
-                        <div><p className="font-medium">Travel Kits</p><p className="text-xs text-gray-400">Never run low</p></div>
-                      </Link>
-                    </li>
-                    <li>
-                      <Link to="/combos" onClick={() => setMegaMenuOpen(false)} className="flex items-center gap-3 text-sm text-gray-600 hover:text-orange-500 transition-colors">
-                        <div className="h-8 w-8 rounded-lg bg-orange-100 flex items-center justify-center"><Headphones className="h-4 w-4 text-orange-600" /></div>
-                        <div><p className="font-medium">Audio Kits</p><p className="text-xs text-gray-400">Sound that moves you</p></div>
-                      </Link>
-                    </li>
-                  </ul>
-                </div>
-                <div>
-                  <h3 className="font-display font-semibold mb-4 text-sm uppercase tracking-wider text-gray-400">Individual Items</h3>
-                  <ul className="space-y-2">
-                    {[
-                      { label: "Power Banks", to: "/shop?cat=power-banks" },
-                      { label: "Fast Chargers", to: "/shop?cat=power-wired" },
-                      { label: "Earbuds", to: "/shop?cat=earbuds" },
-                      { label: "Headphones", to: "/shop?cat=headphones" },
-                      { label: "Cables", to: "/shop?cat=cables" },
-                      { label: "Speakers", to: "/shop?cat=speakers" },
-                    ].map((item) => (
-                      <li key={item.to}>
-                        <Link to={item.to} onClick={() => setMegaMenuOpen(false)} className="text-sm text-gray-500 hover:text-orange-500 transition-colors">{item.label}</Link>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <div className="col-span-2 rounded-xl overflow-hidden bg-gradient-to-br from-orange-500 to-orange-600 p-6 text-white">
-                  <p className="font-display font-bold text-xl">Upgrade Your Tech Lifestyle</p>
-                  <p className="text-sm text-white/80 mt-1">Curated kits. Better value. Delivered to you.</p>
-                  <Link to="/combos" onClick={() => setMegaMenuOpen(false)} className="inline-flex items-center gap-1 mt-4 px-4 py-2 bg-white text-orange-600 rounded-full text-sm font-semibold hover:bg-orange-50 transition-colors">
-                    Shop Tech Kits <ArrowRight className="h-4 w-4" />
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* Mobile Menu */}
       {open && (

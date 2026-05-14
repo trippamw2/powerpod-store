@@ -417,7 +417,7 @@ export const subscribeToList = async (email: string, name?: string) => {
   if (!BREVO_API_KEY) return false;
 
   try {
-    const response = await fetch(`${BREVO_API_URL}/contacts/List`, {
+    const response = await fetch(`${BREVO_API_URL}/contacts`, {
       method: "POST",
       headers: {
         "api-key": BREVO_API_KEY,

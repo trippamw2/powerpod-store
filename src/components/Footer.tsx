@@ -16,31 +16,38 @@ export const Footer = () => {
     if (!email) return;
     
     setLoading(true);
+    let saved = false;
+
     try {
       const { error } = await supabase
         .from("customer_subscribers")
         .upsert({ email }, { onConflict: "email" });
 
-      if (error && error.code !== "23505") {
+      if (!error || error.code === "23505") {
+        saved = true;
+      } else {
         console.error("Subscribe error:", error);
       }
-
-      try {
-        const { subscribeToList } = await import("@/lib/brevo");
-        await subscribeToList(email, email.split("@")[0]);
-      } catch (err) {
-        console.log("Brevo subscribe skipped");
-      }
-
-      setSubscribed(true);
-      toast({ title: "Subscribed!", description: "Get 10% off your first order" });
     } catch (err) {
       console.error("Subscribe error:", err);
+    }
+
+    try {
+      const { subscribeToList } = await import("@/lib/brevo");
+      const ok = await subscribeToList(email, email.split("@")[0]);
+      if (ok) saved = true;
+    } catch {
+      // brevo not configured – non-critical
+    }
+
+    if (saved) {
       setSubscribed(true);
       toast({ title: "Subscribed!", description: "Get 10% off your first order" });
-    } finally {
-      setLoading(false);
+    } else {
+      toast({ variant: "destructive", title: "Something went wrong", description: "Could not subscribe. Try again later." });
     }
+
+    setLoading(false);
   };
 
   const paymentMethods = [
@@ -58,8 +65,8 @@ export const Footer = () => {
           <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
             {/* Newsletter */}
             <div className="text-white">
-              <h3 className="font-display font-bold text-xl">Get 10% off your first order</h3>
-              <p className="text-white/80 text-sm">Subscribe to our newsletter for exclusive deals</p>
+              <h3 className="font-display font-bold text-xl">10% off your first order</h3>
+              <p className="text-white/80 text-sm">Subscribe for exclusive deals</p>
             </div>
 {subscribed ? (
               <div className="flex items-center gap-2 bg-white/20 px-6 py-3 rounded-full">
@@ -129,9 +136,8 @@ export const Footer = () => {
         <div className="grid md:grid-cols-5 gap-10">
           <div className="md:col-span-2 space-y-4">
             <Logo className="h-12" />
-            <p className="text-gray-500 max-w-sm">
-              PowerPod helps students and young pros in Malawi stay charged and sound great. 
-              Kits picked for your life. Delivered to your door.
+            <p className="text-gray-500 max-w-sm text-sm">
+              PowerPod keeps you charged and connected. Kits picked for your life. Delivered to your door.
             </p>
             <p className="text-sm text-orange-600 font-semibold">Upgrade your everyday.</p>
             

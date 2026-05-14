@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { formatMWK } from "@/data/products";
+import { SEO, defaultSEO } from "@/components/SEO";
 import { useDeliverySettings } from "@/hooks/useDeliverySettings";
 import { useLoyalty } from "@/hooks/useLoyalty";
 import { useReferral } from "@/hooks/useReferral";
@@ -277,7 +278,7 @@ const Checkout = () => {
         const bankDetails = `Bank: Standard Bank\nAccount: 9100000380567\nPowerPod Store\nReference: PP${orderId.slice(0, 8).toUpperCase()}`;
         let whatsAppMessage = `Hello PowerPod! I want to pay for my order #${orderId.slice(0, 8).toUpperCase()} (${formatMWK(total)}).\n\n`;
         if (paymentLink) {
-          whatsAppMessage += `🔗 Pay online now: ${paymentLink}\n\n`;
+          whatsAppMessage += `Pay online now: ${paymentLink}\n\n`;
         }
         whatsAppMessage += `Or bank transfer:\n${bankDetails}\n\nMy Name: ${formData.name}\nMy Phone: ${formData.phone}\nDelivery: ${formData.location}`;
         const whatsAppLink = `https://wa.me/${businessPhone}?text=${encodeURIComponent(whatsAppMessage)}`;
@@ -324,6 +325,7 @@ const Checkout = () => {
 
   return (
     <div className="container py-4 sm:py-8 max-w-2xl">
+      <SEO {...defaultSEO.checkout} />
       <Link to="/shop" className="inline-flex items-center gap-2 text-sm text-gray-500 mb-4">
         <ArrowLeft className="h-4 w-4" /> Back to shop
       </Link>

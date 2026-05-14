@@ -4,7 +4,9 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { formatMWK } from "@/data/products";
-import { Package, Loader2 } from "lucide-react";
+import { SEO, defaultSEO } from "@/components/SEO";
+import { PageSkeleton } from "@/components/Skeletons";
+import { Package } from "lucide-react";
 import { format } from "date-fns";
 
 interface OrderRow {
@@ -49,17 +51,18 @@ const Orders = () => {
 
   return (
     <div className="container py-12 sm:py-16 max-w-3xl">
+      <SEO {...defaultSEO.orders} />
       <div className="space-y-3 mb-10">
         <p className="text-sm font-semibold text-gradient uppercase tracking-widest">Your orders</p>
-        <h1 className="font-display font-bold text-4xl tracking-tight">Track every <span className="text-gradient">delivery.</span></h1>
+        <h1 className="font-display font-bold text-3xl sm:text-4xl tracking-tight">Track your <span className="text-gradient">delivery.</span></h1>
       </div>
 
       {loading ? (
-        <div className="text-center py-20"><Loader2 className="h-6 w-6 animate-spin mx-auto text-muted-foreground" /></div>
+        <PageSkeleton />
       ) : orders.length === 0 ? (
-        <div className="text-center py-20 space-y-4 rounded-3xl bg-card border border-border/60">
-          <Package className="h-12 w-12 mx-auto text-muted-foreground" />
-          <p className="text-muted-foreground">No orders yet.</p>
+        <div className="text-center py-20 space-y-4 rounded-3xl bg-gray-50 border border-gray-100">
+          <Package className="h-12 w-12 mx-auto text-gray-400" />
+          <p className="text-gray-500">No orders yet.</p>
           <Button asChild variant="hero"><Link to="/shop">Start shopping</Link></Button>
         </div>
       ) : (

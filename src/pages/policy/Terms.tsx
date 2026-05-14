@@ -1,10 +1,12 @@
 import { Link } from "react-router-dom";
+import { SEO, defaultSEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 
 const Terms = () => {
   return (
     <div className="container py-10 sm:py-14 max-w-3xl">
+      <SEO {...defaultSEO.terms} />
       <Link to="/" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6">
         <ArrowLeft className="h-4 w-4" /> Back to home
       </Link>

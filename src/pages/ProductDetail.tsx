@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { formatMWK, getItemImage, Kit, getKitPrice, getKitRealSaving, getKitProducts } from "@/data/products";
+import { SEO } from "@/components/SEO";
+import { ProductDetailSkeleton } from "@/components/Skeletons";
 import { useCombos } from "@/hooks/useCombos";
 import { useCart } from "@/contexts/CartContext";
 import { useProducts } from "@/hooks/useProducts";
@@ -157,17 +159,13 @@ const ProductDetail = () => {
   };
 
   if (loading) {
-    return (
-      <div className="container py-20 text-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto" />
-      </div>
-    );
+    return <ProductDetailSkeleton />;
   }
 
   if (!product) {
     return (
       <div className="container py-20 text-center space-y-4">
-        <h1 className="font-display font-bold text-3xl">Product not found</h1>
+        <h1 className="font-display font-bold text-3xl">Not found</h1>
         <Button asChild variant="hero"><Link to="/shop">Back to shop</Link></Button>
       </div>
     );
@@ -225,14 +223,15 @@ const ProductDetail = () => {
   ];
 
   const faqs = [
-    { q: "Is this the real thing?", a: "Yes. Every product is 100% real. We buy from trusted sellers." },
-    { q: "What if it breaks?", a: "All our electronics come with a 6-month warranty. If it stops working, we replace it." },
-    { q: "How fast will it get here?", a: "Blantyre: 1-3 days. Other areas: 3-5 days." },
+    { q: "Is this genuine?", a: "Yes. 100% real products from trusted sellers." },
+    { q: "What if it breaks?", a: "6-month warranty. We replace it if it stops working." },
+    { q: "Delivery time?", a: "Blantyre: 1-3 days. Other areas: 3-5 days." },
   ];
 
   return (
     <div className="container py-10 sm:py-14 pb-24 sm:pb-14">
-      <Link to="/shop" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6">
+      <SEO title={product?.name || "Product"} description={product?.benefit || "Phone accessory"} type="product" path={"/product/" + product?.id} image={product?.image} />
+      <Link to="/shop" className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900 mb-6">
         <ArrowLeft className="h-4 w-4" /> Back to shop
       </Link>
 
@@ -402,7 +401,7 @@ const ProductDetail = () => {
                   ))}
                 </div>
                 <p className="text-xs text-gray-500 text-center">
-                  🎯 Better value. One delivery. Everything you need.
+                  Better value. One delivery. Everything you need.
                 </p>
               </div>
             );
@@ -462,31 +461,22 @@ const ProductDetail = () => {
           )}
 
           {/* Trust Badges */}
-          <div className="grid grid-cols-2 gap-3 py-4 border-y border-border">
+          <div className="grid grid-cols-2 gap-3 py-4 border-y border-gray-100">
             <div className="flex items-center gap-2 text-sm">
               <Check className="h-5 w-5 text-green-500" />
-              <span>Fast Checkout</span>
+              <span>Fast checkout</span>
             </div>
             <div className="flex items-center gap-2 text-sm">
               <Truck className="h-5 w-5 text-green-500" />
-              <span>Malawi Delivery</span>
+              <span>Delivery across Malawi</span>
             </div>
             <div className="flex items-center gap-2 text-sm">
               <ShieldCheck className="h-5 w-5 text-green-500" />
-              <span>6 Month Warranty</span>
+              <span>6-month warranty</span>
             </div>
             <div className="flex items-center gap-2 text-sm">
               <Check className="h-5 w-5 text-green-500" />
-              <span>100% Genuine</span>
-            </div>
-          </div>
-
-          {/* Prominent Warranty Badge */}
-          <div className="flex items-center gap-3 p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-200">
-            <ShieldCheck className="h-10 w-10 text-green-600" />
-            <div>
-              <p className="font-semibold text-green-800">Official Warranty</p>
-              <p className="text-sm text-green-700">6 months manufacturer warranty included</p>
+              <span>100% genuine</span>
             </div>
           </div>
 
@@ -521,7 +511,7 @@ const ProductDetail = () => {
               <button onClick={() => setQty((q) => q + 1)} className="p-1.5 sm:p-2" aria-label="Increase"><Plus className="h-3.5 sm:h-4 w-3.5 sm:w-4" /></button>
             </div>
             <Button onClick={handleAdd} variant="hero" className="flex-1 py-2 text-xs sm:text-sm whitespace-nowrap">
-              <ShoppingBag className="h-3.5 sm:h-4 w-3.5 sm:w-4" /> Add
+              <ShoppingBag className="h-3.5 sm:h-4 w-3.5 sm:w-4" /> Add to Cart
             </Button>
           </div>
         </div>
@@ -561,10 +551,10 @@ const ProductDetail = () => {
         {reviewsLoading ? (
           <div className="text-center py-8"><Loader2 className="h-6 w-6 animate-spin mx-auto text-orange-500" /></div>
         ) : reviews.length === 0 ? (
-          <div className="rounded-2xl border border-border p-8 text-center">
+          <div className="rounded-2xl border border-gray-100 p-8 text-center">
             <Star className="h-12 w-12 text-gray-200 mx-auto mb-4" />
             <p className="text-gray-500">No reviews yet</p>
-            <p className="text-sm text-gray-400 mt-1">Be the first to review this product!</p>
+            <p className="text-sm text-gray-400 mt-1">Be the first to review!</p>
           </div>
         ) : (
           <>
@@ -627,13 +617,13 @@ const ProductDetail = () => {
         )}
       </div>
 
-      {/* Write a Review Form */}
+      {/* Write a Review */}
       <div className="mt-16">
         <h2 className="font-display font-bold text-2xl mb-6">Write a Review</h2>
-        <div className="rounded-2xl border border-border p-6">
+        <div className="rounded-2xl border border-gray-100 p-6">
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-2">Your Rating</label>
+              <label className="block text-sm font-medium mb-2">Rating</label>
               <div className="flex gap-2">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <button
@@ -651,21 +641,21 @@ const ProductDetail = () => {
             </div>
             
             <div>
-              <label className="block text-sm font-medium mb-2">Your Name</label>
+              <label className="block text-sm font-medium mb-2">Name</label>
               <Input
                 value={userName}
                 onChange={(e) => setUserName(e.target.value)}
-                placeholder="Enter your name"
+                placeholder="Your name"
                 className="max-w-md"
               />
             </div>
             
             <div>
-              <label className="block text-sm font-medium mb-2">Your Review (optional)</label>
+              <label className="block text-sm font-medium mb-2">Review (optional)</label>
               <Textarea
                 value={userReview}
                 onChange={(e) => setUserReview(e.target.value)}
-                placeholder="Share your experience with this product..."
+                placeholder="How was this product?"
                 className="max-w-lg min-h-[100px]"
               />
             </div>
@@ -688,7 +678,7 @@ const ProductDetail = () => {
           <h2 className="font-display font-bold text-2xl mb-6">Recommended For You</h2>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {recommended.map((p, i) => (
-              <ProductCard key={p.id} product={p} index={i} showBadge={i === 0 ? "hot" : null} />
+              <ProductCard key={p.id} product={p} index={i} />
             ))}
           </div>
         </div>

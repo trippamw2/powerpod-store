@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { useCompare } from "@/contexts/CompareContext";
 import { formatMWK, getKitPrice } from "@/data/products";
+import { SEO, defaultSEO } from "@/components/SEO";
 import { useCombos } from "@/hooks/useCombos";
 import { X, ArrowLeft, Star, ShoppingBag, Package, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -28,13 +29,13 @@ const Compare = () => {
     return (
       <div className="container py-12 text-center space-y-6">
         <h1 className="font-display font-bold text-2xl mb-4">Compare Products</h1>
-        <p className="text-gray-500 mb-6">No products to compare yet.</p>
+        <p className="text-gray-500 mb-6">Nothing to compare yet.</p>
         
-        {/* Kit Comparison CTA */}
+        {/* Kit upsell */}
         <div className="max-w-md mx-auto bg-gradient-to-r from-orange-50 to-amber-50 rounded-2xl border border-orange-200 p-6">
           <Package className="h-10 w-10 text-orange-500 mx-auto mb-3" />
-          <h3 className="font-display font-bold text-lg mb-2">Compare Tech Kits Instead</h3>
-          <p className="text-sm text-gray-500 mb-4">See which curated kit matches your lifestyle. Better value, one delivery.</p>
+          <h3 className="font-display font-bold text-lg mb-2">Compare Kits Instead</h3>
+          <p className="text-sm text-gray-500 mb-4">Curated kits. Better value. One delivery.</p>
           <Link to="/combos">
             <Button className="bg-orange-500 hover:bg-orange-600 rounded-full">
               View Kits <ArrowRight className="h-4 w-4 ml-1" />
@@ -43,7 +44,7 @@ const Compare = () => {
         </div>
 
         <div className="text-sm text-gray-400 mt-4">
-          <Link to="/shop" className="text-orange-500 hover:underline">Browse individual components →</Link>
+          <Link to="/shop" className="text-orange-500 hover:underline">Browse individual items &rarr;</Link>
         </div>
       </div>
     );
@@ -51,6 +52,7 @@ const Compare = () => {
 
   return (
     <div className="container py-8">
+      <SEO {...defaultSEO.compare} />
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-4">
           <Link to="/shop" className="flex items-center gap-2 text-gray-500 hover:text-gray-900">

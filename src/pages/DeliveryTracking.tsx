@@ -4,8 +4,10 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { formatMWK } from "@/data/products";
 import { Button } from "@/components/ui/button";
+import { SEO } from "@/components/SEO";
+import { PageSkeleton } from "@/components/Skeletons";
 import { buildWhatsAppLink, defaultMessage } from "@/lib/whatsapp";
-import { ArrowLeft, Package, Truck, Check, MapPin, Phone, MessageCircle, Loader2, Clock, Home, Star } from "lucide-react";
+import { ArrowLeft, Package, Truck, Check, MapPin, Phone, MessageCircle, Clock, Home, Star } from "lucide-react";
 import { format } from "date-fns";
 
 interface Order {
@@ -73,12 +75,11 @@ const DeliveryTracking = () => {
     });
   }, [id, user]);
 
-  if (authLoading) return <div className="container py-20 text-center"><Loader2 className="h-6 w-6 animate-spin mx-auto" /></div>;
+  if (authLoading || loading) return <PageSkeleton />;
   if (!user) {
     window.location.href = `/auth?redirect=/orders/${id}`;
     return null;
   }
-  if (loading) return <div className="container py-20 text-center"><Loader2 className="h-6 w-6 animate-spin mx-auto" /></div>;
   if (!order) return <div className="container py-20 text-center">Order not found.</div>;
 
   const idx = getStepIndex(order.status);
@@ -93,6 +94,7 @@ const DeliveryTracking = () => {
 
   return (
     <div className="container py-12 max-w-3xl">
+      <SEO title="Track Delivery" description="Track your PowerPod delivery status" />
       <Link to="/orders" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6">
         <ArrowLeft className="h-4 w-4" /> All orders
       </Link>

@@ -4,6 +4,7 @@ import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useReferralSignup } from "@/hooks/useReferral";
+import { SEO, defaultSEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -92,11 +93,12 @@ const Auth = () => {
 
   return (
     <div className="container max-w-md py-16">
-      <div className="rounded-3xl bg-card border border-border/60 p-8 shadow-card">
+      <SEO {...defaultSEO.auth} />
+      <div className="rounded-3xl bg-card border border-gray-100 p-8 shadow-card">
         <div className="space-y-2 mb-6 text-center">
           <p className="text-sm font-semibold text-gradient uppercase tracking-widest">{mode === "signin" ? "Welcome back" : "Join PowerPod"}</p>
           <h1 className="font-display font-bold text-3xl">{mode === "signin" ? "Sign in" : "Create account"}</h1>
-          <p className="text-sm text-muted-foreground">Sign in to checkout, track orders, and earn rewards.</p>
+          <p className="text-sm text-gray-500">{mode === "signin" ? "Sign in to checkout and track orders." : "Sign up to earn rewards on every purchase."}</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">

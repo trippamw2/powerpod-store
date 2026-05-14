@@ -1,13 +1,19 @@
 import { Button } from "@/components/ui/button";
+import { SEO, defaultSEO } from "@/components/SEO";
 import { buildWhatsAppLink, defaultMessage } from "@/lib/whatsapp";
 import { MessageCircle, Phone, Mail, MapPin } from "lucide-react";
 
 const Contact = () => (
   <div className="container py-6 sm:py-12 md:py-20">
+    <SEO {...defaultSEO.contact} />
     <div className="max-w-2xl space-y-2 sm:space-y-3 mb-8 sm:mb-12">
       <p className="text-sm font-semibold text-gradient uppercase tracking-widest">Contact</p>
-      <h1 className="font-display font-bold text-2xl sm:text-4xl lg:text-6xl tracking-tight">Let's <span className="text-gradient">talk.</span></h1>
-      <p className="text-muted-foreground text-sm sm:text-base sm:text-lg">The fastest way to reach us is WhatsApp. We reply quickly and ship faster.</p>
+      <h1 className="font-display font-bold text-2xl sm:text-4xl lg:text-6xl tracking-tight">
+        Let's <span className="text-gradient">talk.</span>
+      </h1>
+      <p className="text-gray-500 text-sm sm:text-base sm:text-lg">
+        Fastest way to reach us is WhatsApp. We reply in minutes.
+      </p>
     </div>
 
     <div className="grid sm:grid-cols-2 gap-4 sm:gap-6">
@@ -15,7 +21,7 @@ const Contact = () => (
         <MessageCircle className="h-10 w-10" />
         <div>
           <h2 className="font-display font-bold text-3xl">WhatsApp us</h2>
-          <p className="text-white/85 mt-1">Order, ask anything, get help in seconds.</p>
+          <p className="text-white/85 mt-1">Order, ask anything, get help fast.</p>
         </div>
         <Button asChild size="lg" className="bg-background text-foreground hover:bg-background/90">
           <a href={buildWhatsAppLink(defaultMessage)} target="_blank" rel="noopener noreferrer">
@@ -33,7 +39,7 @@ const Contact = () => (
             </div>
             <div>
               <p className="font-semibold">Phone</p>
-              <a href="tel:+265888000000" className="text-muted-foreground hover:text-foreground">+265 888 000 000</a>
+              <a href="tel:+265888000000" className="text-gray-500 hover:text-gray-900">+265 888 000 000</a>
             </div>
           </li>
           <li className="flex items-start gap-3">
@@ -42,7 +48,7 @@ const Contact = () => (
             </div>
             <div>
               <p className="font-semibold">Email</p>
-              <a href="mailto:hello@powerpod.mw" className="text-muted-foreground hover:text-foreground">hello@powerpod.mw</a>
+              <a href="mailto:hello@powerpod.mw" className="text-gray-500 hover:text-gray-900">hello@powerpod.mw</a>
             </div>
           </li>
           <li className="flex items-start gap-3">
@@ -51,16 +57,18 @@ const Contact = () => (
             </div>
             <div>
               <p className="font-semibold">Location</p>
-              <p className="text-muted-foreground">Blantyre, Malawi · Delivery nationwide</p>
+              <p className="text-gray-500">Blantyre, Malawi &middot; Delivery nationwide</p>
             </div>
           </li>
         </ul>
       </div>
     </div>
 
-    <div className="mt-10 rounded-2xl border border-border/60 bg-card/50 p-6 text-center">
-      <p className="text-sm text-muted-foreground">
-        Payments accepted: <span className="text-foreground font-semibold">Airtel Money</span> · <span className="text-foreground font-semibold">TNM Mpamba</span> · <span className="text-foreground font-semibold">Bank Transfer</span>
+    <div className="mt-10 rounded-2xl border border-gray-100 bg-gray-50/50 p-6 text-center">
+      <p className="text-sm text-gray-500">
+        We accept: <span className="text-gray-900 font-semibold">Airtel Money</span> &middot;{" "}
+        <span className="text-gray-900 font-semibold">TNM Mpamba</span> &middot;{" "}
+        <span className="text-gray-900 font-semibold">Bank Transfer</span>
       </p>
     </div>
   </div>

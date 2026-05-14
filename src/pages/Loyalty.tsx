@@ -4,9 +4,11 @@ import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLoyalty } from "@/hooks/useLoyalty";
 import { useReferral } from "@/hooks/useReferral";
+import { SEO, defaultSEO } from "@/components/SEO";
+import { PageSkeleton } from "@/components/Skeletons";
 import { Button } from "@/components/ui/button";
 import { PromotionSlider } from "@/components/PromotionSlider";
-import { Gift, Star, TrendingUp, Clock, ArrowRight, Loader2, ShoppingBag, Zap, Crown, Award, Gem, Check, Minus, Plus, Users, Copy, Share2, Gift as GiftIcon } from "lucide-react";
+import { Gift, Star, TrendingUp, Clock, ArrowRight, ShoppingBag, Zap, Crown, Award, Gem, Check, Minus, Plus, Users, Copy, Share2, Gift as GiftIcon } from "lucide-react";
 import { formatMWK } from "@/data/products";
 import { toast } from "@/hooks/use-toast";
 
@@ -44,13 +46,7 @@ const Loyalty = () => {
   }
 
   if (loading) {
-    return (
-      <div className="container py-6 sm:py-12">
-        <div className="flex items-center justify-center py-20">
-          <Loader2 className="h-8 w-8 animate-spin text-orange-500" />
-        </div>
-      </div>
-    );
+    return <PageSkeleton />;
   }
 
   const currentTier = loyalty?.tier || "bronze";
@@ -65,13 +61,14 @@ const Loyalty = () => {
 
   return (
     <div className="container py-4 sm:py-8 md:py-12">
+      <SEO {...defaultSEO.rewards} />
       <div className="mb-4 sm:mb-6">
         <PromotionSlider page="shop" />
       </div>
 
       <div className="max-w-2xl space-y-2 sm:space-y-3 mb-6 sm:mb-8">
         <h1 className="font-display font-bold text-2xl sm:text-3xl lg:text-4xl">PowerPod Rewards</h1>
-        <p className="text-muted-foreground text-sm sm:text-base">Earn points. Redeem for discounts!</p>
+        <p className="text-gray-500 text-sm sm:text-base">Earn points on every purchase. Redeem for discounts.</p>
       </div>
 
       {/* Points Card */}
@@ -123,7 +120,7 @@ const Loyalty = () => {
             <h3 className="font-semibold text-green-800">Redeem Your Points!</h3>
           </div>
           <p className="text-sm text-green-700 mb-4">
-            You have {redeemablePoints} points. Use them for {formatMWK(rewardValue)} off your next order!
+            {redeemablePoints} points = {formatMWK(rewardValue)} off your next order!
           </p>
           <Button
             onClick={() => {
@@ -145,10 +142,10 @@ const Loyalty = () => {
       <h2 className="font-display font-bold text-lg sm:text-xl mb-3 sm:mb-4">How It Works</h2>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-6">
         {[
-          { icon: ShoppingBag, title: "Shop", desc: "Buy products" },
-          { icon: Gift, title: "Earn", desc: "Get points" },
-          { icon: Zap, title: "Save", desc: "Redeem rewards" },
-          { icon: Crown, title: "Level Up", desc: "Unlock tiers" },
+          { icon: ShoppingBag, title: "Shop", desc: "Earn points" },
+          { icon: Gift, title: "Redeem", desc: "Get discounts" },
+          { icon: Zap, title: "Save", desc: "On every order" },
+          { icon: Crown, title: "Upgrade", desc: "Unlock perks" },
         ].map((step) => (
           <div key={step.title} className="text-center p-3 sm:p-4 bg-gray-50 rounded-xl">
             <step.icon className="h-5 sm:h-6 w-5 sm:w-6 mx-auto mb-1 text-orange-500" />
@@ -185,12 +182,12 @@ const Loyalty = () => {
 
       {/* Referral Program */}
       <h2 className="font-display font-bold text-lg sm:text-xl mb-3 sm:mb-4 flex items-center gap-2">
-        <Users className="h-5 w-5 text-orange-500" /> Refer Friends & Earn
+        <Users className="h-5 w-5 text-orange-500" /> Refer & Earn
       </h2>
       <div className="rounded-2xl border-2 border-orange-200 bg-gradient-to-br from-orange-50 to-white p-4 sm:p-6 mb-6">
         <div className="flex flex-col sm:flex-row gap-4 sm:items-start">
           <div className="flex-1">
-            <p className="text-sm text-muted-foreground mb-3">Share your code and earn 500 points for each friend who signs up!</p>
+            <p className="text-sm text-gray-500 mb-3">Share your code. Earn 500 points per friend who signs up.</p>
             {referralCode ? (
               <div className="space-y-3">
                 <div className="flex items-center gap-2">
@@ -256,7 +253,7 @@ const Loyalty = () => {
         ) : (
           <div className="p-6 sm:p-8 text-center">
             <Clock className="h-8 sm:h-10 w-8 sm:w-10 mx-auto text-gray-300 mb-3" />
-            <p className="text-muted-foreground">No activity yet</p>
+            <p className="text-gray-500">No activity yet</p>
             <p className="text-sm text-gray-400">Start shopping to earn points!</p>
           </div>
         )}
@@ -264,7 +261,7 @@ const Loyalty = () => {
 
       <Button asChild variant="hero" size="lg" className="w-full">
         <Link to="/shop">
-          Shop Now to Earn Points <ArrowRight className="ml-2 h-4 w-4" />
+          Shop & Earn Points <ArrowRight className="ml-2 h-4 w-4" />
         </Link>
       </Button>
     </div>

@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { categories, Category, BRANDS, kits, formatMWK, getItemImage } from "@/data/products";
+import { categories, Category, BRANDS } from "@/data/products";
 import { useProducts } from "@/hooks/useProducts";
 import { ProductCard } from "@/components/ProductCard";
 import { PromotionSlider } from "@/components/PromotionSlider";
-import { Search, X, Grid3X3, List, SlidersHorizontal, ArrowUpDown, Loader2, ChevronRight, Package, ArrowRight, Zap, Users, Briefcase, Headphones, Luggage } from "lucide-react";
+import { SEO, defaultSEO } from "@/components/SEO";
+import { PageSkeleton } from "@/components/Skeletons";
+import { Search, X, Grid3X3, List, SlidersHorizontal, ArrowUpDown, ChevronRight, ArrowRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
@@ -90,36 +92,33 @@ const Shop = () => {
     return (
       <div className="container py-8 sm:py-12">
         <PromotionSlider page="shop" className="mb-6" />
-        <div className="flex items-center justify-center py-32">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </div>
+        <PageSkeleton />
       </div>
     );
   }
 
   return (
     <div className="container py-4 sm:py-8 md:py-12">
+      <SEO {...defaultSEO.shop} />
       <div className="mb-4 sm:mb-6">
         <PromotionSlider page="shop" />
       </div>
 
       <div className="max-w-3xl space-y-2 sm:space-y-3 mb-4 sm:mb-8">
-        <h1 className="font-display font-bold text-2xl sm:text-3xl lg:text-4xl tracking-tight">Individual Items</h1>
-        <p className="text-gray-500 text-sm sm:text-base">Single items to add to your kit, or build your setup one piece at a time.</p>
+        <h1 className="font-display font-bold text-2xl sm:text-3xl lg:text-4xl tracking-tight">Shop by Item</h1>
+        <p className="text-gray-500 text-sm sm:text-base">Single items. Add to your setup one piece at a time.</p>
       </div>
 
-      {/* Kit CTA Banner */}
-      <div className="bg-gradient-to-r from-orange-500 to-orange-600 rounded-2xl p-6 sm:p-8 mb-6 sm:mb-10 text-white">
-        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
-          <div className="space-y-2">
-            <h2 className="font-display font-bold text-xl sm:text-2xl">Get a Kit and Save</h2>
-            <p className="text-white/80 text-sm sm:text-base max-w-lg">
-              A kit costs less than buying these same items separate. And it comes in one box.
-            </p>
+      {/* Kit upsell banner */}
+      <div className="bg-gradient-to-r from-orange-500 to-orange-600 rounded-2xl p-5 sm:p-7 mb-6 sm:mb-10 text-white">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div>
+            <p className="font-display font-bold text-base sm:text-lg">Get a Kit. Save 15-25%.</p>
+            <p className="text-white/80 text-xs sm:text-sm">Same items. One box. Less cash.</p>
           </div>
           <Link to="/combos">
-            <Button className="bg-white text-orange-600 hover:bg-orange-50 px-6 py-3 h-auto rounded-full font-semibold text-sm sm:text-base gap-2">
-              See Kits <ArrowRight className="h-4 w-4" />
+            <Button className="bg-white text-orange-600 hover:bg-orange-50 px-5 py-2 h-auto rounded-full font-semibold text-xs sm:text-sm gap-1.5">
+              See Kits <ArrowRight className="h-3.5 w-3.5" />
             </Button>
           </Link>
         </div>
@@ -140,7 +139,7 @@ const Shop = () => {
           />
           {searchQuery && (
             <button onClick={() => setSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2">
-              <X className="h-3.5 sm:h-4 w-3.5 sm:w-4 text-muted-foreground hover:text-foreground" />
+              <X className="h-3.5 sm:h-4 w-3.5 sm:w-4 text-gray-400 hover:text-gray-900" />
             </button>
           )}
         </div>
@@ -301,8 +300,8 @@ const Shop = () => {
       )}
 
       {/* Results count */}
-      <p className="text-sm text-muted-foreground mb-4">
-        Showing {visibleProducts.length} of {sorted.length} products
+      <p className="text-sm text-gray-500 mb-4">
+        {visibleProducts.length} of {sorted.length} products
       </p>
 
       {/* Products Grid - minimal gaps on mobile */}
@@ -313,7 +312,7 @@ const Shop = () => {
             : "grid sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4"
           }>
             {visibleProducts.map((p, i) => (
-              <ProductCard key={p.id} product={p} index={i} showBadge={i === 0 ? "hot" : i === 1 ? "new" : null} discount={i === 0 ? 15 : 0} />
+              <ProductCard key={p.id} product={p} index={i} />
             ))}
           </div>
           
@@ -325,7 +324,7 @@ const Shop = () => {
                 size="sm"
                 className="px-6 sm:px-8 border-orange-500 text-orange-500 hover:bg-orange-50 text-sm"
               >
-                Load More
+                Load More ({sorted.length - visibleCount} left)
                 <ChevronRight className="ml-1.5 sm:ml-2 h-3.5 sm:h-4 w-3.5 sm:w-4" />
               </Button>
             </div>

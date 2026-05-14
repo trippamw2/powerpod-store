@@ -4,7 +4,14 @@ import { Button } from "@/components/ui/button";
 import { formatMWK, getKitPrice, getKitRealSaving, getKitProducts } from "@/data/products";
 import { useCombos } from "@/hooks/useCombos";
 import { useProducts } from "@/hooks/useProducts";
-import { Truck, MessageCircle, ShieldCheck, Heart, BookOpen, Briefcase, Headphones, Luggage, ArrowRight, CheckCircle, Zap, Loader2 } from "lucide-react";
+import { KitCard } from "@/components/KitCard";
+import { KitCardSkeleton } from "@/components/Skeletons";
+import { SEO, defaultSEO } from "@/components/SEO";
+import {
+  Truck, MessageCircle, ShieldCheck, Heart,
+  BookOpen, Briefcase, Headphones, Luggage,
+  ArrowRight, CheckCircle, Zap, BadgePercent,
+} from "lucide-react";
 import hero from "@/assets/hero-lifestyle.jpg";
 
 const Home = () => {
@@ -13,14 +20,15 @@ const Home = () => {
 
   return (
     <div>
-      {/* FLASH SALE BAR */}
+      <SEO {...defaultSEO.home} />
+      {/* ─── FLASH SALE BAR ─── */}
       <div className="bg-gradient-to-r from-orange-500 to-orange-600 text-white py-2 text-center text-xs sm:text-sm font-medium">
         <span className="inline-flex items-center gap-2">
-          Free delivery over MK 50,000 • 30 day guarantee • Limited stock selling fast
+          Free delivery over MK 50,000 &middot; 30-day guarantee &middot; Selling fast
         </span>
       </div>
 
-      {/* HERO SECTION */}
+      {/* ─── HERO ─── */}
       <section className="relative overflow-hidden">
         <div className="container relative grid lg:grid-cols-2 gap-6 sm:gap-8 items-center py-8 sm:py-12 lg:py-20">
           <motion.div
@@ -39,9 +47,9 @@ const Home = () => {
               <span className="text-gradient">We Fixed That.</span>
             </h1>
 
-            <p className="text-muted-foreground text-sm sm:text-base lg:text-lg max-w-lg">
+            <p className="text-gray-500 text-sm sm:text-base lg:text-lg max-w-lg">
               Dead battery before a call? Earbuds dying on the bus? We picked the charger, power bank, 
-              cable and audio gear your phone needs. Tested. Reliable. One box.
+              cable, and audio gear your phone needs. One box. Less cash.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3">
@@ -53,8 +61,8 @@ const Home = () => {
               </Button>
             </div>
 
-            <p className="text-xs text-muted-foreground">
-              30 day guarantee. Not happy? Send it back. No questions asked.
+            <p className="text-xs text-gray-400">
+              30-day guarantee. Not happy? Send it back. No questions.
             </p>
           </motion.div>
 
@@ -66,14 +74,18 @@ const Home = () => {
           >
             <div className="absolute -inset-4 bg-gradient-brand opacity-20 blur-3xl rounded-full" />
             <div className="relative rounded-2xl overflow-hidden border border-border/50 shadow-xl">
-              <img src={hero} alt="PowerPod tech lifestyle" className="w-full aspect-[4/5] sm:aspect-[3/4] object-cover" />
+              <img
+                src={hero}
+                alt="PowerPod tech lifestyle"
+                className="w-full aspect-[4/5] sm:aspect-[3/4] object-cover"
+              />
             </div>
           </motion.div>
         </div>
       </section>
 
-      {/* SOCIAL PROOF BAR */}
-      <section className="border-y border-border/50 bg-card/30">
+      {/* ─── TRUST BAR ─── */}
+      <section className="border-y border-gray-100 bg-gray-50/50">
         <div className="container py-5 grid grid-cols-2 md:grid-cols-4 gap-4">
           {[
             { icon: Truck, title: "Free Delivery", sub: "Over MK 50,000" },
@@ -87,27 +99,29 @@ const Home = () => {
               </div>
               <div>
                 <p className="font-semibold text-sm">{v.title}</p>
-                <p className="text-xs text-muted-foreground">{v.sub}</p>
+                <p className="text-xs text-gray-500">{v.sub}</p>
               </div>
             </div>
           ))}
         </div>
       </section>
 
-      {/* SHOP BY LIFESTYLE */}
+      {/* ─── SHOP BY LIFESTYLE ─── */}
       <section className="container py-12 sm:py-16">
         <div className="text-center mb-8 sm:mb-10">
           <p className="text-sm font-semibold text-gradient uppercase tracking-widest">Choose Your Lifestyle</p>
           <h2 className="font-display font-bold text-2xl sm:text-3xl mt-1">Shop by Lifestyle</h2>
-          <p className="text-muted-foreground text-sm mt-2 max-w-md mx-auto">Kits built for how you live. Power and sound for your phone.</p>
+          <p className="text-gray-500 text-sm mt-2 max-w-md mx-auto">
+            Kits built for how you live. Power and sound for your phone.
+          </p>
         </div>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           {[
-            { icon: BookOpen, title: "Student Essentials Kit", tag: "student", desc: "Charger and cable. Stay powered through class.", color: "from-blue-500 to-cyan-500" },
-            { icon: Briefcase, title: "Work & Office Kit", tag: "work", desc: "Power bank, earbuds and cable. For calls and music.", color: "from-purple-500 to-indigo-500" },
-            { icon: Luggage, title: "Travel Power Kit", tag: "travel", desc: "Power bank and cable. Never run low.", color: "from-green-500 to-teal-500" },
-            { icon: Headphones, title: "Audio Lifestyle Kit", tag: "audio", desc: "Headphones, speaker and charger. Your sound setup.", color: "from-orange-500 to-red-500" },
+            { icon: BookOpen, title: "Student", tag: "student", desc: "Power bank + earbuds. Stay charged through class.", color: "from-blue-500 to-cyan-500" },
+            { icon: Briefcase, title: "Work", tag: "work", desc: "Power bank, earbuds, car charger. For calls & music.", color: "from-purple-500 to-indigo-500" },
+            { icon: Luggage, title: "Travel", tag: "travel", desc: "Power bank + cable. Never run low on the road.", color: "from-green-500 to-teal-500" },
+            { icon: Headphones, title: "Audio", tag: "audio", desc: "Headphones + speaker. Your sound setup.", color: "from-orange-500 to-red-500" },
           ].map((item, i) => (
             <motion.div
               key={item.tag}
@@ -121,8 +135,11 @@ const Home = () => {
                 <item.icon className="h-6 w-6 text-white" />
               </div>
               <h3 className="font-display font-bold text-lg mb-1">{item.title}</h3>
-              <p className="text-sm text-muted-foreground mb-4">{item.desc}</p>
-              <Link to="/combos" className="inline-flex items-center gap-1 text-sm font-semibold text-orange-600 hover:text-orange-700 transition-colors">
+              <p className="text-sm text-gray-500 mb-4">{item.desc}</p>
+              <Link
+                to="/combos"
+                className="inline-flex items-center gap-1 text-sm font-semibold text-orange-600 hover:text-orange-700 transition-colors"
+              >
                 View Kit <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             </motion.div>
@@ -130,7 +147,7 @@ const Home = () => {
         </div>
       </section>
 
-      {/* WHY KITS */}
+      {/* ─── WHY KITS ─── */}
       <section className="bg-gradient-to-b from-orange-50/50 to-white py-12 sm:py-16">
         <div className="container">
           <div className="text-center mb-8 sm:mb-10">
@@ -141,8 +158,8 @@ const Home = () => {
           <div className="grid sm:grid-cols-3 gap-6 sm:gap-8">
             {[
               { icon: CheckCircle, title: "No Guesswork", desc: "We picked the right parts for your phone. No research needed." },
-              { icon: Zap, title: "Save 15-30%", desc: "Kits cost less than separate. Better deal." },
-              { icon: Heart, title: "30 Day Guarantee", desc: "Not happy? Send it back. No questions asked." },
+              { icon: BadgePercent, title: "Save 15-25%", desc: "Kits cost less than separate. Better deal. Always." },
+              { icon: Heart, title: "30-Day Guarantee", desc: "Not happy? Send it back. No questions asked." },
             ].map((item) => (
               <motion.div
                 key={item.title}
@@ -155,14 +172,14 @@ const Home = () => {
                   <item.icon className="h-7 w-7 text-white" />
                 </div>
                 <h3 className="font-display font-bold text-lg mb-2">{item.title}</h3>
-                <p className="text-sm text-muted-foreground">{item.desc}</p>
+                <p className="text-sm text-gray-500">{item.desc}</p>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* FEATURED KITS */}
+      {/* ─── FEATURED KITS ─── */}
       <section className="container py-12 sm:py-16">
         <div className="flex items-center justify-between mb-6 sm:mb-8">
           <div>
@@ -176,79 +193,20 @@ const Home = () => {
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {loading ? (
-            <div className="col-span-3 flex justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            </div>
+            <>
+              <KitCardSkeleton />
+              <KitCardSkeleton />
+              <KitCardSkeleton />
+            </>
           ) : (
             combos.slice(0, 3).map((kit, i) => (
-              <motion.div
-                key={kit.id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-              >
-                <Link
-                  to={`/kits/${kit.id}`}
-                  className="group relative block rounded-xl sm:rounded-2xl bg-white border border-gray-100 hover:border-orange-200 hover:shadow-lg transition-all duration-200 overflow-hidden"
-                >
-                  {/* Hero Image */}
-                  <div className="relative bg-gray-50 border-b border-gray-100">
-                    {kit.badge && (
-                      <span className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-orange-500 text-white text-[10px] font-semibold z-10">
-                        {kit.badge}
-                      </span>
-                    )}
-                    {kit.stock !== undefined && kit.stock <= 5 && (
-                      <span className="absolute top-3 left-3 px-2 py-0.5 rounded-full border border-orange-300 bg-white text-orange-600 text-[10px] font-medium z-10">
-                        Only {kit.stock} left
-                      </span>
-                    )}
-                    <div className="w-full aspect-[4/3] max-h-[280px] flex items-center justify-center p-4 sm:p-5">
-                      <img
-                        src={kit.image}
-                        alt={kit.name}
-                        className="w-full h-full object-contain"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="p-5 sm:p-6">
-                    <h3 className="font-display font-bold text-lg sm:text-xl text-gray-900">{kit.name}</h3>
-                    <p className="text-sm font-medium text-orange-600 mt-1">{kit.hook}</p>
-                    <p className="text-xs text-muted-foreground mt-2">{kit.description}</p>
-
-                    {/* What's Inside */}
-                    <div className="mt-3 space-y-1.5">
-                      <p className="text-[10px] font-medium text-gray-400 uppercase tracking-wider">Includes</p>
-                      <div className="space-y-1">
-                        {getKitProducts(kit).slice(0, 4).map((product) => (
-                          <div key={product.id} className="flex items-center gap-2 text-[11px]">
-                            <img src={product.image} alt={product.name} className="h-8 w-8 sm:h-9 sm:w-9 rounded-lg object-cover shrink-0 border border-gray-100" />
-                            <span className="text-gray-500 truncate">{product.name}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
-                      <div>
-                        <p className="font-bold text-lg text-gray-900">{formatMWK(getKitPrice(kit))}</p>
-                        <p className="text-xs text-green-600 font-medium">Save {formatMWK(getKitRealSaving(kit))}</p>
-                      </div>
-                      <span className="text-xs font-semibold text-orange-600 opacity-0 group-hover:opacity-100 transition-opacity">
-                        View Details
-                      </span>
-                    </div>
-                  </div>
-                </Link>
-              </motion.div>
+              <KitCard key={kit.id} kit={kit} index={i} compact />
             ))
           )}
         </div>
       </section>
 
-      {/* HOW IT WORKS */}
+      {/* ─── HOW IT WORKS ─── */}
       <section className="bg-gradient-to-b from-white to-orange-50/50 py-12 sm:py-16">
         <div className="container">
           <div className="text-center mb-8 sm:mb-10">
@@ -258,7 +216,7 @@ const Home = () => {
 
           <div className="grid sm:grid-cols-3 gap-8 sm:gap-12 max-w-3xl mx-auto">
             {[
-              { step: "01", title: "Pick Your Kit", desc: "Student, work, travel or audio. Pick the one that fits." },
+              { step: "01", title: "Pick Your Kit", desc: "Student, work, travel, or audio. Pick the one that fits." },
               { step: "02", title: "Order", desc: "Checkout online or order in 30 seconds on WhatsApp." },
               { step: "03", title: "Delivered", desc: "Fast delivery across Malawi. Love it or send it back within 30 days." },
             ].map((item) => (
@@ -273,25 +231,27 @@ const Home = () => {
                   {item.step}
                 </div>
                 <h3 className="font-display font-bold text-lg mb-1">{item.title}</h3>
-                <p className="text-sm text-muted-foreground">{item.desc}</p>
+                <p className="text-sm text-gray-500">{item.desc}</p>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* FINAL CTA */}
+      {/* ─── FINAL CTA ─── */}
       <section className="container pb-12 sm:pb-16">
         <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-orange-500 to-orange-600 p-8 sm:p-12 md:p-16 text-center text-white">
           <div className="absolute -top-20 -right-20 h-64 w-64 rounded-full bg-white/5" />
           <div className="absolute -bottom-20 -left-20 h-48 w-48 rounded-full bg-white/5" />
-          
-          <h2 className="font-display font-bold text-2xl sm:text-3xl md:text-4xl relative">Love Your Kit or Send It Back</h2>
+
+          <h2 className="font-display font-bold text-2xl sm:text-3xl md:text-4xl relative">
+            Love Your Kit or Send It Back
+          </h2>
           <p className="text-white/80 text-sm sm:text-base mt-2 max-w-lg mx-auto relative">
-            30 day guarantee. Join 2,500+ customers in Malawi.
+            30-day guarantee. Join 2,500+ customers in Malawi.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center mt-6 relative">
-            <Button asChild size="lg" className="bg-white text-foreground hover:bg-white/90">
+            <Button asChild size="lg" className="bg-white text-gray-900 hover:bg-white/90">
               <Link to="/combos">Get Your Kit Now</Link>
             </Button>
             <Button asChild size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10">

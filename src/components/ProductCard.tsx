@@ -85,7 +85,7 @@ export const ProductCard = ({ product, index = 0 }: ProductCardProps) => {
             className="h-full w-full object-contain p-2 sm:p-4 transition-transform duration-300 group-hover:scale-105"
           />
           
-          {/* Badges - based on admin flags */}
+          {/* Badges */}
           {displayBadges.length > 0 && (
             <div className="absolute top-2 left-2 flex flex-col gap-0.5">
               {displayBadges.map((badge) => (
@@ -96,7 +96,7 @@ export const ProductCard = ({ product, index = 0 }: ProductCardProps) => {
             </div>
           )}
 
-          {/* Wishlist Button */}
+          {/* Wishlist */}
           <button
             onClick={handleWishlist}
             className="absolute top-2 right-2 p-1.5 rounded-full bg-white/90 backdrop-blur-sm shadow hover:bg-white hover:scale-105 transition-all duration-150"
@@ -108,7 +108,7 @@ export const ProductCard = ({ product, index = 0 }: ProductCardProps) => {
             />
           </button>
           
-          {/* Compare Button */}
+          {/* Compare */}
           <button
             onClick={(e) => {
               e.preventDefault();
@@ -129,51 +129,56 @@ export const ProductCard = ({ product, index = 0 }: ProductCardProps) => {
             />
           </button>
 
-          {/* Stock Status - subtle indicator */}
+          {/* Low stock warning - prominent */}
           {isInStock && stockQty <= 5 && (
-            <span className="absolute bottom-2 left-2 px-1.5 py-0.5 text-[10px] font-medium bg-yellow-100 text-yellow-700 rounded">
-              {stockQty} left
+            <span className="absolute bottom-2 left-2 px-2 py-0.5 text-[11px] font-bold bg-red-500 text-white rounded">
+              Only {stockQty} left
             </span>
           )}
 
-          {/* Quick Add overlay */}
+          {/* Quick add overlay */}
           <div className="absolute inset-x-0 bottom-0 p-2 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 translate-y-2 group-hover:translate-y-0">
-            <Link to={`/product/${product.id}`} className="flex items-center justify-center w-full py-2 px-4 bg-white text-gray-900 rounded-lg font-medium hover:bg-gray-100 transition-colors">
-              View Product
+            <Link to={`/product/${product.id}`} className="flex items-center justify-center w-full py-2 px-4 bg-white text-gray-900 rounded-lg font-medium hover:bg-gray-100 transition-colors text-xs">
+              Quick View
             </Link>
           </div>
         </div>
 
         <div className="p-3 sm:p-4 space-y-2">
-          {/* Brand */}
-          {(product as any).brand && (
-            <span className="text-[10px] font-medium text-gray-500 uppercase tracking-wider">
-              {(product as any).brand}
-            </span>
-          )}
-
-          {/* Name & Rating */}
-          <div>
-            <h3 className="font-semibold text-gray-900 text-sm sm:text-base line-clamp-2 leading-tight">{product.name}</h3>
-            
-            {/* Rating Display - show if product has rating */}
-            {rating > 0 && (
-              <div className="flex items-center gap-1 mt-1">
-                <div className="flex">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <Star
-                      key={star}
-                      className={`h-2.5 w-2.5 ${
-                        star <= rating ? "fill-yellow-400 text-yellow-400" : "fill-gray-200 text-gray-200"
-                      }`}
-                    />
-                  ))}
-                </div>
-              </div>
+          {/* Brand + stock indicator */}
+          <div className="flex items-center justify-between">
+            {(product as any).brand && (
+              <span className="text-[10px] font-medium text-gray-500 uppercase tracking-wider">
+                {(product as any).brand}
+              </span>
+            )}
+            {!isInStock && (
+              <span className="text-[10px] font-semibold text-red-500">Out of stock</span>
             )}
           </div>
 
-          {/* Type Selection */}
+          {/* Name */}
+          <h3 className="font-semibold text-gray-900 text-sm sm:text-base line-clamp-2 leading-tight">
+            {product.name}
+          </h3>
+
+          {/* Rating */}
+          {rating > 0 && (
+            <div className="flex items-center gap-1">
+              <div className="flex">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <Star
+                    key={star}
+                    className={`h-2.5 w-2.5 ${
+                      star <= rating ? "fill-yellow-400 text-yellow-400" : "fill-gray-200 text-gray-200"
+                    }`}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Type selector */}
           {product.types.length > 0 && (
             <div className="flex gap-1.5 flex-wrap">
               {visibleTypes.map((type) => (
@@ -195,13 +200,10 @@ export const ProductCard = ({ product, index = 0 }: ProductCardProps) => {
               ))}
               {hiddenTypes.length > 0 && (
                 <button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                  }}
-                  className="px-3 py-1.5 rounded-full text-xs font-medium bg-gray-50 text-gray-500 flex items-center gap-1"
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                  className="px-3 py-1.5 rounded-full text-xs font-medium bg-gray-50 text-gray-500"
                 >
-                  <Plus className="h-3 w-3" /> +{hiddenTypes.length}
+                  <Plus className="h-3 w-3 inline" /> {hiddenTypes.length}
                 </button>
               )}
             </div>
@@ -219,8 +221,8 @@ export const ProductCard = ({ product, index = 0 }: ProductCardProps) => {
             )}
           </div>
 
-          <Button onClick={handleAdd} variant="hero" size="sm" className="w-full text-xs h-9">
-            Add to cart
+          <Button onClick={handleAdd} variant="hero" size="sm" className="w-full text-xs h-9" disabled={!isInStock}>
+            {isInStock ? "Add to Cart" : "Sold Out"}
           </Button>
         </div>
       </Link>

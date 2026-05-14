@@ -29,8 +29,14 @@ export default defineConfig(({ mode }) => ({
     sourcemap: true,
     minify: "esbuild",
   },
-  // Handle environment variables safely
+    // Handle environment variables safely
   define: {
     "process.env.NODE_ENV": JSON.stringify(mode),
+  },
+  test: {
+    globals: true,
+    environment: "jsdom",
+    setupFiles: "./src/test/setup.ts",
+    css: true,
   },
 }));
